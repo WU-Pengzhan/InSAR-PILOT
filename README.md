@@ -23,12 +23,6 @@ pip install .
 isce2-gui
 ```
 
-Developer setup:
-
-```bash
-pip install -e .[dev]
-PYTHONPATH=src pytest -q
-```
 
 ## Current Stage 2 Features
 
@@ -49,8 +43,6 @@ PYTHONPATH=src pytest -q
 
 - Target platform: Ubuntu on WSL.
 - Sensor/workflow: Sentinel-1 TOPS stack (ISCE2 topsStack).
-- v1 non-goals: remote download, multi-sensor support, polygon AOI editing.
-- Manual burst-range editing remains out of scope (swath-level control is used).
 - WSLg dropdown/popup compatibility workaround is enabled by default via `QT_QPA_PLATFORM=xcb`.
 
 For complete usage instructions, troubleshooting, and step-by-step ISCE run descriptions, see the EN/ZH manuals above.
