@@ -46,12 +46,6 @@ conda activate isce-master
 pip install .
 ```
 
-开发模式：
-
-```bash
-pip install -e .[dev]
-```
-
 ### 3.4 启动
 
 ```bash
@@ -142,10 +136,3 @@ QT_QPA_PLATFORM=wayland isce2-gui
 
 更多问题见 [docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md)。
 
-## 9. 发布前/本地验证命令
-
-```bash
-ruff check src tests
-PYTHONPATH=src pytest -q
-python -m build
-```
