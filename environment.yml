@@ -1,16 +1,18 @@
 name: isce-master
+channels:
+  - conda-forge
+  - defaults
 dependencies:
   - python>=3.10,<3.13
   - pip
   - isce2
   - numpy
   - gdal
+  - pyside6>=6.6
+  - pyshp>=2.3
   - pytest>=7.4
   - ruff
   - build
-  - pip:
-      - pyside6>=6.6
-      - pyshp>=2.3
 
 # Notes:
 # 1) This environment installs GUI/runtime essentials + ISCE2.
