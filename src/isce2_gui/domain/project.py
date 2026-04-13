@@ -32,7 +32,7 @@ class ProjectStatus(str, Enum):
 @dataclass
 class EnvironmentConfig:
     shell_init_path: str = "~/.bashrc"
-    conda_env_name: str = "insar"
+    conda_env_name: str = "isce-master"
     isce_root: str = "/home/griffin/tools/isce2"
 
     @classmethod
@@ -49,6 +49,8 @@ class WorkflowConfig:
     aux_path: str = ""
     work_dir: str = ""
     bbox_snwe: str = ""
+    aoi_source_path: str = ""
+    use_common_overlap: bool = False
     extract_zips: bool = False
     extract_dir: str = ""
     workflow: str = "interferogram"
@@ -72,6 +74,12 @@ class WorkflowConfig:
             payload["azimuth_looks"] = int(payload["azimuth_looks"])
         if "range_looks" in payload:
             payload["range_looks"] = int(payload["range_looks"])
+        if "use_common_overlap" in payload:
+            raw = payload["use_common_overlap"]
+            if isinstance(raw, str):
+                payload["use_common_overlap"] = raw.strip().lower() in {"1", "true", "yes", "on"}
+            else:
+                payload["use_common_overlap"] = bool(raw)
         return cls(**payload)
 
     def resolved_work_dir(self) -> Path:

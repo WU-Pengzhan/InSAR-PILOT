@@ -1,2 +1,1 @@
-"""Qt widgets and windows."""
-
+"""Qt widgets, pages, theme, and windows."""

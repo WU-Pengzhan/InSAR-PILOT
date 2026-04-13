@@ -21,6 +21,8 @@ def test_project_round_trip(tmp_path: Path):
             dem_height_reference="egm96",
             azimuth_looks=3,
             range_looks=9,
+            aoi_source_path=str(tmp_path / "aoi.kml"),
+            use_common_overlap=True,
         ),
         visualization=VisualizationConfig(
             mode="overlay",
@@ -69,6 +71,8 @@ def test_project_round_trip(tmp_path: Path):
     assert loaded.workflow.dem_height_reference == "egm96"
     assert loaded.workflow.azimuth_looks == 3
     assert loaded.workflow.range_looks == 9
+    assert loaded.workflow.aoi_source_path.endswith("aoi.kml")
+    assert loaded.workflow.use_common_overlap is True
     assert loaded.visualization.mode == "overlay"
     assert loaded.visualization.primary_input_path == "/tmp/ref.slc"
     assert loaded.visualization.secondary_input_path == "/tmp/pair.int"
@@ -98,10 +102,25 @@ def test_workflow_defaults_for_legacy_project_payload():
 
     assert loaded.workflow.azimuth_looks == 1
     assert loaded.workflow.range_looks == 1
+    assert loaded.workflow.aoi_source_path == ""
+    assert loaded.workflow.use_common_overlap is False
     assert loaded.visualization.mode == "slc"
     assert loaded.visualization.range_looks == 1
     assert loaded.visualization.azimuth_looks == 1
     assert loaded.visualization.last_render_signature == ""
+
+
+def test_workflow_common_overlap_string_flag_is_accepted():
+    loaded = ProjectDocument.from_dict(
+        {
+            "environment": {},
+            "workflow": {
+                "use_common_overlap": "true",
+            },
+            "state": {},
+        }
+    )
+    assert loaded.workflow.use_common_overlap is True
 
 
 def test_visualization_legacy_signature_field_is_accepted():

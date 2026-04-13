@@ -9,3 +9,22 @@ __pycache__/
 .venv/
 build/
 dist/
+.iscegui/
+*.log
+
+# Common local ISCE project data/output folders when running from repo root.
+Dataset/
+Orbit/
+DEM/
+run_files/
+configs/
+reference/
+secondarys/
+coreg_secondarys/
+merged/
+baselines/
+ESD/
+misreg/
+geom_reference/
+coarse_interferograms/
+stack/

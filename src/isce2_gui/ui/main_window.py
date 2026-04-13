@@ -1,40 +1,32 @@
-"""Main application window."""
+"""Main application window with practitioner-oriented workflow shell."""
 
 from __future__ import annotations
 
 import json
-from pathlib import Path
+import re
 import shutil
+from datetime import datetime
+from pathlib import Path
 
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, QSize
 from PySide6.QtGui import QPixmap
 from PySide6.QtWidgets import (
-    QAbstractItemView,
-    QCheckBox,
-    QComboBox,
-    QDoubleSpinBox,
+    QDockWidget,
     QFileDialog,
-    QFormLayout,
-    QGridLayout,
-    QGroupBox,
     QHBoxLayout,
     QLabel,
-    QLineEdit,
+    QListWidget,
+    QListWidgetItem,
     QMainWindow,
     QMenu,
     QMessageBox,
     QPlainTextEdit,
-    QPushButton,
-    QScrollArea,
-    QSpinBox,
     QSplitter,
-    QTabWidget,
-    QToolBar,
-    QToolBox,
-    QTreeWidget,
-    QTreeWidgetItem,
+    QStackedWidget,
     QVBoxLayout,
     QWidget,
+    QTreeWidgetItem,
+    QSizePolicy,
 )
 
 from isce2_gui.bootstrap import create_default_project
@@ -48,10 +40,13 @@ from isce2_gui.domain.project import (
     StepStatus,
     WorkflowConfig,
 )
-from isce2_gui.services.env_probe import EnvironmentProbe
 from isce2_gui.services.command_plan import CommandPlan
+from isce2_gui.services.aoi_import import AoiImportResult, AoiImportService
+from isce2_gui.services.dem_coverage import DemCoverageService
 from isce2_gui.services.dem_preparer import DemPreparationService
+from isce2_gui.services.env_probe import EnvironmentProbe
 from isce2_gui.services.input_catalog import InputCatalogReport, InputCatalogService
+from isce2_gui.services.iw_recommendation import IwRecommendationResult, IwRecommendationService
 from isce2_gui.services.output_discovery import OutputDiscoveryService, OutputNode
 from isce2_gui.services.project_store import ProjectStore
 from isce2_gui.services.run_executor import ProcessRunner
@@ -68,10 +63,19 @@ from isce2_gui.services.visualization_service import (
     VisualizationRequest,
     VisualizationService,
 )
+from isce2_gui.ui.pages.aoi_iw_page import AoiIwPage
+from isce2_gui.ui.pages.data_sources_page import DataSourcesPage
+from isce2_gui.ui.pages.processing_plan_page import ProcessingPlanPage
+from isce2_gui.ui.pages.results_page import ResultsPage
+from isce2_gui.ui.pages.run_monitor_page import RunMonitorPage
+from isce2_gui.ui.widgets.geometry_verify_panel import VerifyPlotData
+from isce2_gui.ui.widgets.status_badge import StatusBadge
+from isce2_gui.ui.widgets.summary_card import SummaryCard
+from isce2_gui.ui.widgets.workflow_nav_item import WorkflowNavItemWidget
 
 
 class MainWindow(QMainWindow):
-    """Minimal but usable Milestone 1 desktop GUI."""
+    """Stage 2 shell that preserves backend behavior and reorganizes the UX."""
 
     def __init__(self, project: ProjectDocument, parent: QWidget | None = None) -> None:
         super().__init__(parent)
@@ -80,6 +84,9 @@ class MainWindow(QMainWindow):
         self.environment_probe = EnvironmentProbe()
         self.dem_preparation_service = DemPreparationService()
         self.input_catalog_service = InputCatalogService()
+        self.aoi_import_service = AoiImportService()
+        self.iw_recommendation_service = IwRecommendationService()
+        self.dem_coverage_service = DemCoverageService()
         self.workflow_service = StackWorkflowService()
         self.output_discovery_service = OutputDiscoveryService()
         self.visualization_service = VisualizationService()
@@ -87,345 +94,325 @@ class MainWindow(QMainWindow):
         self._last_catalog_report: InputCatalogReport | None = None
         self._pending_preparation: dict[str, object] | None = None
         self._pending_visualization: VisualizationBuildResult | None = None
+        self._last_aoi_import: AoiImportResult | None = None
+        self._last_iw_recommendation: IwRecommendationResult | None = None
         self._last_visualization_saved_status: ProjectStatus | None = None
         self._stop_requested = False
+        self._nav_items: dict[str, WorkflowNavItemWidget] = {}
+        self._page_index_by_key: dict[str, int] = {}
 
         self.setWindowTitle("ISCE2 Sentinel-1 GUI")
-        self.resize(1440, 900)
+        self.resize(1600, 980)
 
         self._build_ui()
+        self._alias_page_widgets()
+        self._connect_page_actions()
         self._connect_runner()
         self._populate_form_from_project()
         self.refresh_steps_view()
         self.refresh_outputs_view()
         self.refresh_status_labels()
+        self._sync_summary_sidebar()
+        self._refresh_navigation_status()
 
     def _build_ui(self) -> None:
-        self._build_toolbar()
-
         central = QWidget(self)
-        root_layout = QHBoxLayout(central)
-        splitter = QSplitter(Qt.Orientation.Horizontal, central)
-        root_layout.addWidget(splitter)
+        root = QVBoxLayout(central)
+        root.setContentsMargins(14, 14, 14, 14)
+        root.setSpacing(12)
+        root.addWidget(self._build_project_header())
+
+        body_splitter = QSplitter(Qt.Orientation.Horizontal, central)
+        body_splitter.addWidget(self._build_workflow_navigation())
+        body_splitter.addWidget(self._build_page_stack())
+        body_splitter.addWidget(self._build_summary_sidebar())
+        body_splitter.setStretchFactor(0, 0)
+        body_splitter.setStretchFactor(1, 1)
+        body_splitter.setStretchFactor(2, 0)
+        body_splitter.setSizes([275, 1040, 260])
+        root.addWidget(body_splitter, 1)
         self.setCentralWidget(central)
 
-        left_panel = QWidget(splitter)
-        left_layout = QVBoxLayout(left_panel)
-        self.toolbox = QToolBox(left_panel)
-        left_layout.addWidget(self.toolbox)
-        splitter.addWidget(left_panel)
+        self._build_log_console()
 
-        right_tabs = QTabWidget(splitter)
-        splitter.addWidget(right_tabs)
-        splitter.setStretchFactor(1, 2)
+    def _build_project_header(self) -> QWidget:
+        widget = QWidget()
+        layout = QHBoxLayout(widget)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(12)
 
-        self._build_environment_page()
-        self._build_inputs_page()
-        self._build_execution_page()
-        self._build_visualization_page()
+        title_col = QVBoxLayout()
+        title_col.setContentsMargins(0, 0, 0, 0)
+        title_col.setSpacing(2)
+        title = QLabel("ISCE2 Sentinel-1 TOPS GUI")
+        title.setObjectName("headerTitle")
+        subtitle = QLabel("Practitioner workflow for local ISCE2 topsStack processing")
+        subtitle.setObjectName("headerSubTitle")
+        title_col.addWidget(title)
+        title_col.addWidget(subtitle)
+        layout.addLayout(title_col, 1)
 
-        self.steps_tree = QTreeWidget()
-        self.steps_tree.setHeaderLabels(["Step", "Status", "Exit", "Log", "Message"])
-        self.steps_tree.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
-        self.steps_tree.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
-        self.steps_tree.customContextMenuRequested.connect(self._open_steps_context_menu)
-        self.steps_tree.itemSelectionChanged.connect(self._update_action_states)
-        right_tabs.addTab(self.steps_tree, "Steps")
+        project_col = QVBoxLayout()
+        project_col.setContentsMargins(0, 0, 0, 0)
+        project_col.setSpacing(2)
+        self.header_project_label = QLabel("Project: new session")
+        self.header_current_step_label = QLabel("Current step: -")
+        project_col.addWidget(self.header_project_label)
+        project_col.addWidget(self.header_current_step_label)
+        layout.addLayout(project_col)
 
+        self.header_status_badge = StatusBadge("draft", "neutral")
+        self.header_env_badge = StatusBadge("Env unchecked", "warning")
+        layout.addWidget(self.header_status_badge)
+        layout.addWidget(self.header_env_badge)
+
+        self.console_toggle_button = self._header_button("Show Console")
+        self.new_button = self._header_button("New Project")
+        self.open_button = self._header_button("Open Project")
+        self.save_button = self._header_button("Save Project")
+        self.console_toggle_button.setProperty("role", "secondary")
+        self.new_button.setProperty("role", "secondary")
+        self.open_button.setProperty("role", "secondary")
+        self.save_button.setProperty("role", "primary")
+        layout.addWidget(self.console_toggle_button)
+        layout.addWidget(self.new_button)
+        layout.addWidget(self.open_button)
+        layout.addWidget(self.save_button)
+        return widget
+
+    def _build_workflow_navigation(self) -> QWidget:
+        widget = QWidget()
+        widget.setMinimumWidth(250)
+        widget.setMaximumWidth(300)
+        widget.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Expanding)
+        layout = QVBoxLayout(widget)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(8)
+
+        label = QLabel("Workflow")
+        label.setObjectName("summaryCardTitle")
+        layout.addWidget(label)
+
+        self.workflow_nav = QListWidget()
+        self.workflow_nav.setObjectName("workflowNav")
+        self.workflow_nav.setMinimumWidth(250)
+        self.workflow_nav.setMaximumWidth(300)
+        self.workflow_nav.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
+        self.workflow_nav.setSpacing(8)
+        self.workflow_nav.setUniformItemSizes(True)
+        self.workflow_nav.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        layout.addWidget(self.workflow_nav, 1)
+        return widget
+
+    def _build_page_stack(self) -> QWidget:
+        container = QWidget()
+        layout = QVBoxLayout(container)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(0)
+
+        self.page_stack = QStackedWidget()
+        layout.addWidget(self.page_stack)
+
+        self.data_sources_page = DataSourcesPage()
+        self.aoi_iw_page = AoiIwPage()
+        self.processing_page = ProcessingPlanPage()
+        self.run_monitor_page = RunMonitorPage()
+        self.results_page = ResultsPage()
+
+        pages = [
+            ("data_sources", "Data Sources", self.data_sources_page),
+            ("aoi_iw", "AOI + BBox + IW", self.aoi_iw_page),
+            ("processing", "Processing Plan", self.processing_page),
+            ("monitor", "Run Monitor", self.run_monitor_page),
+            ("results", "Results & Visualization", self.results_page),
+        ]
+        for index, (key, title, widget) in enumerate(pages):
+            self.page_stack.addWidget(widget)
+            self._page_index_by_key[key] = index
+            self._add_nav_item(key, title)
+
+        self.workflow_nav.setCurrentRow(0)
+        self._sync_nav_selection_state()
+        self._apply_page_spacing()
+        return container
+
+    def _build_summary_sidebar(self) -> QWidget:
+        widget = QWidget()
+        layout = QVBoxLayout(widget)
+        # Add left breathing room so the summary column does not sit on the splitter line.
+        layout.setContentsMargins(12, 0, 0, 0)
+        layout.setSpacing(10)
+
+        title = QLabel("Project Summary")
+        title.setObjectName("summaryCardTitle")
+        layout.addWidget(title)
+
+        self.summary_sources_card = SummaryCard("Data Sources", "Not prepared", "Dataset, orbit, and DEM readiness.")
+        self.summary_aoi_card = SummaryCard("AOI / BBox", "Not set", "AOI file is optional input; bbox is the ISCE parameter.")
+        self.summary_selection_card = SummaryCard("IW", "IW1 IW2 IW3", "Swath-level control for stackSentinel.")
+        self.summary_reference_card = SummaryCard("Reference", "Auto", "Manual override optional.")
+        self.summary_processing_card = SummaryCard("Processing", "Not generated", "Workflow, coreg, looks, and concurrency.")
+        self.summary_results_card = SummaryCard("Results", "No outputs scanned", "Quicklooks and native ISCE outputs.")
+        for card in (
+            self.summary_sources_card,
+            self.summary_aoi_card,
+            self.summary_selection_card,
+            self.summary_reference_card,
+            self.summary_processing_card,
+            self.summary_results_card,
+        ):
+            layout.addWidget(card)
+        layout.addStretch(1)
+        return widget
+
+    def _build_log_console(self) -> None:
         self.log_view = QPlainTextEdit()
         self.log_view.setReadOnly(True)
-        right_tabs.addTab(self.log_view, "Logs")
+        self.log_view.setPlaceholderText("Live stdout/stderr will appear here.")
+        self.log_dock = QDockWidget("Log Console", self)
+        self.log_dock.setWidget(self.log_view)
+        self.log_dock.setAllowedAreas(Qt.DockWidgetArea.BottomDockWidgetArea)
+        self.log_dock.visibilityChanged.connect(self._handle_log_dock_visibility)
+        self.addDockWidget(Qt.DockWidgetArea.BottomDockWidgetArea, self.log_dock)
+        self.log_dock.hide()
 
-        self.outputs_tree = QTreeWidget()
-        self.outputs_tree.setHeaderLabels(["Name", "Kind", "Path"])
-        right_tabs.addTab(self.outputs_tree, "Outputs")
+    def _alias_page_widgets(self) -> None:
+        data = self.data_sources_page
+        self.shell_init_edit = data.shell_init_row.line_edit
+        self.conda_env_edit = data.conda_env_edit
+        self.isce_root_edit = data.isce_root_row.line_edit
+        self.input_path_edit = data.input_path_row.line_edit
+        self.orbit_path_edit = data.orbit_path_row.line_edit
+        self.dem_path_edit = data.dem_path_row.line_edit
+        self.dem_reference_combo = data.dem_reference_combo
+        self.aux_path_edit = data.aux_path_row.line_edit
+        self.work_dir_edit = data.work_dir_row.line_edit
+        self.extract_checkbox = data.extract_checkbox
+        self.extract_dir_edit = data.extract_dir_row.line_edit
+        self.validate_button = data.validate_env_button
+        self.prepare_data_button = data.prepare_button
+        self.inspect_inputs_button = data.inspect_button
+        self.validation_text = data.validation_text
+        self.inputs_text = data.inputs_text
 
-        preview_tab = QWidget()
-        preview_layout = QVBoxLayout(preview_tab)
-        self.preview_image_label = QLabel("No preview generated yet.")
-        self.preview_image_label.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignTop)
-        self.preview_image_label.setMinimumSize(480, 320)
-        self.preview_image_label.setScaledContents(False)
-        self.preview_scroll = QScrollArea()
-        self.preview_scroll.setWidgetResizable(False)
-        self.preview_scroll.setWidget(self.preview_image_label)
-        preview_layout.addWidget(self.preview_scroll)
-        self.preview_meta_text = QPlainTextEdit()
-        self.preview_meta_text.setReadOnly(True)
-        preview_layout.addWidget(self.preview_meta_text)
-        right_tabs.addTab(preview_tab, "Preview")
+        self.aoi_source_edit = self.aoi_iw_page.aoi_file_row.line_edit
+        self.aoi_source_browse_button = self.aoi_iw_page.aoi_file_row.browse_button
+        self.aoi_import_button = self.aoi_iw_page.aoi_file_row.secondary_button
+        self.use_common_overlap_check = self.aoi_iw_page.use_common_overlap_check
+        self.bbox_south_edit = self.aoi_iw_page.bbox_south_edit
+        self.bbox_north_edit = self.aoi_iw_page.bbox_north_edit
+        self.bbox_west_edit = self.aoi_iw_page.bbox_west_edit
+        self.bbox_east_edit = self.aoi_iw_page.bbox_east_edit
+        self.iw1_check = self.aoi_iw_page.iw1_check
+        self.iw2_check = self.aoi_iw_page.iw2_check
+        self.iw3_check = self.aoi_iw_page.iw3_check
+        self.recommend_iw_button = self.aoi_iw_page.recommend_iw_button
+        self.verify_geometry_button = self.aoi_iw_page.verify_button
+        self.export_verify_button = self.aoi_iw_page.export_verify_button
+        self.confirm_aoi_iw_button = self.aoi_iw_page.confirm_button
+        self.verify_notes = self.aoi_iw_page.verify_notes
 
-    def _build_toolbar(self) -> None:
-        toolbar = QToolBar("Project", self)
-        toolbar.setMovable(False)
-        self.addToolBar(toolbar)
+        self.workflow_combo = self.processing_page.workflow_combo
+        self.coreg_combo = self.processing_page.coreg_combo
+        self.num_connections_spin = self.processing_page.num_connections_spin
+        self.azimuth_looks_spin = self.processing_page.azimuth_looks_spin
+        self.range_looks_spin = self.processing_page.range_looks_spin
+        self.num_proc_spin = self.processing_page.num_proc_spin
+        self.num_proc_hint = self.processing_page.num_proc_hint
+        self.polarization_combo = self.processing_page.polarization_combo
+        self.generate_button = self.processing_page.generate_button
+        self.runfile_estimate_text = self.processing_page.runfile_estimate_text
+        self.command_preview_text = self.processing_page.command_preview_text
+        self.reference_date_edit = self.processing_page.reference_date_edit
 
-        new_button = QPushButton("New Project")
-        new_button.clicked.connect(self.new_project)
-        toolbar.addWidget(new_button)
+        self.steps_tree = self.run_monitor_page.steps_tree
+        self.run_next_button = self.run_monitor_page.run_next_button
+        self.run_selected_button = self.run_monitor_page.run_selected_button
+        self.run_all_button = self.run_monitor_page.run_all_button
+        self.stop_button = self.run_monitor_page.stop_button
+        self.refresh_outputs_button = self.run_monitor_page.refresh_outputs_button
+        self.monitor_runfile_estimate_text = self.run_monitor_page.runfile_estimate_text
+        self.command_detail_text = self.run_monitor_page.command_detail_text
 
-        open_button = QPushButton("Open Project")
-        open_button.clicked.connect(self.open_project)
-        toolbar.addWidget(open_button)
+        self.outputs_tree = self.results_page.outputs_tree
+        self.preview_image_label = self.results_page.preview_panel.image_label
+        self.preview_scroll = self.results_page.preview_panel.scroll_area
+        self.preview_meta_text = self.results_page.preview_panel.meta_text
+        self.visual_mode_combo = self.results_page.visual_mode_combo
+        self.visual_primary_path_edit = self.results_page.visual_primary_row.line_edit
+        self.visual_secondary_path_edit = self.results_page.visual_secondary_row.line_edit
+        self.visual_export_dir_edit = self.results_page.visual_export_dir_row.line_edit
+        self.visual_primary_browse_button = self.results_page.visual_primary_row.browse_button
+        self.visual_secondary_browse_button = self.results_page.visual_secondary_row.browse_button
+        self.visual_export_dir_browse_button = self.results_page.visual_export_dir_row.browse_button
+        self.visual_primary_from_outputs_button = self.results_page.visual_primary_row.secondary_button
+        self.visual_secondary_from_outputs_button = self.results_page.visual_secondary_row.secondary_button
+        self.visual_range_looks_spin = self.results_page.visual_range_looks_spin
+        self.visual_azimuth_looks_spin = self.results_page.visual_azimuth_looks_spin
+        self.visual_overlay_brightness_spin = self.results_page.visual_overlay_brightness_spin
+        self.visual_preview_button = self.results_page.visual_preview_button
+        self.visual_export_button = self.results_page.visual_export_button
+        self.visual_status_text = self.results_page.visual_status_text
 
-        save_button = QPushButton("Save Project")
-        save_button.clicked.connect(self.save_project)
-        toolbar.addWidget(save_button)
+    def _connect_page_actions(self) -> None:
+        self.new_button.clicked.connect(self.new_project)
+        self.open_button.clicked.connect(self.open_project)
+        self.save_button.clicked.connect(self.save_project)
+        self.console_toggle_button.clicked.connect(self._toggle_log_console)
 
-    def _build_environment_page(self) -> None:
-        page = QWidget()
-        layout = QVBoxLayout(page)
+        self.workflow_nav.currentRowChanged.connect(self._handle_nav_changed)
 
-        group = QGroupBox("Environment")
-        form = QFormLayout(group)
-        self.shell_init_edit = QLineEdit()
-        self.conda_env_edit = QLineEdit()
-        self.isce_root_edit = QLineEdit()
-
-        form.addRow("Shell init", self._path_field(self.shell_init_edit, self._browse_shell_init))
-        form.addRow("Conda env", self.conda_env_edit)
-        form.addRow("ISCE2 root", self._path_field(self.isce_root_edit, self._browse_isce_root))
-        layout.addWidget(group)
-
-        button_row = QHBoxLayout()
-        self.validate_button = QPushButton("Validate Environment")
         self.validate_button.clicked.connect(self.validate_environment)
-        button_row.addWidget(self.validate_button)
-        button_row.addStretch(1)
-        layout.addLayout(button_row)
-
-        self.validation_text = QPlainTextEdit()
-        self.validation_text.setReadOnly(True)
-        layout.addWidget(self.validation_text)
-
-        self.toolbox.addItem(page, "1. Environment")
-
-    def _build_inputs_page(self) -> None:
-        page = QWidget()
-        layout = QVBoxLayout(page)
-
-        source_group = QGroupBox("Data Precheck (SLC / Orbit / DEM)")
-        source_form = QFormLayout(source_group)
-        self.input_path_edit = QLineEdit()
-        self.orbit_path_edit = QLineEdit()
-        self.dem_path_edit = QLineEdit()
-        self.dem_reference_combo = QComboBox()
-        self.dem_reference_combo.addItem("Select for GeoTIFF DEM", "")
-        self.dem_reference_combo.addItem("EGM96 geoid -> convert to WGS84", "egm96")
-        self.dem_reference_combo.addItem("Already WGS84 ellipsoid", "wgs84")
-        self.aux_path_edit = QLineEdit()
-        self.work_dir_edit = QLineEdit()
-        self.extract_checkbox = QCheckBox("Extract ZIP files to SAFE before workflow generation")
-        self.extract_checkbox.toggled.connect(self._toggle_extract_widgets)
-        self.extract_dir_edit = QLineEdit()
-
-        source_form.addRow("Sentinel-1 input folder", self._path_field(self.input_path_edit, self._browse_input_dir))
-        source_form.addRow("Orbit folder", self._path_field(self.orbit_path_edit, self._browse_orbit_dir))
-        source_form.addRow("DEM path", self._path_field(self.dem_path_edit, self._browse_dem_file))
-        source_form.addRow("GeoTIFF height ref", self.dem_reference_combo)
-        source_form.addRow("AUX folder", self._path_field(self.aux_path_edit, self._browse_aux_dir))
-        source_form.addRow("Working directory", self._path_field(self.work_dir_edit, self._browse_work_dir))
-        source_form.addRow("", self.extract_checkbox)
-        source_form.addRow("Extracted SAFE dir", self._path_field(self.extract_dir_edit, self._browse_extract_dir))
-        layout.addWidget(source_group)
-
-        processing_group = QGroupBox("Processing Plan")
-        processing_form = QFormLayout(processing_group)
-        self.bbox_south_edit = QLineEdit()
-        self.bbox_north_edit = QLineEdit()
-        self.bbox_west_edit = QLineEdit()
-        self.bbox_east_edit = QLineEdit()
-        self.bbox_south_edit.setPlaceholderText("e.g. 33.68")
-        self.bbox_north_edit.setPlaceholderText("e.g. 34.03")
-        self.bbox_west_edit.setPlaceholderText("e.g. -118.48")
-        self.bbox_east_edit.setPlaceholderText("e.g. -117.99")
-        self.bbox_hint = QLabel("Leave all four bbox fields empty to use stack common overlap.")
-        self.workflow_combo = QComboBox()
-        self.workflow_combo.addItems(["interferogram", "slc", "correlation", "offset"])
-        self.coreg_combo = QComboBox()
-        self.coreg_combo.addItems(["NESD", "geometry"])
-        self.num_connections_spin = QSpinBox()
-        self.num_connections_spin.setRange(1, 50)
-        self.azimuth_looks_spin = QSpinBox()
-        self.azimuth_looks_spin.setRange(1, 50)
-        self.range_looks_spin = QSpinBox()
-        self.range_looks_spin.setRange(1, 50)
-        self.num_proc_spin = QSpinBox()
-        self.num_proc_spin.setRange(1, 64)
-        self.num_proc_spin.valueChanged.connect(lambda _: self._refresh_runfile_estimates())
-        self.num_proc_hint = QLabel(
-            "Used by stackSentinel and run_file subcommand concurrency limit. "
-            "It does not guarantee each step uses exactly this many tasks."
-        )
-        self.num_proc_hint.setWordWrap(True)
-        self.swath_edit = QLineEdit()
-        self.polarization_combo = QComboBox()
-        self.polarization_combo.addItems(["vv", "vh"])
-        self.reference_date_edit = QLineEdit()
-
-        processing_form.addRow("BBox South", self.bbox_south_edit)
-        processing_form.addRow("BBox North", self.bbox_north_edit)
-        processing_form.addRow("BBox West", self.bbox_west_edit)
-        processing_form.addRow("BBox East", self.bbox_east_edit)
-        processing_form.addRow("", self.bbox_hint)
-        processing_form.addRow("Workflow", self.workflow_combo)
-        processing_form.addRow("Coregistration", self.coreg_combo)
-        processing_form.addRow("Connections", self.num_connections_spin)
-        processing_form.addRow("Azimuth looks", self.azimuth_looks_spin)
-        processing_form.addRow("Range looks", self.range_looks_spin)
-        processing_form.addRow("ISCE parallel tasks (--num_proc)", self.num_proc_spin)
-        processing_form.addRow("", self.num_proc_hint)
-        processing_form.addRow("Swaths", self.swath_edit)
-        processing_form.addRow("Polarization", self.polarization_combo)
-        processing_form.addRow("Reference date", self.reference_date_edit)
-        layout.addWidget(processing_group)
-
-        input_buttons = QHBoxLayout()
-        self.prepare_data_button = QPushButton("Validate & Prepare Data")
         self.prepare_data_button.clicked.connect(self.prepare_data_sources)
-        input_buttons.addWidget(self.prepare_data_button)
-        self.inspect_inputs_button = QPushButton("Inspect Inputs")
         self.inspect_inputs_button.clicked.connect(self.inspect_inputs)
-        input_buttons.addWidget(self.inspect_inputs_button)
-        input_buttons.addStretch(1)
-        layout.addLayout(input_buttons)
 
-        self.inputs_text = QPlainTextEdit()
-        self.inputs_text.setReadOnly(True)
-        layout.addWidget(self.inputs_text)
+        self.extract_checkbox.toggled.connect(self._toggle_extract_widgets)
+        self.data_sources_page.shell_init_row.browse_button.clicked.connect(self._browse_shell_init)
+        self.data_sources_page.isce_root_row.browse_button.clicked.connect(self._browse_isce_root)
+        self.data_sources_page.input_path_row.browse_button.clicked.connect(self._browse_input_dir)
+        self.data_sources_page.orbit_path_row.browse_button.clicked.connect(self._browse_orbit_dir)
+        self.data_sources_page.dem_path_row.browse_button.clicked.connect(self._browse_dem_file)
+        self.data_sources_page.aux_path_row.browse_button.clicked.connect(self._browse_aux_dir)
+        self.data_sources_page.work_dir_row.browse_button.clicked.connect(self._browse_work_dir)
+        self.data_sources_page.extract_dir_row.browse_button.clicked.connect(self._browse_extract_dir)
 
-        self.toolbox.addItem(page, "2. Inputs")
+        self.aoi_source_browse_button.clicked.connect(self._browse_aoi_file)
+        if self.aoi_import_button is not None:
+            self.aoi_import_button.clicked.connect(self.import_aoi_file)
+        self.use_common_overlap_check.toggled.connect(self._toggle_common_overlap_mode)
+        self.iw1_check.toggled.connect(self._sync_iw_selection_card)
+        self.iw2_check.toggled.connect(self._sync_iw_selection_card)
+        self.iw3_check.toggled.connect(self._sync_iw_selection_card)
+        self.recommend_iw_button.clicked.connect(self.recommend_iw)
+        self.verify_geometry_button.clicked.connect(self.verify_aoi_iw_geometry)
+        self.export_verify_button.clicked.connect(self.export_verify_geometry_png)
+        self.confirm_aoi_iw_button.clicked.connect(self.confirm_aoi_iw)
 
-    def _build_execution_page(self) -> None:
-        page = QWidget()
-        layout = QVBoxLayout(page)
-
-        status_group = QGroupBox("Execution Status")
-        status_layout = QFormLayout(status_group)
-        self.project_status_value = QLabel("-")
-        self.current_step_value = QLabel("-")
-        self.work_dir_value = QLabel("-")
-        status_layout.addRow("Project status", self.project_status_value)
-        status_layout.addRow("Current step", self.current_step_value)
-        status_layout.addRow("Resolved work dir", self.work_dir_value)
-        layout.addWidget(status_group)
-
-        button_grid = QGridLayout()
-        self.generate_button = QPushButton("Generate Workflow")
+        self.processing_page.preview_command_button.clicked.connect(self._preview_generate_command)
+        self.processing_page.rescan_button.clicked.connect(self._rescan_existing_runfiles)
         self.generate_button.clicked.connect(self.generate_workflow)
-        self.run_next_button = QPushButton("Run Next Step")
+        self.num_proc_spin.valueChanged.connect(lambda _: self._refresh_runfile_estimates())
+
         self.run_next_button.clicked.connect(self.run_next_step)
-        self.run_selected_button = QPushButton("Run Selected Step")
         self.run_selected_button.clicked.connect(self.run_selected_step)
-        self.run_all_button = QPushButton("Run Remaining Steps")
         self.run_all_button.clicked.connect(self.run_remaining_steps)
-        self.stop_button = QPushButton("Stop")
         self.stop_button.clicked.connect(self.stop_execution)
-        self.refresh_outputs_button = QPushButton("Refresh Outputs")
         self.refresh_outputs_button.clicked.connect(self.refresh_outputs_view)
+        self.steps_tree.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
+        self.steps_tree.customContextMenuRequested.connect(self._open_steps_context_menu)
+        self.steps_tree.itemSelectionChanged.connect(self._handle_step_selection_changed)
 
-        button_grid.addWidget(self.generate_button, 0, 0)
-        button_grid.addWidget(self.run_next_button, 0, 1)
-        button_grid.addWidget(self.run_selected_button, 1, 0)
-        button_grid.addWidget(self.run_all_button, 1, 1)
-        button_grid.addWidget(self.stop_button, 2, 0)
-        button_grid.addWidget(self.refresh_outputs_button, 2, 1)
-        layout.addLayout(button_grid)
-        self.runfile_estimate_text = QPlainTextEdit()
-        self.runfile_estimate_text.setReadOnly(True)
-        self.runfile_estimate_text.setPlaceholderText(
-            "Run-file command estimates appear here after workflow generation."
-        )
-        layout.addWidget(self.runfile_estimate_text)
-        layout.addStretch(1)
-
-        self.toolbox.addItem(page, "3. Execute")
-
-    def _build_visualization_page(self) -> None:
-        page = QWidget()
-        layout = QVBoxLayout(page)
-
-        mode_group = QGroupBox("Visualization Mode")
-        mode_form = QFormLayout(mode_group)
-        self.visual_mode_combo = QComboBox()
-        self.visual_mode_combo.addItem("SLC", "slc")
-        self.visual_mode_combo.addItem("Interferogram", "interferogram")
-        self.visual_mode_combo.addItem("SLC Background + INT Phase Overlay", "overlay")
-        self.visual_mode_combo.currentIndexChanged.connect(self._update_visualization_mode_ui)
-        mode_form.addRow("Mode", self.visual_mode_combo)
-        layout.addWidget(mode_group)
-
-        inputs_group = QGroupBox("Inputs")
-        inputs_form = QFormLayout(inputs_group)
-        self.visual_primary_path_edit = QLineEdit()
-        self.visual_secondary_path_edit = QLineEdit()
-        self.visual_primary_browse_button = QPushButton("Browse")
+        self.results_page.refresh_outputs_button.clicked.connect(self.refresh_outputs_view)
         self.visual_primary_browse_button.clicked.connect(self._browse_visual_primary)
-        self.visual_primary_from_outputs_button = QPushButton("Use Selected Output")
-        self.visual_primary_from_outputs_button.clicked.connect(self._fill_visual_primary_from_outputs)
-        self.visual_secondary_browse_button = QPushButton("Browse")
         self.visual_secondary_browse_button.clicked.connect(self._browse_visual_secondary)
-        self.visual_secondary_from_outputs_button = QPushButton("Use Selected Output")
-        self.visual_secondary_from_outputs_button.clicked.connect(self._fill_visual_secondary_from_outputs)
-        self.visual_export_dir_edit = QLineEdit()
-        self.visual_export_dir_browse_button = QPushButton("Browse")
         self.visual_export_dir_browse_button.clicked.connect(self._browse_visual_export_dir)
-
-        self.visual_primary_row_widget = self._visual_path_field(
-            self.visual_primary_path_edit,
-            self.visual_primary_browse_button,
-            self.visual_primary_from_outputs_button,
-        )
-        self.visual_secondary_row_widget = self._visual_path_field(
-            self.visual_secondary_path_edit,
-            self.visual_secondary_browse_button,
-            self.visual_secondary_from_outputs_button,
-        )
-        self.visual_export_dir_row_widget = self._visual_path_field(
-            self.visual_export_dir_edit,
-            self.visual_export_dir_browse_button,
-            None,
-        )
-        inputs_form.addRow("Primary input", self.visual_primary_row_widget)
-        inputs_form.addRow("Secondary input", self.visual_secondary_row_widget)
-        inputs_form.addRow("Export directory", self.visual_export_dir_row_widget)
-        layout.addWidget(inputs_group)
-
-        params_group = QGroupBox("Render Parameters")
-        params_form = QFormLayout(params_group)
-        self.visual_range_looks_spin = QSpinBox()
-        self.visual_range_looks_spin.setRange(1, 100)
-        self.visual_azimuth_looks_spin = QSpinBox()
-        self.visual_azimuth_looks_spin.setRange(1, 100)
-        self.visual_overlay_brightness_spin = QDoubleSpinBox()
-        self.visual_overlay_brightness_spin.setRange(0.05, 5.0)
-        self.visual_overlay_brightness_spin.setDecimals(2)
-        self.visual_overlay_brightness_spin.setSingleStep(0.05)
-        self.visual_overlay_brightness_spin.setValue(0.5)
-        params_form.addRow("Range looks (rlks)", self.visual_range_looks_spin)
-        params_form.addRow("Azimuth looks (alks)", self.visual_azimuth_looks_spin)
-        params_form.addRow("Overlay brightness", self.visual_overlay_brightness_spin)
-        layout.addWidget(params_group)
-
-        button_row = QHBoxLayout()
-        self.visual_preview_button = QPushButton("Preview")
+        if self.visual_primary_from_outputs_button is not None:
+            self.visual_primary_from_outputs_button.clicked.connect(self._fill_visual_primary_from_outputs)
+        if self.visual_secondary_from_outputs_button is not None:
+            self.visual_secondary_from_outputs_button.clicked.connect(self._fill_visual_secondary_from_outputs)
         self.visual_preview_button.clicked.connect(self.run_visualization_preview)
-        self.visual_export_button = QPushButton("Export BMP")
         self.visual_export_button.clicked.connect(self.run_visualization_export)
-        self.visual_refresh_outputs_button = QPushButton("Refresh Outputs")
-        self.visual_refresh_outputs_button.clicked.connect(self.refresh_outputs_view)
-        button_row.addWidget(self.visual_preview_button)
-        button_row.addWidget(self.visual_export_button)
-        button_row.addWidget(self.visual_refresh_outputs_button)
-        button_row.addStretch(1)
-        layout.addLayout(button_row)
-
-        self.visual_status_text = QPlainTextEdit()
-        self.visual_status_text.setReadOnly(True)
-        self.visual_status_text.setPlaceholderText("Visualization logs and metadata will appear here.")
-        layout.addWidget(self.visual_status_text)
-
-        self.toolbox.addItem(page, "4. Visualize")
+        self.visual_mode_combo.currentIndexChanged.connect(self._update_visualization_mode_ui)
 
     def _connect_runner(self) -> None:
         self.runner.log_emitted.connect(self.append_log)
@@ -434,33 +421,56 @@ class MainWindow(QMainWindow):
         self.runner.queue_finished.connect(self._handle_queue_finished)
         self.runner.runner_state_changed.connect(self._handle_runner_state_changed)
 
-    def _path_field(self, edit: QLineEdit, browse_callback) -> QWidget:
-        widget = QWidget()
-        layout = QHBoxLayout(widget)
-        layout.setContentsMargins(0, 0, 0, 0)
-        layout.addWidget(edit)
-        button = QPushButton("Browse")
-        button.clicked.connect(browse_callback)
-        layout.addWidget(button)
-        return widget
+    def _add_nav_item(self, key: str, title: str) -> None:
+        item = QListWidgetItem(self.workflow_nav)
+        item.setData(Qt.ItemDataRole.UserRole, key)
+        row_widget = WorkflowNavItemWidget(title)
+        size_hint = row_widget.sizeHint()
+        row_height = max(size_hint.height(), row_widget.minimumHeight())
+        item.setSizeHint(QSize(0, row_height))
+        self.workflow_nav.addItem(item)
+        self.workflow_nav.setItemWidget(item, row_widget)
+        self._nav_items[key] = row_widget
 
-    def _visual_path_field(
-        self,
-        edit: QLineEdit,
-        browse_button: QPushButton,
-        outputs_button: QPushButton | None,
-    ) -> QWidget:
-        widget = QWidget()
-        layout = QHBoxLayout(widget)
-        layout.setContentsMargins(0, 0, 0, 0)
-        layout.addWidget(edit)
-        layout.addWidget(browse_button)
-        if outputs_button is not None:
-            layout.addWidget(outputs_button)
-        return widget
+    def _apply_page_spacing(self) -> None:
+        """Apply consistent page-level breathing room around central content."""
+        for page in (
+            self.data_sources_page,
+            self.aoi_iw_page,
+            self.processing_page,
+            self.run_monitor_page,
+            self.results_page,
+        ):
+            layout = page.layout()
+            if layout is not None:
+                layout.setContentsMargins(14, 10, 14, 10)
+                layout.setSpacing(max(layout.spacing(), 14))
+
+    @staticmethod
+    def _header_button(text: str):
+        from PySide6.QtWidgets import QPushButton
+
+        return QPushButton(text)
+
+    def _handle_nav_changed(self, row: int) -> None:
+        if row < 0:
+            return
+        self.page_stack.setCurrentIndex(row)
+        self._sync_nav_selection_state()
+        key = self.workflow_nav.item(row).data(Qt.ItemDataRole.UserRole)
+        if key in {"monitor", "results"}:
+            self.console_toggle_button.setText("Hide Console")
+        else:
+            self.console_toggle_button.setText("Show Console" if not self.log_dock.isVisible() else "Hide Console")
+
+    def _toggle_log_console(self) -> None:
+        self.log_dock.setVisible(not self.log_dock.isVisible())
+
+    def _handle_log_dock_visibility(self, visible: bool) -> None:
+        self.console_toggle_button.setText("Hide Console" if visible else "Show Console")
 
     def _toggle_extract_widgets(self, checked: bool) -> None:
-        self.extract_dir_edit.setEnabled(checked)
+        self.data_sources_page.extract_dir_row.setEnabled(checked)
 
     def _browse_shell_init(self) -> None:
         self._browse_file_into(self.shell_init_edit, "Select shell init file")
@@ -486,6 +496,16 @@ class MainWindow(QMainWindow):
     def _browse_extract_dir(self) -> None:
         self._browse_dir_into(self.extract_dir_edit, "Select extracted SAFE directory")
 
+    def _browse_aoi_file(self) -> None:
+        path, _ = QFileDialog.getOpenFileName(
+            self,
+            "Select AOI file",
+            self.aoi_source_edit.text() or str(Path.home()),
+            "AOI files (*.kml *.shp);;All files (*)",
+        )
+        if path:
+            self.aoi_source_edit.setText(path)
+
     def _browse_visual_primary(self) -> None:
         self._browse_file_into(self.visual_primary_path_edit, "Select primary visualization input")
 
@@ -498,14 +518,14 @@ class MainWindow(QMainWindow):
     def _fill_visual_primary_from_outputs(self) -> None:
         selected = self._selected_output_file_path()
         if selected is None:
-            QMessageBox.warning(self, "No output file selected", "Select a file in Outputs tab first.")
+            QMessageBox.warning(self, "No output file selected", "Select a file in Results first.")
             return
         self.visual_primary_path_edit.setText(selected)
 
     def _fill_visual_secondary_from_outputs(self) -> None:
         selected = self._selected_output_file_path()
         if selected is None:
-            QMessageBox.warning(self, "No output file selected", "Select a file in Outputs tab first.")
+            QMessageBox.warning(self, "No output file selected", "Select a file in Results first.")
             return
         self.visual_secondary_path_edit.setText(selected)
 
@@ -521,12 +541,12 @@ class MainWindow(QMainWindow):
             return None
         return str(path)
 
-    def _browse_dir_into(self, edit: QLineEdit, title: str) -> None:
+    def _browse_dir_into(self, edit, title: str) -> None:
         path = QFileDialog.getExistingDirectory(self, title, edit.text() or str(Path.home()))
         if path:
             edit.setText(path)
 
-    def _browse_file_into(self, edit: QLineEdit, title: str) -> None:
+    def _browse_file_into(self, edit, title: str) -> None:
         path, _ = QFileDialog.getOpenFileName(self, title, edit.text() or str(Path.home()))
         if path:
             edit.setText(path)
@@ -546,23 +566,30 @@ class MainWindow(QMainWindow):
         self.extract_checkbox.setChecked(self.project.workflow.extract_zips)
         self.extract_dir_edit.setText(self.project.workflow.extract_dir)
         self.extract_dir_edit.setEnabled(self.project.workflow.extract_zips)
+
+        self.aoi_source_edit.setText(self.project.workflow.aoi_source_path)
+        previous = self.use_common_overlap_check.blockSignals(True)
+        self.use_common_overlap_check.setChecked(self.project.workflow.use_common_overlap)
+        self.use_common_overlap_check.blockSignals(previous)
         try:
             south, north, west, east = self.project.workflow.bbox_components()
         except ValueError:
             south, north, west, east = "", "", "", ""
-        self.bbox_south_edit.setText(south)
-        self.bbox_north_edit.setText(north)
-        self.bbox_west_edit.setText(west)
-        self.bbox_east_edit.setText(east)
+        self.aoi_iw_page.set_bbox_components(south, north, west, east)
+        self.aoi_iw_page.set_bbox_enabled(not self.use_common_overlap_check.isChecked())
+        self.aoi_iw_page.set_selected_swaths(self.project.workflow.swath_numbers or "1 2 3")
+        self._sync_iw_selection_card()
+
+        self.reference_date_edit.setText(self.project.workflow.reference_date)
+        self._populate_reference_candidates()
+
         self.workflow_combo.setCurrentText(self.project.workflow.workflow)
         self.coreg_combo.setCurrentText(self.project.workflow.coregistration)
         self.num_connections_spin.setValue(self.project.workflow.num_connections)
         self.azimuth_looks_spin.setValue(self.project.workflow.azimuth_looks)
         self.range_looks_spin.setValue(self.project.workflow.range_looks)
         self.num_proc_spin.setValue(self.project.workflow.num_proc)
-        self.swath_edit.setText(self.project.workflow.swath_numbers)
         self.polarization_combo.setCurrentText(self.project.workflow.polarization)
-        self.reference_date_edit.setText(self.project.workflow.reference_date)
 
         mode_index = self.visual_mode_combo.findData(self.project.visualization.mode)
         self.visual_mode_combo.setCurrentIndex(mode_index if mode_index >= 0 else 0)
@@ -581,6 +608,7 @@ class MainWindow(QMainWindow):
             self.visual_export_dir_edit.setText(str(default_export))
         self.visual_status_text.setPlainText(self.project.visualization.last_render_summary)
         self._update_visualization_mode_ui()
+
         if self.project.visualization.last_preview_path:
             self._display_preview_image(
                 self.project.visualization.last_preview_path,
@@ -593,9 +621,11 @@ class MainWindow(QMainWindow):
             self.preview_meta_text.setPlainText("")
 
         self.validation_text.setPlainText(self.project.state.last_validation)
+        self.command_preview_text.setPlainText(self.project.state.last_generated_command)
         self._render_preparation_summary()
         self._refresh_runfile_estimates()
         self._update_action_states()
+        self._sync_summary_sidebar()
 
     def _update_project_from_form(self) -> None:
         previous_signature = self.project.state.prepared_signature
@@ -604,15 +634,11 @@ class MainWindow(QMainWindow):
             conda_env_name=self.conda_env_edit.text().strip(),
             isce_root=self.isce_root_edit.text().strip(),
         )
-        bbox_parts = [
-            self.bbox_south_edit.text().strip(),
-            self.bbox_north_edit.text().strip(),
-            self.bbox_west_edit.text().strip(),
-            self.bbox_east_edit.text().strip(),
-        ]
-        bbox_snwe = ""
-        if any(bbox_parts):
-            bbox_snwe = " ".join(part for part in bbox_parts if part)
+        bbox_parts = list(self.aoi_iw_page.bbox_components())
+        bbox_snwe = " ".join(part for part in bbox_parts if part) if any(bbox_parts) else ""
+        use_common_overlap = self.use_common_overlap_check.isChecked()
+        if use_common_overlap:
+            bbox_snwe = ""
 
         self.project.workflow = WorkflowConfig(
             input_path=self.input_path_edit.text().strip(),
@@ -622,6 +648,8 @@ class MainWindow(QMainWindow):
             aux_path=self.aux_path_edit.text().strip(),
             work_dir=self.work_dir_edit.text().strip(),
             bbox_snwe=bbox_snwe,
+            aoi_source_path=self.aoi_source_edit.text().strip(),
+            use_common_overlap=use_common_overlap,
             extract_zips=self.extract_checkbox.isChecked(),
             extract_dir=self.extract_dir_edit.text().strip(),
             workflow=self.workflow_combo.currentText(),
@@ -629,7 +657,7 @@ class MainWindow(QMainWindow):
             num_connections=self.num_connections_spin.value(),
             azimuth_looks=self.azimuth_looks_spin.value(),
             range_looks=self.range_looks_spin.value(),
-            swath_numbers=self.swath_edit.text().strip() or "1 2 3",
+            swath_numbers=self.aoi_iw_page.selected_swaths() or "1 2 3",
             polarization=self.polarization_combo.currentText(),
             reference_date=self.reference_date_edit.text().strip(),
             num_proc=self.num_proc_spin.value(),
@@ -653,6 +681,7 @@ class MainWindow(QMainWindow):
         self.runner.set_environment(self.project.environment)
         self.refresh_status_labels()
         self._update_action_states()
+        self._sync_summary_sidebar()
 
     def _preparation_signature(self, workflow: WorkflowConfig) -> str:
         payload = {
@@ -688,11 +717,20 @@ class MainWindow(QMainWindow):
         self._last_catalog_report = None
         self._render_preparation_summary()
         self._update_action_states()
+        self._sync_summary_sidebar()
 
     def _render_preparation_summary(self) -> None:
         prepared = self.project.state.prepared_inputs
+        self.data_sources_page.orbit_card.set_value(
+            Path(self.project.workflow.orbit_path).name if self.project.workflow.orbit_path else "Not set"
+        )
+        self.data_sources_page.dem_card.set_value(
+            Path(self.project.workflow.dem_path).name if self.project.workflow.dem_path else "Not set"
+        )
         if not prepared.entries:
             self.inputs_text.setPlainText("Data has not been prepared yet.")
+            self.data_sources_page.dataset_card.set_value("Not prepared")
+            self.data_sources_page.dataset_card.set_body("Run Validate & Prepare Data to create the SAFE manifest.")
             return
 
         lines: list[str] = []
@@ -702,6 +740,8 @@ class MainWindow(QMainWindow):
         lines.extend(["", "Prepared inputs:"])
         lines.extend(f"- {entry.path}" for entry in prepared.entries)
         self.inputs_text.setPlainText("\n".join(lines))
+        self.data_sources_page.dataset_card.set_value(f"{len(prepared.entries)} prepared scenes")
+        self.data_sources_page.dataset_card.set_body(Path(prepared.manifest_path).name if prepared.manifest_path else "Manifest ready")
 
     def _commit_preparation_result(self, prepared: PreparedInputs, dem_path: str, signature: str) -> None:
         self.project.state.prepared_inputs = prepared
@@ -711,13 +751,15 @@ class MainWindow(QMainWindow):
         self.project.state.status = ProjectStatus.READY
         self.project.state.current_step = "data preparation"
         self.project_store.save(self.project)
+        self._populate_reference_candidates()
         self._render_preparation_summary()
         self.refresh_status_labels()
         self._update_action_states()
+        self._sync_summary_sidebar()
 
     def _update_action_states(self) -> None:
         busy = self.runner.is_running()
-        has_selected_step = self._selected_step() is not None
+        has_selected_step = bool(self._selected_steps())
         self.generate_button.setEnabled((not busy) and self._is_prepared_for_current_sources())
         self.run_next_button.setEnabled(not busy)
         self.run_selected_button.setEnabled((not busy) and has_selected_step)
@@ -725,22 +767,53 @@ class MainWindow(QMainWindow):
         self.validate_button.setEnabled(not busy)
         self.inspect_inputs_button.setEnabled(not busy)
         self.prepare_data_button.setEnabled(not busy)
+        self.aoi_source_edit.setEnabled(not busy)
+        self.aoi_source_browse_button.setEnabled(not busy)
+        if self.aoi_import_button is not None:
+            self.aoi_import_button.setEnabled(not busy)
+        self.use_common_overlap_check.setEnabled(not busy)
+        self.iw1_check.setEnabled(not busy)
+        self.iw2_check.setEnabled(not busy)
+        self.iw3_check.setEnabled(not busy)
+        self.recommend_iw_button.setEnabled(not busy)
+        self.verify_geometry_button.setEnabled(not busy)
+        self.export_verify_button.setEnabled(not busy)
+        self.confirm_aoi_iw_button.setEnabled(not busy)
+        bbox_edit_enabled = (not busy) and (not self.use_common_overlap_check.isChecked())
+        self.bbox_south_edit.setEnabled(bbox_edit_enabled)
+        self.bbox_north_edit.setEnabled(bbox_edit_enabled)
+        self.bbox_west_edit.setEnabled(bbox_edit_enabled)
+        self.bbox_east_edit.setEnabled(bbox_edit_enabled)
         self.stop_button.setEnabled(busy)
         self.visual_preview_button.setEnabled(not busy)
         self.visual_export_button.setEnabled(not busy)
         self.visual_primary_browse_button.setEnabled(not busy)
         self.visual_secondary_browse_button.setEnabled(not busy)
-        self.visual_primary_from_outputs_button.setEnabled(not busy)
-        self.visual_secondary_from_outputs_button.setEnabled(not busy)
+        if self.visual_primary_from_outputs_button is not None:
+            self.visual_primary_from_outputs_button.setEnabled(not busy)
+        if self.visual_secondary_from_outputs_button is not None:
+            self.visual_secondary_from_outputs_button.setEnabled(not busy)
         self.visual_export_dir_browse_button.setEnabled(not busy)
 
     def refresh_status_labels(self) -> None:
-        self.project_status_value.setText(self.project.state.status.value)
-        self.current_step_value.setText(self.project.state.current_step or "-")
+        status_text = self.project.state.status.value
+        current_step = self.project.state.current_step or "-"
         try:
-            self.work_dir_value.setText(str(self.project.resolved_work_dir()))
+            work_dir = str(self.project.resolved_work_dir())
         except ValueError:
-            self.work_dir_value.setText("-")
+            work_dir = "-"
+
+        project_name = Path(work_dir).name if work_dir != "-" else "new session"
+        self.header_project_label.setText(f"Project: {project_name}")
+        self.header_current_step_label.setText(f"Current step: {current_step}")
+        self.header_status_badge.set_status(status_text, self._tone_for_status(status_text))
+        self.run_monitor_page.status_card.set_value(status_text)
+        self.run_monitor_page.status_card.set_badge(status_text, self._tone_for_status(status_text))
+        self.run_monitor_page.current_step_card.set_value(current_step)
+        self.run_monitor_page.work_dir_card.set_value(work_dir)
+
+        env_text, env_tone = self._environment_health_badge()
+        self.header_env_badge.set_status(env_text, env_tone)
 
     def append_log(self, text: str) -> None:
         cursor = self.log_view.textCursor()
@@ -757,6 +830,7 @@ class MainWindow(QMainWindow):
             self.project.state.status = ProjectStatus.READY
         self.validation_text.setPlainText(report.as_text())
         self.refresh_status_labels()
+        self._sync_summary_sidebar()
         self.statusBar().showMessage("Environment validation finished.", 5000)
 
     def inspect_inputs(self) -> None:
@@ -769,7 +843,10 @@ class MainWindow(QMainWindow):
 
         self._last_catalog_report = report
         self.inputs_text.setPlainText(report.as_text())
+        self.data_sources_page.dataset_card.set_value(f"{len(report.entries)} detected inputs")
+        self.data_sources_page.dataset_card.set_body("ZIP/SAFE scan complete.")
         self.statusBar().showMessage("Input inspection finished.", 5000)
+        self._sync_summary_sidebar()
 
     def prepare_data_sources(self) -> None:
         self._update_project_from_form()
@@ -868,10 +945,13 @@ class MainWindow(QMainWindow):
         self.steps_tree.clear()
         self.validation_text.clear()
         self.inputs_text.clear()
+        self.command_detail_text.clear()
         self._populate_form_from_project()
         self.refresh_steps_view()
         self.refresh_outputs_view()
         self.refresh_status_labels()
+        self._sync_summary_sidebar()
+        self._refresh_navigation_status()
         self.statusBar().showMessage(f"Loaded project: {path}", 5000)
 
     def new_project(self) -> None:
@@ -886,11 +966,13 @@ class MainWindow(QMainWindow):
         self.steps_tree.clear()
         self.validation_text.clear()
         self.inputs_text.clear()
+        self.command_detail_text.clear()
         self._populate_form_from_project()
         self.refresh_steps_view()
         self.refresh_outputs_view()
         self.refresh_status_labels()
-        self._refresh_runfile_estimates()
+        self._sync_summary_sidebar()
+        self._refresh_navigation_status()
 
     def generate_workflow(self) -> None:
         self._update_project_from_form()
@@ -907,6 +989,7 @@ class MainWindow(QMainWindow):
                 dem_path=self.project.state.prepared_dem_path,
             )
             self.project.state.last_generated_command = command
+            self.command_preview_text.setPlainText(command)
             self.project.state.last_error = ""
             self.project.state.current_step = "workflow generation"
             self.project.state.status = ProjectStatus.RUNNING
@@ -929,6 +1012,7 @@ class MainWindow(QMainWindow):
         )
         self.runner.run_queue([plan])
         self.refresh_status_labels()
+        self._set_current_page("monitor")
 
     def run_next_step(self) -> None:
         self._update_project_from_form()
@@ -940,26 +1024,33 @@ class MainWindow(QMainWindow):
 
     def run_selected_step(self) -> None:
         self._update_project_from_form()
-        step = self._selected_step()
-        if step is None:
+        steps = self._selected_steps()
+        if not steps:
             QMessageBox.information(
                 self,
                 "No step selected",
-                "Select a run step in the Steps tab, then click 'Run Selected Step'.",
+                "Select one or more run steps in Run Monitor, then click 'Run Selected Step'.",
             )
             return
-        if not step.path:
-            self._show_error("Invalid step", f"{step.name} does not have a valid run file path.")
-            return
-        if not Path(step.path).expanduser().exists():
-            self._show_error("Run file missing", f"Run file was not found for {step.name}:\n{step.path}")
-            return
+        for step in steps:
+            if not step.path:
+                self._show_error("Invalid step", f"{step.name} does not have a valid run file path.")
+                return
+            if not Path(step.path).expanduser().exists():
+                self._show_error("Run file missing", f"Run file was not found for {step.name}:\n{step.path}")
+                return
 
-        self.statusBar().showMessage(
-            "Running selected step only. Downstream step statuses are left unchanged.",
-            7000,
-        )
-        self._run_steps([step])
+        if len(steps) == 1:
+            self.statusBar().showMessage(
+                "Running selected step only. Downstream step statuses are left unchanged.",
+                7000,
+            )
+        else:
+            self.statusBar().showMessage(
+                f"Running {len(steps)} selected steps in run-file order. Downstream statuses are left unchanged.",
+                7000,
+            )
+        self._run_steps(steps)
 
     def run_remaining_steps(self) -> None:
         self._update_project_from_form()
@@ -976,8 +1067,7 @@ class MainWindow(QMainWindow):
     def _update_visualization_mode_ui(self) -> None:
         mode = str(self.visual_mode_combo.currentData() or "slc")
         is_overlay = mode == "overlay"
-        self._set_form_row_visible(self.visual_secondary_row_widget, is_overlay)
-        self._set_form_row_visible(self.visual_overlay_brightness_spin, is_overlay)
+        self.results_page.set_overlay_fields_visible(is_overlay)
         if mode == "slc":
             self.visual_primary_path_edit.setPlaceholderText(
                 "Select .slc/.slc.vrt/.slc.full.vrt or a file with sibling .xml"
@@ -987,31 +1077,8 @@ class MainWindow(QMainWindow):
                 "Select .int/.int.vrt/.int.full.vrt or a file with sibling .xml"
             )
         else:
-            self.visual_primary_path_edit.setPlaceholderText(
-                "Select SLC input (.slc/.vrt/.xml)"
-            )
-            self.visual_secondary_path_edit.setPlaceholderText(
-                "Select interferogram input (.int/.vrt/.xml)"
-            )
-
-    @staticmethod
-    def _set_form_row_visible(widget: QWidget, visible: bool) -> None:
-        parent = widget.parentWidget()
-        if parent is None:
-            return
-        form = parent.layout()
-        if not isinstance(form, QFormLayout):
-            return
-        for row in range(form.rowCount()):
-            row_item = form.itemAt(row, QFormLayout.ItemRole.FieldRole)
-            if row_item is None:
-                continue
-            if row_item.widget() is widget:
-                label_item = form.itemAt(row, QFormLayout.ItemRole.LabelRole)
-                if label_item is not None and label_item.widget() is not None:
-                    label_item.widget().setVisible(visible)
-                widget.setVisible(visible)
-                return
+            self.visual_primary_path_edit.setPlaceholderText("Select SLC input (.slc/.vrt/.xml)")
+            self.visual_secondary_path_edit.setPlaceholderText("Select interferogram input (.int/.vrt/.xml)")
 
     def run_visualization_preview(self) -> None:
         output_path = self._resolve_visualization_preview_output_path()
@@ -1056,9 +1123,7 @@ class MainWindow(QMainWindow):
 
     def _try_reuse_preview_for_export(self, signature: str, export_path: str) -> bool:
         preview_path = Path(self.project.visualization.last_preview_path).expanduser()
-        if not preview_path.exists():
-            return False
-        if not preview_path.is_file():
+        if not preview_path.exists() or not preview_path.is_file():
             return False
         if self.project.visualization.last_render_signature != signature:
             return False
@@ -1118,13 +1183,7 @@ class MainWindow(QMainWindow):
         self.visual_export_dir_edit.setText(str(Path(output_path).expanduser().parent))
         return output_path
 
-    def _run_visualization(
-        self,
-        request: VisualizationRequest,
-        *,
-        action: str,
-        render_signature: str,
-    ) -> None:
+    def _run_visualization(self, request: VisualizationRequest, *, action: str, render_signature: str) -> None:
         if self.runner.is_running():
             QMessageBox.warning(self, "Busy", "Another command is already running.")
             return
@@ -1154,6 +1213,7 @@ class MainWindow(QMainWindow):
         self.preview_image_label.setPixmap(QPixmap())
         self.runner.run_queue([result.plan])
         self._update_action_states()
+        self._set_current_page("results")
 
     def _run_steps(self, steps: list[RunStep]) -> None:
         if self.runner.is_running():
@@ -1227,6 +1287,7 @@ class MainWindow(QMainWindow):
         self.project_store.save(self.project)
         self.runner.run_queue(plans)
         self.refresh_status_labels()
+        self._set_current_page("monitor")
 
     def _handle_command_started(self, plan: CommandPlan) -> None:
         self.append_log(f"\n=== {plan.label} ===\n")
@@ -1247,6 +1308,7 @@ class MainWindow(QMainWindow):
             self.preview_image_label.resize(480, 320)
         self.refresh_steps_view()
         self.refresh_status_labels()
+        self._sync_summary_sidebar()
 
     def _handle_command_finished(self, plan: CommandPlan, exit_code: int) -> None:
         stopped = self._stop_requested and exit_code != 0
@@ -1356,6 +1418,7 @@ class MainWindow(QMainWindow):
         self.refresh_steps_view()
         self.refresh_outputs_view()
         self.refresh_status_labels()
+        self._sync_summary_sidebar()
 
     def _handle_queue_finished(self, success: bool, message: str) -> None:
         if self._pending_visualization is not None:
@@ -1380,6 +1443,7 @@ class MainWindow(QMainWindow):
             self.project_store.save(self.project)
             self.refresh_status_labels()
             self._update_action_states()
+            self._sync_summary_sidebar()
             return
 
         if self._pending_preparation is not None:
@@ -1418,6 +1482,7 @@ class MainWindow(QMainWindow):
         self.project_store.save(self.project)
         self.refresh_status_labels()
         self._update_action_states()
+        self._sync_summary_sidebar()
         self.statusBar().showMessage(message, 5000)
 
     def _handle_runner_state_changed(self, state: str) -> None:
@@ -1451,21 +1516,36 @@ class MainWindow(QMainWindow):
                 item.addChild(child)
             self.steps_tree.addTopLevelItem(item)
         self.steps_tree.expandAll()
+        self.run_monitor_page.empty_state_label.setVisible(self.steps_tree.topLevelItemCount() == 0)
         self._refresh_runfile_estimates()
         self._update_action_states()
+        self._refresh_navigation_status()
 
     def refresh_outputs_view(self) -> None:
         self.outputs_tree.clear()
         try:
             work_dir = self.project.resolved_work_dir()
         except ValueError:
+            self.results_page.empty_outputs_label.setVisible(True)
+            self.summary_results_card.set_value("No outputs scanned")
+            self.summary_results_card.set_body("Resolve a work directory first.")
             return
         if not work_dir.exists():
+            self.results_page.empty_outputs_label.setVisible(True)
+            self.summary_results_card.set_value("No outputs scanned")
+            self.summary_results_card.set_body("Work directory does not exist yet.")
             return
 
-        for node in self.output_discovery_service.discover(work_dir):
+        nodes = self.output_discovery_service.discover(work_dir)
+        for node in nodes:
             self.outputs_tree.addTopLevelItem(self._output_item(node))
         self.outputs_tree.expandToDepth(1)
+        self.results_page.empty_outputs_label.setVisible(self.outputs_tree.topLevelItemCount() == 0)
+        self.summary_results_card.set_value(f"{len(nodes)} output roots")
+        self.summary_results_card.set_body("Results and visualization outputs discovered.")
+        self.results_page.output_card.set_value(f"{len(nodes)} output roots")
+        self.results_page.output_card.set_body(str(work_dir))
+        self._refresh_navigation_status()
 
     def _output_item(self, node: OutputNode) -> QTreeWidgetItem:
         item = QTreeWidgetItem([node.name, node.kind, node.path])
@@ -1500,6 +1580,8 @@ class MainWindow(QMainWindow):
         else:
             details += f"Preview image: {path}"
         self.preview_meta_text.setPlainText(details)
+        self.results_page.preview_card.set_value("Ready")
+        self.results_page.preview_card.set_body(Path(image_path).name)
 
     def _validate_data_source_inputs(self) -> list[str]:
         errors: list[str] = []
@@ -1539,17 +1621,27 @@ class MainWindow(QMainWindow):
         errors: list[str] = []
         workflow = self.project.workflow
 
-        try:
-            workflow.normalized_bbox()
-        except ValueError as exc:
-            errors.append(str(exc))
+        if workflow.use_common_overlap:
+            if workflow.bbox_snwe.strip():
+                try:
+                    workflow.normalized_bbox()
+                except ValueError as exc:
+                    errors.append(str(exc))
+        else:
+            if not workflow.bbox_snwe.strip():
+                errors.append("ISCE bbox (SNWE) is required unless 'Use common overlap' is enabled.")
+            else:
+                try:
+                    workflow.normalized_bbox()
+                except ValueError as exc:
+                    errors.append(str(exc))
 
+        if not workflow.swath_numbers.strip():
+            errors.append("At least one IW swath must be selected.")
         if workflow.azimuth_looks < 1:
             errors.append("Azimuth looks must be >= 1.")
-
         if workflow.range_looks < 1:
             errors.append("Range looks must be >= 1.")
-
         if workflow.reference_date and (len(workflow.reference_date) != 8 or not workflow.reference_date.isdigit()):
             errors.append("Reference date must use YYYYMMDD format when provided.")
 
@@ -1581,16 +1673,25 @@ class MainWindow(QMainWindow):
             current = current.parent()
         return current
 
-    def _selected_step(self) -> RunStep | None:
-        if not hasattr(self, "steps_tree"):
-            return None
-        step_item = self._step_item_from_item(self.steps_tree.currentItem())
-        if step_item is None:
-            return None
-        step_name = str(step_item.data(0, Qt.ItemDataRole.UserRole) or step_item.text(0)).strip()
-        if not step_name:
-            return None
-        return self._find_step(step_name)
+    def _selected_steps(self) -> list[RunStep]:
+        selected_items = self.steps_tree.selectedItems()
+        if not selected_items:
+            current = self.steps_tree.currentItem()
+            selected_items = [current] if current is not None else []
+
+        names: set[str] = set()
+        for item in selected_items:
+            step_item = self._step_item_from_item(item)
+            if step_item is None:
+                continue
+            step_name = str(step_item.data(0, Qt.ItemDataRole.UserRole) or step_item.text(0)).strip()
+            if step_name:
+                names.add(step_name)
+
+        if not names:
+            return []
+        # Keep deterministic execution order by run-file order.
+        return [step for step in self.project.state.steps if step.name in names]
 
     def _open_steps_context_menu(self, pos) -> None:
         item = self.steps_tree.itemAt(pos)
@@ -1598,10 +1699,17 @@ class MainWindow(QMainWindow):
         if step_item is None:
             return
 
-        self.steps_tree.setCurrentItem(step_item)
+        step_name = str(step_item.data(0, Qt.ItemDataRole.UserRole) or step_item.text(0)).strip()
+        if step_name:
+            matching = self.steps_tree.findItems(step_name, Qt.MatchFlag.MatchExactly, 0)
+            if matching and not matching[0].isSelected():
+                self.steps_tree.clearSelection()
+                matching[0].setSelected(True)
+                self.steps_tree.setCurrentItem(matching[0])
+
         menu = QMenu(self)
         run_action = menu.addAction("Run Selected Step")
-        run_action.setEnabled((not self.runner.is_running()) and self._selected_step() is not None)
+        run_action.setEnabled((not self.runner.is_running()) and bool(self._selected_steps()))
         chosen = menu.exec(self.steps_tree.viewport().mapToGlobal(pos))
         if chosen == run_action:
             self.run_selected_step()
@@ -1614,15 +1722,14 @@ class MainWindow(QMainWindow):
         return None
 
     def _refresh_runfile_estimates(self) -> None:
-        if not hasattr(self, "runfile_estimate_text"):
-            return
+        current_parallel = max(1, self.project.workflow.num_proc)
         if not self.project.state.steps:
-            self.runfile_estimate_text.setPlainText(
-                "Generate workflow first. Run-file command estimates will appear here."
-            )
+            text = "Generate workflow first. Run-file command estimates will appear here."
+            self.runfile_estimate_text.setPlainText(text)
+            self.monitor_runfile_estimate_text.setPlainText(text)
+            self.processing_page.parallel_card.set_value(f"num_proc = {current_parallel}")
             return
 
-        current_parallel = max(1, self.project.workflow.num_proc)
         lines = [f"Current num_proc = {current_parallel}", ""]
         for step in self.project.state.steps:
             try:
@@ -1636,7 +1743,11 @@ class MainWindow(QMainWindow):
                 f"{step.name}: {command_count} commands, suggested parallel={suggested} "
                 f"(num_proc={current_parallel})"
             )
-        self.runfile_estimate_text.setPlainText("\n".join(lines))
+        text = "\n".join(lines)
+        self.runfile_estimate_text.setPlainText(text)
+        self.monitor_runfile_estimate_text.setPlainText(text)
+        self.processing_page.parallel_card.set_value(f"num_proc = {current_parallel}")
+        self.processing_page.parallel_card.set_body("Review estimates before running large stacks.")
 
     def _show_error(self, title: str, message: str) -> None:
         QMessageBox.critical(self, title, message)
@@ -1670,3 +1781,508 @@ class MainWindow(QMainWindow):
                 changed = True
 
         return changed
+
+    def _toggle_common_overlap_mode(self, checked: bool) -> None:
+        self.aoi_iw_page.set_bbox_enabled(not checked)
+        if checked:
+            self.aoi_iw_page.set_bbox_components("", "", "", "")
+        self._update_project_from_form()
+
+    def _sync_iw_selection_card(self) -> None:
+        swaths = self.aoi_iw_page.selected_swaths() or "1 2 3"
+        text = " ".join(f"IW{token}" for token in swaths.split()) if swaths.strip() else "None"
+        self.aoi_iw_page.iw_card.set_value(text)
+        self.summary_selection_card.set_value(text)
+        self.summary_selection_card.set_body("Swath-level control is active.")
+
+    def confirm_aoi_iw(self) -> None:
+        self._update_project_from_form()
+        errors = self._validate_processing_inputs()
+        if errors:
+            self._show_error("Invalid AOI/BBox/IW", "\n".join(errors))
+            return
+        self._sync_summary_sidebar()
+        self.statusBar().showMessage("AOI/BBox/IW parameters confirmed.", 4000)
+
+    def import_aoi_file(self) -> None:
+        source_path = self.aoi_source_edit.text().strip()
+        if not source_path:
+            self._show_error("AOI import failed", "Select a KML or SHP AOI file first.")
+            return
+
+        try:
+            result = self.aoi_import_service.import_aoi(source_path)
+        except Exception as exc:
+            self._show_error("AOI import failed", str(exc))
+            return
+
+        self._last_aoi_import = result
+        self.use_common_overlap_check.setChecked(False)
+        self.aoi_iw_page.set_bbox_enabled(True)
+        south, north, west, east = result.bbox_snwe.split()
+        self.aoi_iw_page.set_bbox_components(south, north, west, east)
+        self.aoi_iw_page.source_card.set_value(Path(result.source_path).name)
+        self.aoi_iw_page.source_card.set_body("Imported AOI data was used to fill ISCE bbox.")
+        notes = list(result.notes)
+        if result.warnings:
+            notes.extend(["", "Warnings:"])
+            notes.extend(f"- {line}" for line in result.warnings)
+        self.verify_notes.setPlainText("\n".join(notes))
+        self.aoi_iw_page.verify_alert_label.clear()
+        self.aoi_iw_page.verify_alert_label.hide()
+        self._update_project_from_form()
+        self.recommend_iw()
+        self.statusBar().showMessage("AOI imported and ISCE bbox updated.", 5000)
+
+    def _first_entry_for_iw_recommendation(self) -> str:
+        prepared = self.project.state.prepared_inputs.entries
+        if prepared:
+            return prepared[0].path
+
+        input_dir = Path(self.project.workflow.input_path).expanduser()
+        if not input_dir.is_dir():
+            raise ValueError("Prepare data first or set a valid Sentinel-1 input folder.")
+        report = self.input_catalog_service.scan(input_dir)
+        if not report.entries:
+            raise ValueError("No Sentinel-1 ZIP/SAFE inputs were found for IW recommendation.")
+        return report.entries[0].path
+
+    def _current_aoi_geometries(self) -> list[list[tuple[float, float]]]:
+        source_path = self.aoi_source_edit.text().strip()
+        if not source_path:
+            return self._last_aoi_import.geometries if self._last_aoi_import else []
+        if self._last_aoi_import and Path(self._last_aoi_import.source_path) == Path(source_path).expanduser():
+            return self._last_aoi_import.geometries
+        try:
+            self._last_aoi_import = self.aoi_import_service.import_aoi(source_path)
+        except Exception:
+            return self._last_aoi_import.geometries if self._last_aoi_import else []
+        return self._last_aoi_import.geometries
+
+    def recommend_iw(self) -> None:
+        self._update_project_from_form()
+        self.aoi_iw_page.verify_alert_label.clear()
+        self.aoi_iw_page.verify_alert_label.hide()
+        if self.project.workflow.use_common_overlap:
+            self._show_error("IW recommendation unavailable", "Disable 'Use common overlap' and provide ISCE bbox first.")
+            return
+        if not self.project.workflow.bbox_snwe.strip():
+            self._show_error("IW recommendation unavailable", "ISCE bbox is required for IW recommendation.")
+            return
+
+        try:
+            basis_entry = self._first_entry_for_iw_recommendation()
+            result = self.iw_recommendation_service.recommend(
+                basis_entry,
+                self.project.workflow.normalized_bbox(),
+            )
+        except Exception as exc:
+            self._show_error("IW recommendation failed", str(exc))
+            return
+
+        self._last_iw_recommendation = result
+        self.aoi_iw_page.set_selected_swaths(result.recommended_swaths)
+        self._sync_iw_selection_card()
+        notes = list(result.notes)
+        if result.warnings:
+            notes.extend(["", "Warnings:"])
+            notes.extend(f"- {line}" for line in result.warnings)
+        self.verify_notes.setPlainText("\n".join(notes))
+        self._update_project_from_form()
+        self.statusBar().showMessage(f"Recommended IW: {result.recommended_swaths}", 5000)
+
+    def _selected_swath_set(self) -> set[str]:
+        return {item for item in (self.aoi_iw_page.selected_swaths() or "").split() if item}
+
+    def _selected_auto_burst_pairs(self, recommendation: IwRecommendationResult) -> set[tuple[str, int]]:
+        selected_swaths = self._selected_swath_set()
+        pairs: set[tuple[str, int]] = set()
+        for swath, burst_ids in recommendation.auto_selected_bursts.items():
+            if selected_swaths and swath not in selected_swaths:
+                continue
+            for burst_id in burst_ids:
+                pairs.add((swath, burst_id))
+        return pairs
+
+    @staticmethod
+    def _union_bbox_from_bursts(
+        recommendation: IwRecommendationResult,
+        pairs: set[tuple[str, int]],
+    ) -> tuple[float, float, float, float] | None:
+        if not pairs:
+            return None
+        bboxes: list[tuple[float, float, float, float]] = []
+        for swath, burst_id in pairs:
+            for burst in recommendation.bursts.get(swath, []):
+                if burst.burst_id == burst_id:
+                    bboxes.append(burst.bbox_snwe)
+                    break
+        if not bboxes:
+            return None
+        south = min(item[0] for item in bboxes)
+        north = max(item[1] for item in bboxes)
+        west = min(item[2] for item in bboxes)
+        east = max(item[3] for item in bboxes)
+        return south, north, west, east
+
+    def verify_aoi_iw_geometry(self) -> None:
+        self._update_project_from_form()
+        self.aoi_iw_page.verify_alert_label.clear()
+        self.aoi_iw_page.verify_alert_label.hide()
+        if self.project.workflow.use_common_overlap or not self.project.workflow.bbox_snwe.strip():
+            self._show_error(
+                "Verify unavailable",
+                "Provide ISCE bbox first (disable 'Use common overlap').",
+            )
+            return
+
+        try:
+            bbox_text = self.project.workflow.normalized_bbox()
+            south, north, west, east = [float(token) for token in bbox_text.split()]
+            basis_entry = self._first_entry_for_iw_recommendation()
+            self._last_iw_recommendation = self.iw_recommendation_service.recommend(basis_entry, bbox_text)
+        except Exception as exc:
+            self._show_error("Verify failed", str(exc))
+            return
+
+        footprints = {
+            swath: item.polygon
+            for swath, item in self._last_iw_recommendation.footprints.items()
+        }
+        burst_polygons = {
+            swath: {item.burst_id: item.polygon for item in bursts}
+            for swath, bursts in self._last_iw_recommendation.bursts.items()
+        }
+        selected_burst_pairs = self._selected_auto_burst_pairs(self._last_iw_recommendation)
+        burst_union_bbox = self._union_bbox_from_bursts(self._last_iw_recommendation, selected_burst_pairs)
+
+        dem_bbox = None
+        coverage_notes: list[str] = []
+        coverage_warnings: list[str] = []
+        if self.project.state.prepared_dem_path and burst_union_bbox is not None:
+            try:
+                coverage = self.dem_coverage_service.assess(
+                    self.project.state.prepared_dem_path,
+                    burst_union_bbox,
+                )
+                dem_bbox = coverage.dem_bbox_snwe
+                coverage_notes.extend(coverage.notes)
+                coverage_warnings.extend(coverage.warnings)
+            except Exception as exc:
+                coverage_warnings.append(f"DEM coverage assessment failed: {exc}")
+        elif not self.project.state.prepared_dem_path:
+            coverage_warnings.append("Prepared DEM path is empty; DEM coverage was not assessed.")
+        else:
+            coverage_warnings.append("No auto-selected burst intersects the selected IW + bbox.")
+
+        plot = VerifyPlotData(
+            aoi_geometries=list(self._current_aoi_geometries()),
+            bbox_snwe=(south, north, west, east),
+            iw_polygons=footprints,
+            selected_swaths=set((self.aoi_iw_page.selected_swaths() or "").split()),
+            burst_polygons=burst_polygons,
+            selected_bursts=selected_burst_pairs,
+            dem_bbox_snwe=dem_bbox,
+        )
+        self.aoi_iw_page.verify_panel.set_plot(plot)
+
+        notes = []
+        if self._last_aoi_import:
+            notes.append(f"AOI source: {self._last_aoi_import.source_path}")
+        notes.append(f"ISCE bbox (SNWE): {bbox_text}")
+        notes.append(f"Selected IW: {self.aoi_iw_page.selected_swaths() or '-'}")
+        if selected_burst_pairs:
+            by_swath: dict[str, list[int]] = {}
+            for swath, burst_id in sorted(selected_burst_pairs):
+                by_swath.setdefault(swath, []).append(burst_id)
+            for swath, ids in sorted(by_swath.items()):
+                notes.append(f"IW{swath} auto-selected bursts: {', '.join(str(item) for item in ids)}")
+        else:
+            notes.append("Auto-selected bursts: none")
+        if burst_union_bbox is not None:
+            notes.append(
+                "Auto-selected burst union bbox (SNWE): "
+                + " ".join(f"{value:g}" for value in burst_union_bbox)
+            )
+        if self._last_iw_recommendation:
+            notes.extend(self._last_iw_recommendation.notes)
+            if self._last_iw_recommendation.warnings:
+                notes.extend(["", "Warnings:"])
+                notes.extend(f"- {line}" for line in self._last_iw_recommendation.warnings)
+        if coverage_notes:
+            notes.extend(["", "DEM coverage:"])
+            notes.extend(coverage_notes)
+        if coverage_warnings:
+            notes.extend(["", "Coverage warnings:"])
+            notes.extend(f"- {line}" for line in coverage_warnings)
+            self.aoi_iw_page.verify_alert_label.setText(f"DEM coverage warning: {coverage_warnings[0]}")
+            self.aoi_iw_page.verify_alert_label.show()
+        else:
+            self.aoi_iw_page.verify_alert_label.clear()
+            self.aoi_iw_page.verify_alert_label.hide()
+        self.verify_notes.setPlainText("\n".join(notes))
+        self.statusBar().showMessage("AOI/BBox/IW + burst/DEM verify plot updated.", 5000)
+
+    def export_verify_geometry_png(self) -> None:
+        try:
+            work_dir = self.project.resolved_work_dir()
+        except ValueError:
+            self._show_error("Export failed", "Set working directory first.")
+            return
+        stamp = datetime.now().strftime("%Y%m%dT%H%M%S")
+        default_path = work_dir / ".iscegui" / "verify" / f"aoi_iw_verify_{stamp}.png"
+        output_path, _ = QFileDialog.getSaveFileName(
+            self,
+            "Export verify image",
+            str(default_path),
+            "PNG image (*.png)",
+        )
+        if not output_path:
+            return
+        if not output_path.lower().endswith(".png"):
+            output_path = f"{output_path}.png"
+        try:
+            saved = self.aoi_iw_page.verify_panel.export_png(output_path)
+        except Exception as exc:
+            self._show_error("Export failed", str(exc))
+            return
+        self.statusBar().showMessage(f"Verify image exported: {saved}", 5000)
+
+    def _populate_reference_candidates(self) -> None:
+        dates = self._prepared_dates()
+        recommended = dates[0] if dates else "Unavailable"
+        self.processing_page.reference_hint_label.setText(
+            (
+                f"Recommended reference date from prepared inputs: {recommended}. "
+                "Leave empty to let workflow choose automatically."
+            )
+            if dates
+            else "Run Validate & Prepare Data to populate available dates. Leave empty to auto-select reference."
+        )
+
+    def _prepared_dates(self) -> list[str]:
+        dates: set[str] = set()
+        for entry in self.project.state.prepared_inputs.entries:
+            match = re.search(r"(20\d{6})", Path(entry.path).name)
+            if match:
+                dates.add(match.group(1))
+        return sorted(dates)
+
+    def _preview_generate_command(self) -> None:
+        self._update_project_from_form()
+        if not self._is_prepared_for_current_sources():
+            self.command_preview_text.setPlainText(
+                "Prepare data first. The generated stackSentinel.py command will appear here."
+            )
+            return
+        try:
+            command = self.workflow_service.build_generate_command(
+                self.project,
+                self.project.state.prepared_inputs,
+                dem_path=self.project.state.prepared_dem_path,
+            )
+        except Exception as exc:
+            self.command_preview_text.setPlainText(f"Preview unavailable:\n{exc}")
+            return
+        self.command_preview_text.setPlainText(command)
+        self.statusBar().showMessage("Generated command preview updated.", 3000)
+
+    def _rescan_existing_runfiles(self) -> None:
+        try:
+            self.workflow_service.synchronize_project_steps(self.project)
+        except Exception as exc:
+            self._show_error("Re-scan failed", str(exc))
+            return
+        self.refresh_steps_view()
+        self.refresh_status_labels()
+        self._sync_summary_sidebar()
+        self.statusBar().showMessage("Existing run_files re-scanned.", 4000)
+
+    def _handle_step_selection_changed(self) -> None:
+        self._update_action_states()
+        self._update_step_detail_panel()
+
+    def _update_step_detail_panel(self) -> None:
+        selected_steps = self._selected_steps()
+        if len(selected_steps) > 1:
+            lines = [f"Selected steps: {len(selected_steps)}", ""]
+            lines.extend(f"- {step.name} ({step.status.value})" for step in selected_steps)
+            self.command_detail_text.setPlainText("\n".join(lines))
+            return
+
+        item = self.steps_tree.currentItem()
+        if item is None:
+            self.command_detail_text.setPlainText("")
+            return
+        root = self._step_item_from_item(item)
+        if root is None:
+            return
+        step = self._find_step(str(root.data(0, Qt.ItemDataRole.UserRole) or root.text(0)))
+        if step is None:
+            self.command_detail_text.setPlainText("")
+            return
+        lines = [
+            f"Step: {step.name}",
+            f"Status: {step.status.value}",
+            f"Run file: {step.path}",
+            f"Batch log: {step.log_path}",
+            f"Message: {step.last_message or '-'}",
+        ]
+        if item.parent() is not None:
+            text = item.text(0)
+            try:
+                sub_index = int(text.split(":", 1)[0].lstrip("#"))
+            except ValueError:
+                sub_index = -1
+            sub = self._find_subcommand(step, sub_index)
+            if sub is not None:
+                lines.extend(
+                    [
+                        "",
+                        f"Subcommand #{sub.index}",
+                        f"Command: {sub.command}",
+                        f"Status: {sub.status.value}",
+                        f"Exit: {sub.exit_code if sub.exit_code is not None else '-'}",
+                        f"Log: {sub.log_path}",
+                    ]
+                )
+        else:
+            if step.subcommands:
+                lines.extend(["", "Subcommands:"])
+                lines.extend(f"- #{sub.index}: {sub.command}" for sub in step.subcommands)
+        self.command_detail_text.setPlainText("\n".join(lines))
+
+    def _sync_summary_sidebar(self) -> None:
+        prepared = self.project.state.prepared_inputs
+        self.summary_sources_card.set_value(
+            f"{len(prepared.entries)} prepared inputs" if prepared.entries else "Not prepared"
+        )
+        if self.project.state.prepared_dem_path:
+            self.summary_sources_card.set_body(Path(self.project.state.prepared_dem_path).name)
+        else:
+            self.summary_sources_card.set_body("Dataset, orbit, and DEM still need validation.")
+        self.data_sources_page.orbit_card.set_value(
+            Path(self.project.workflow.orbit_path).name if self.project.workflow.orbit_path else "Not set"
+        )
+        self.data_sources_page.dem_card.set_value(
+            Path(self.project.workflow.dem_path).name if self.project.workflow.dem_path else "Not set"
+        )
+        self.data_sources_page.orbit_card.set_body(
+            self.project.workflow.orbit_path or "Point to local EOF orbit files."
+        )
+        self.data_sources_page.dem_card.set_body(
+            self.project.state.prepared_dem_path or self.project.workflow.dem_path or "GeoTIFF or native ISCE DEM path."
+        )
+
+        try:
+            bbox = self.project.workflow.normalized_bbox() if self.project.workflow.bbox_snwe else ""
+        except ValueError:
+            bbox = ""
+        if self.project.workflow.use_common_overlap:
+            self.summary_aoi_card.set_value("Common overlap")
+            self.summary_aoi_card.set_body("Empty bbox is allowed by compatibility switch.")
+            self.aoi_iw_page.bbox_card.set_value("Common overlap")
+            self.aoi_iw_page.bbox_card.set_body("ISCE bbox will be omitted.")
+        else:
+            self.summary_aoi_card.set_value(bbox or "Not set")
+            self.summary_aoi_card.set_body("ISCE bbox in SNWE decimal degrees.")
+            self.aoi_iw_page.bbox_card.set_value(bbox or "Not set")
+            self.aoi_iw_page.bbox_card.set_body("Final stackSentinel -b parameter.")
+        self.aoi_iw_page.source_card.set_value(
+            Path(self.project.workflow.aoi_source_path).name if self.project.workflow.aoi_source_path else "Manual"
+        )
+        self.aoi_iw_page.source_card.set_body(
+            self.project.workflow.aoi_source_path or "AOI file optional; you can fill bbox manually."
+        )
+
+        swaths = self.project.workflow.swath_numbers.strip() or "1 2 3"
+        self.summary_selection_card.set_value(" ".join(f"IW{item}" for item in swaths.split()))
+        self.aoi_iw_page.iw_card.set_value(" ".join(f"IW{item}" for item in swaths.split()))
+        self.summary_reference_card.set_value(self.project.workflow.reference_date or "Auto")
+        self.summary_reference_card.set_body(
+            "Manual override applied." if self.project.workflow.reference_date else "Master date left to workflow defaults."
+        )
+        self.summary_processing_card.set_value(
+            f"{self.project.workflow.workflow} / {self.project.workflow.coregistration}"
+        )
+        self.summary_processing_card.set_body(
+            f"Looks {self.project.workflow.azimuth_looks}x{self.project.workflow.range_looks}, num_proc={self.project.workflow.num_proc}"
+        )
+        self.processing_page.plan_card.set_value(
+            f"{self.project.workflow.workflow} / {self.project.workflow.coregistration}"
+        )
+        self.processing_page.plan_card.set_body(
+            f"Range looks {self.project.workflow.range_looks}, azimuth looks {self.project.workflow.azimuth_looks}"
+        )
+        if self.project.visualization.last_preview_path:
+            self.summary_results_card.set_body(Path(self.project.visualization.last_preview_path).name)
+
+        self._refresh_navigation_status()
+
+    def _refresh_navigation_status(self) -> None:
+        self._set_nav_status(
+            "data_sources",
+            "Ready" if self._is_prepared_for_current_sources() else "Pending",
+            "ready" if self._is_prepared_for_current_sources() else "warning",
+        )
+        swath_ok = bool(self.project.workflow.swath_numbers.strip() or self.aoi_iw_page.selected_swaths())
+        if self.project.workflow.use_common_overlap:
+            bbox_ok = True
+        else:
+            try:
+                self.project.workflow.normalized_bbox()
+                bbox_ok = True
+            except ValueError:
+                bbox_ok = False
+        aoi_iw_ok = bbox_ok and swath_ok
+        self._set_nav_status("aoi_iw", "Ready" if aoi_iw_ok else "Check", "ready" if aoi_iw_ok else "warning")
+        self._set_nav_status(
+            "processing",
+            self.project.state.status.value,
+            self._tone_for_status(self.project.state.status.value),
+        )
+        has_steps = bool(self.project.state.steps)
+        self._set_nav_status("monitor", "Ready" if has_steps else "Pending", "ready" if has_steps else "neutral")
+        has_results = self.outputs_tree.topLevelItemCount() > 0
+        self._set_nav_status("results", "Ready" if has_results else "Pending", "ready" if has_results else "neutral")
+        self._sync_nav_selection_state()
+
+    def _set_nav_status(self, key: str, text: str, tone: str) -> None:
+        self._nav_items[key].set_status(text, tone)
+
+    def _sync_nav_selection_state(self) -> None:
+        current_row = self.workflow_nav.currentRow()
+        for row in range(self.workflow_nav.count()):
+            item = self.workflow_nav.item(row)
+            key = str(item.data(Qt.ItemDataRole.UserRole))
+            nav_item = self._nav_items.get(key)
+            if nav_item is not None:
+                nav_item.set_selected(row == current_row)
+
+    def _environment_health_badge(self) -> tuple[str, str]:
+        text = self.project.state.last_validation.strip()
+        if not text:
+            return "Env unchecked", "warning"
+        if "[FAIL]" in text:
+            return "Env issue", "failed"
+        return "Env ready", "ready"
+
+    @staticmethod
+    def _tone_for_status(status_text: str) -> str:
+        mapping = {
+            "draft": "neutral",
+            "ready": "ready",
+            "generated": "running",
+            "running": "running",
+            "completed": "success",
+            "success": "success",
+            "pending": "neutral",
+            "failed": "failed",
+            "cancelled": "warning",
+        }
+        return mapping.get(status_text, "neutral")
+
+    def _set_current_page(self, key: str) -> None:
+        if key not in self._page_index_by_key:
+            return
+        self.workflow_nav.setCurrentRow(self._page_index_by_key[key])
