@@ -102,3 +102,36 @@ def test_iw_recommendation_extracts_auto_selected_bursts(tmp_path: Path):
     assert len(result.bursts["2"]) == 3
     assert result.auto_selected_bursts["2"] == [1, 2, 3]
     assert result.auto_selected_burst_bbox_snwe is not None
+
+
+def test_iw_recommendation_burst_selection_uses_polygon_intersection(tmp_path: Path):
+    safe_dir = tmp_path / "scene.SAFE"
+    annotation_dir = safe_dir / "annotation"
+    annotation_dir.mkdir(parents=True)
+    xml = """<?xml version="1.0" encoding="UTF-8"?>
+<product>
+  <adsHeader><swath>IW2</swath></adsHeader>
+  <pass>ASCENDING</pass>
+  <swathTiming>
+    <linesPerBurst>100</linesPerBurst>
+    <burstList count="1">
+      <burst><azimuthTime>2022-01-01T00:00:00</azimuthTime></burst>
+    </burstList>
+  </swathTiming>
+  <geolocationGrid>
+    <geolocationGridPointList count="4">
+      <geolocationGridPoint><line>0</line><pixel>0</pixel><latitude>34.0</latitude><longitude>-118.5</longitude></geolocationGridPoint>
+      <geolocationGridPoint><line>0</line><pixel>100</pixel><latitude>34.0</latitude><longitude>-118.0</longitude></geolocationGridPoint>
+      <geolocationGridPoint><line>100</line><pixel>0</pixel><latitude>33.5</latitude><longitude>-118.46</longitude></geolocationGridPoint>
+      <geolocationGridPoint><line>100</line><pixel>100</pixel><latitude>33.5</latitude><longitude>-118.44</longitude></geolocationGridPoint>
+    </geolocationGridPointList>
+  </geolocationGrid>
+</product>
+"""
+    (annotation_dir / "s1a-iw2-slc-vv-x.xml").write_text(xml, encoding="utf-8")
+
+    # This bbox intersects burst bbox but should not intersect burst polygon.
+    result = IwRecommendationService().recommend(str(safe_dir), "33.55 33.60 -118.05 -118.00")
+
+    assert result.recommended_swaths == "2"
+    assert result.auto_selected_bursts["2"] == []

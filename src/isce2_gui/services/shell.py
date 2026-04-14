@@ -21,23 +21,14 @@ class ShellCommandBuilder:
     def activation_snippet(self) -> str:
         shell_init = self.environment.shell_init_path.strip()
         conda_env = self.environment.conda_env_name.strip()
-        isce_root = Path(self.environment.isce_root).expanduser()
-        stack_dir = isce_root / "contrib" / "stack" / "topsStack"
-        apps_dir = isce_root / "applications"
+        isce_root_text = self.environment.isce_root.strip()
+        isce_root = Path(isce_root_text).expanduser() if isce_root_text else None
         conda_loader = (
             'for candidate in "$HOME/miniconda3/etc/profile.d/conda.sh" '
             '"$HOME/mambaforge/etc/profile.d/conda.sh" '
             '"$HOME/anaconda3/etc/profile.d/conda.sh"; do '
             'if [ -f "$candidate" ]; then . "$candidate"; break; fi; '
             "done"
-        )
-        python_prefix = ":".join(
-            str(path)
-            for path in (
-                isce_root,
-                isce_root / "components",
-                isce_root / "contrib" / "stack",
-            )
         )
 
         commands: list[str] = []
@@ -47,13 +38,40 @@ class ShellCommandBuilder:
             commands.append(conda_loader)
             commands.append(f"conda activate {self.quote(conda_env)}")
 
-        commands.extend(
-            [
-                f"export ISCE_ROOT={self.quote(str(isce_root))}",
-                f"export PATH={self.quote(f'{apps_dir}:{stack_dir}')}:$PATH",
-                f"export PYTHONPATH={self.quote(python_prefix)}:${{PYTHONPATH:-}}",
-            ]
-        )
+        if isce_root is not None:
+            source_stack_dir = isce_root / "contrib" / "stack" / "topsStack"
+            source_apps_dir = isce_root / "applications"
+            source_components_dir = isce_root / "components"
+            source_stack_parent = isce_root / "contrib" / "stack"
+            conda_stack_dir = isce_root / "share" / "isce2" / "topsStack"
+            conda_bin_dir = isce_root / "bin"
+
+            # Source-tree ISCE2 layout.
+            if source_stack_dir.exists() and source_apps_dir.exists():
+                python_prefix = ":".join(
+                    str(path)
+                    for path in (
+                        isce_root,
+                        source_components_dir,
+                        source_stack_parent,
+                    )
+                )
+                commands.extend(
+                    [
+                        f"export ISCE_ROOT={self.quote(str(isce_root))}",
+                        f"export PATH={self.quote(f'{source_apps_dir}:{source_stack_dir}')}:$PATH",
+                        f"export PYTHONPATH={self.quote(python_prefix)}:${{PYTHONPATH:-}}",
+                    ]
+                )
+            # Conda-style layout (optional explicit root): rely mainly on conda env scripts.
+            elif conda_stack_dir.exists():
+                commands.extend(
+                    [
+                        f"export ISCE_ROOT={self.quote(str(isce_root))}",
+                        f"export PATH={self.quote(f'{conda_bin_dir}:{conda_stack_dir}')}:$PATH",
+                    ]
+                )
+
         return " && ".join(commands)
 
     def wrap(self, command: str, cwd: Path | None = None) -> list[str]:

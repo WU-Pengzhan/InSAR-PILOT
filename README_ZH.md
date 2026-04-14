@@ -127,7 +127,7 @@ ISCE 原生输出仍保持在标准目录（如 `run_files/`、`reference/`、`c
 
 ## 8. WSL 说明
 
-- 为避免 WSLg 下拉/弹窗异常，应用默认在未显式设置时使用 `QT_QPA_PLATFORM=xcb`。
+- 在 WSL/WSLg 环境下，为避免下拉/弹窗异常，应用会在未显式设置时默认使用 `QT_QPA_PLATFORM=xcb`。
 - 也可手动覆盖：
 
 ```bash
@@ -135,4 +135,3 @@ QT_QPA_PLATFORM=wayland isce2-gui
 ```
 
 更多问题见 [docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md)。
-

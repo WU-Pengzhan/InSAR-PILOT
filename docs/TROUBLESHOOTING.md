@@ -10,7 +10,7 @@ Cause:
 - Qt backend compatibility issue on some WSLg Wayland setups
 
 Default behavior in this app:
-- launcher sets `QT_QPA_PLATFORM=xcb` by default (only if user did not set it)
+- launcher sets `QT_QPA_PLATFORM=xcb` by default on WSL/WSLg only (and only if user did not set it)
 
 Manual override examples:
 
@@ -31,7 +31,7 @@ Run `Validate Environment` in `Data Sources` first.
 Check:
 - conda env is activated
 - `isce2` is available in the active env (installed via `environment.yml`)
-- ISCE root path is correct
+- ISCE2 root can be left empty when using conda install; app will try conda-prefix auto-detection
 - required commands are on PATH in your shell init
 
 ## 3. DEM import fails

@@ -1586,6 +1586,19 @@ class MainWindow(QMainWindow):
     def _validate_data_source_inputs(self) -> list[str]:
         errors: list[str] = []
         workflow = self.project.workflow
+        environment = self.project.environment
+
+        if not environment.isce_root.strip():
+            errors.append("ISCE2 root is required.")
+        else:
+            isce_root = Path(environment.isce_root).expanduser()
+            source_stack = isce_root / "contrib" / "stack" / "topsStack" / "stackSentinel.py"
+            conda_stack = isce_root / "share" / "isce2" / "topsStack" / "stackSentinel.py"
+            if not source_stack.exists() and not conda_stack.exists():
+                errors.append(
+                    "ISCE2 root does not contain topsStack stackSentinel.py in expected source or conda layout:\n"
+                    f"- {source_stack}\n- {conda_stack}"
+                )
 
         if not workflow.input_path:
             errors.append("Sentinel-1 input folder is required.")

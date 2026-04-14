@@ -33,7 +33,7 @@ class ProjectStatus(str, Enum):
 class EnvironmentConfig:
     shell_init_path: str = "~/.bashrc"
     conda_env_name: str = "isce-master"
-    isce_root: str = "/home/griffin/tools/isce2"
+    isce_root: str = ""
 
     @classmethod
     def from_dict(cls, data: dict[str, Any] | None) -> "EnvironmentConfig":

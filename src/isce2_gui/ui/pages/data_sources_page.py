@@ -47,6 +47,9 @@ class DataSourcesPage(QWidget):
         self.shell_init_row = PathPickerRow()
         self.conda_env_edit = QLineEdit()
         self.isce_root_row = PathPickerRow()
+        self.isce_root_row.line_edit.setPlaceholderText(
+            "Required: ISCE2 source-tree root or conda env prefix"
+        )
         env_form.addRow("Shell init", self.shell_init_row)
         env_form.addRow("Conda env", self.conda_env_edit)
         env_form.addRow("ISCE2 root", self.isce_root_row)

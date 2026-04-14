@@ -67,13 +67,39 @@ class EnvironmentProbe:
             )
         )
 
-        isce_root = Path(environment.isce_root).expanduser()
-        stack_script = isce_root / "contrib" / "stack" / "topsStack" / "stackSentinel.py"
+        isce_root_text = environment.isce_root.strip()
+        isce_root = Path(isce_root_text).expanduser() if isce_root_text else None
+        source_stack_script = (
+            isce_root / "contrib" / "stack" / "topsStack" / "stackSentinel.py"
+            if isce_root is not None
+            else None
+        )
+        conda_stack_script = (
+            isce_root / "share" / "isce2" / "topsStack" / "stackSentinel.py"
+            if isce_root is not None
+            else None
+        )
+        if not isce_root_text:
+            isce_root_ok = False
+            isce_root_detail = "ISCE2 root is required. Select your local source-tree root or conda env prefix."
+        elif source_stack_script is not None and source_stack_script.exists():
+            isce_root_ok = True
+            isce_root_detail = f"Found source layout: {source_stack_script}"
+        elif conda_stack_script is not None and conda_stack_script.exists():
+            isce_root_ok = True
+            isce_root_detail = f"Found conda-style layout: {conda_stack_script}"
+        else:
+            isce_root_ok = False
+            isce_root_detail = (
+                f"Missing stackSentinel.py under source ({source_stack_script}) "
+                f"or conda layout ({conda_stack_script})."
+            )
+
         report.checks.append(
             ValidationCheck(
                 name="ISCE root",
-                ok=isce_root.exists() and stack_script.exists(),
-                detail=f"Found {stack_script}" if stack_script.exists() else f"Missing {stack_script}",
+                ok=isce_root_ok,
+                detail=isce_root_detail,
             )
         )
 

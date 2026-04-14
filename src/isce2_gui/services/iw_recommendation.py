@@ -68,7 +68,11 @@ class IwRecommendationService:
             selected = [
                 item.burst_id
                 for item in bursts
-                if self._intersection_area((south, north, west, east), item.bbox_snwe) > 0.0
+                if self._polygon_bbox_intersection_area(
+                    item.polygon,
+                    (south, north, west, east),
+                )
+                > 0.0
             ]
             result.auto_selected_bursts[swath] = selected
 
@@ -265,6 +269,105 @@ class IwRecommendationService:
         if south >= north or west >= east:
             return 0.0
         return (north - south) * (east - west)
+
+    @classmethod
+    def _polygon_bbox_intersection_area(
+        cls,
+        polygon: list[Coord],
+        bbox: tuple[float, float, float, float],
+    ) -> float:
+        clipped = cls._clip_polygon_to_bbox(polygon, bbox)
+        return cls._polygon_area(clipped)
+
+    @staticmethod
+    def _polygon_area(polygon: list[Coord]) -> float:
+        if len(polygon) < 3:
+            return 0.0
+        ring = list(polygon)
+        if ring[0] != ring[-1]:
+            ring.append(ring[0])
+        if len(ring) < 4:
+            return 0.0
+        total = 0.0
+        for idx in range(len(ring) - 1):
+            x1, y1 = ring[idx]
+            x2, y2 = ring[idx + 1]
+            total += (x1 * y2) - (x2 * y1)
+        return abs(total) * 0.5
+
+    @classmethod
+    def _clip_polygon_to_bbox(
+        cls,
+        polygon: list[Coord],
+        bbox: tuple[float, float, float, float],
+    ) -> list[Coord]:
+        south, north, west, east = bbox
+        if len(polygon) < 3 or south >= north or west >= east:
+            return []
+
+        ring = list(polygon)
+        if ring[0] == ring[-1]:
+            ring = ring[:-1]
+        if len(ring) < 3:
+            return []
+
+        def inside(point: Coord, edge: str) -> bool:
+            lon, lat = point
+            if edge == "left":
+                return lon >= west
+            if edge == "right":
+                return lon <= east
+            if edge == "bottom":
+                return lat >= south
+            return lat <= north
+
+        def intersect(prev: Coord, curr: Coord, edge: str) -> Coord | None:
+            x1, y1 = prev
+            x2, y2 = curr
+            if edge in {"left", "right"}:
+                x_edge = west if edge == "left" else east
+                dx = x2 - x1
+                if abs(dx) < 1e-12:
+                    return None
+                t = (x_edge - x1) / dx
+                y = y1 + (t * (y2 - y1))
+                return (x_edge, y)
+            y_edge = south if edge == "bottom" else north
+            dy = y2 - y1
+            if abs(dy) < 1e-12:
+                return None
+            t = (y_edge - y1) / dy
+            x = x1 + (t * (x2 - x1))
+            return (x, y_edge)
+
+        subject = ring
+        for edge_name in ("left", "right", "bottom", "top"):
+            if not subject:
+                break
+            clipped: list[Coord] = []
+            prev = subject[-1]
+            prev_inside = inside(prev, edge_name)
+            for curr in subject:
+                curr_inside = inside(curr, edge_name)
+                if curr_inside:
+                    if not prev_inside:
+                        cross = intersect(prev, curr, edge_name)
+                        if cross is not None:
+                            clipped.append(cross)
+                    clipped.append(curr)
+                elif prev_inside:
+                    cross = intersect(prev, curr, edge_name)
+                    if cross is not None:
+                        clipped.append(cross)
+                prev = curr
+                prev_inside = curr_inside
+            subject = clipped
+
+        if len(subject) < 3:
+            return []
+        if subject[0] != subject[-1]:
+            subject.append(subject[0])
+        return subject
 
     @staticmethod
     def _union_bbox(

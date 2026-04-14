@@ -43,6 +43,6 @@ isce2-gui
 
 - Target platform: Ubuntu on WSL.
 - Sensor/workflow: Sentinel-1 TOPS stack (ISCE2 topsStack).
-- WSLg dropdown/popup compatibility workaround is enabled by default via `QT_QPA_PLATFORM=xcb`.
+- On WSL/WSLg only, the launcher defaults to `QT_QPA_PLATFORM=xcb` to avoid dropdown/popup issues.
 
 For complete usage instructions, troubleshooting, and step-by-step ISCE run descriptions, see the EN/ZH manuals above.

@@ -133,7 +133,7 @@ Native ISCE outputs remain in standard folders (`run_files/`, `reference/`, `cor
 
 ## 8. WSL Notes
 
-- App defaults to `QT_QPA_PLATFORM=xcb` when not explicitly set, to avoid WSLg popup/dropdown issues.
+- On WSL/WSLg only, app defaults to `QT_QPA_PLATFORM=xcb` when not explicitly set.
 - You can still override manually:
 
 ```bash
