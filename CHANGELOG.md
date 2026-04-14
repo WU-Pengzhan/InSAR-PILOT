@@ -2,7 +2,7 @@
 
 All notable changes to this project are documented here.
 
-## [0.1.0] - 2026-04-13
+## [0.2.0] - 2026-04-13
 
 ### Added
 - Stage 2 practitioner workflow shell:
