@@ -1,7 +1,7 @@
 import subprocess
 from pathlib import Path
 
-from isce2_gui.services.runfile_plan import (
+from insar_pilot.services.runfile_plan import (
     build_parallel_batch_command,
     count_commands,
     parse_result_markers,

@@ -1,4 +1,4 @@
-name: isce-master
+name: insar
 channels:
   - conda-forge
   - defaults
@@ -8,13 +8,20 @@ dependencies:
   - isce2
   - numpy
   - gdal
+  - asf_search>=12.0
+  - aria2
+  - sentineleof>=0.11.1
   - pyside6>=6.6
   - pyshp>=2.3
+  - qtawesome>=1.4,<2
+  - requests>=2.31
   - pytest>=7.4
   - ruff
   - build
 
 # Notes:
 # 1) This environment installs GUI/runtime essentials + ISCE2.
-# 2) After creating/activating this env, install the app from repository root:
+# 2) Install optional QtWebEngine map support with:
+#    pip install '.[map]'
+# 3) After creating/activating this env, install the app from repository root:
 #    pip install .

@@ -1,6 +1,13 @@
+import json
+import os
 from pathlib import Path
 
-from isce2_gui.domain.project import (
+from insar_pilot.domain.project import (
+    APP_METADATA_DIR,
+    DataDownloadConfig,
+    LEGACY_APP_METADATA_DIR,
+    PROJECT_FILE_NAME,
+    PROJECT_ROOT_FILE_NAME,
     ProjectDocument,
     ProjectState,
     ProjectStatus,
@@ -10,7 +17,42 @@ from isce2_gui.domain.project import (
     VisualizationConfig,
     WorkflowConfig,
 )
-from isce2_gui.services.project_store import ProjectStore
+from insar_pilot.services.project_store import ProjectStore
+from insar_pilot.bootstrap import create_default_project
+
+
+def test_default_project_uses_current_conda_environment():
+    assert create_default_project().environment.conda_env_name == os.environ.get("CONDA_DEFAULT_ENV", "")
+
+
+def test_project_store_creates_root_workspace_layout(tmp_path: Path):
+    root = tmp_path / "city_stack_project"
+    project = ProjectStore().create_workspace(root)
+
+    assert project.workspace.project_root == str(root)
+    assert (root / PROJECT_ROOT_FILE_NAME).is_file()
+    assert (root / "data" / "SLC").is_dir()
+    assert (root / "data" / "Orbit").is_dir()
+    assert (root / "data" / "DEM").is_dir()
+    assert (root / "processing" / "work").is_dir()
+    assert (root / "outputs" / "quicklooks").is_dir()
+    assert (root / "logs").is_dir()
+    assert (root / APP_METADATA_DIR / "cache").is_dir()
+    assert project.workflow.input_path == str(root / "data" / "SLC")
+    assert project.workflow.orbit_path == str(root / "data" / "Orbit")
+    assert project.workflow.work_dir == str(root / "processing" / "work")
+    assert project.download.output_dir == str(root / "data")
+
+
+def test_project_store_loads_root_project_file_from_folder(tmp_path: Path):
+    root = tmp_path / "root_project"
+    store = ProjectStore()
+    created = store.create_workspace(root)
+
+    loaded = store.load(root)
+
+    assert loaded.workspace.project_root == created.workspace.project_root
+    assert loaded.project_file() == root / PROJECT_ROOT_FILE_NAME
 
 
 def test_project_round_trip(tmp_path: Path):
@@ -24,6 +66,7 @@ def test_project_round_trip(tmp_path: Path):
             aoi_source_path=str(tmp_path / "aoi.kml"),
             use_common_overlap=True,
         ),
+        download=DataDownloadConfig(last_status="ready", last_message="module ready"),
         visualization=VisualizationConfig(
             mode="overlay",
             primary_input_path="/tmp/ref.slc",
@@ -40,7 +83,9 @@ def test_project_round_trip(tmp_path: Path):
         state=ProjectState(
             status=ProjectStatus.GENERATED,
             current_step="run_01_unpack",
-            prepared_dem_path=str(tmp_path / "work" / ".iscegui" / "dem_import" / "dem.dem.wgs84"),
+            prepared_dem_path=str(
+                tmp_path / "work" / APP_METADATA_DIR / "dem_import" / "dem.dem.wgs84"
+            ),
             prepared_signature="sig",
             steps=[
                 RunStep(
@@ -73,6 +118,8 @@ def test_project_round_trip(tmp_path: Path):
     assert loaded.workflow.range_looks == 9
     assert loaded.workflow.aoi_source_path.endswith("aoi.kml")
     assert loaded.workflow.use_common_overlap is True
+    assert loaded.download.last_status == "ready"
+    assert loaded.download.last_message == "module ready"
     assert loaded.visualization.mode == "overlay"
     assert loaded.visualization.primary_input_path == "/tmp/ref.slc"
     assert loaded.visualization.secondary_input_path == "/tmp/pair.int"
@@ -85,6 +132,21 @@ def test_project_round_trip(tmp_path: Path):
     assert loaded.state.steps[0].status == StepStatus.SUCCESS
     assert loaded.state.steps[0].subcommands
     assert loaded.state.steps[0].subcommands[0].status == StepStatus.SUCCESS
+
+
+def test_project_store_reads_legacy_metadata_dir(tmp_path: Path):
+    work_dir = tmp_path / "work"
+    project = ProjectDocument(
+        workflow=WorkflowConfig(input_path=str(tmp_path / "inputs"), work_dir=str(work_dir))
+    )
+    store = ProjectStore()
+    legacy_file = work_dir / LEGACY_APP_METADATA_DIR / PROJECT_FILE_NAME
+    legacy_file.parent.mkdir(parents=True)
+    legacy_file.write_text(json.dumps(store._serialize(project)), encoding="utf-8")
+
+    loaded = store.load(work_dir)
+
+    assert loaded.workflow.work_dir == str(work_dir)
 
 
 def test_workflow_defaults_for_legacy_project_payload():
@@ -108,6 +170,7 @@ def test_workflow_defaults_for_legacy_project_payload():
     assert loaded.visualization.range_looks == 1
     assert loaded.visualization.azimuth_looks == 1
     assert loaded.visualization.last_render_signature == ""
+    assert loaded.download.last_status == "ready"
 
 
 def test_workflow_common_overlap_string_flag_is_accepted():
@@ -154,3 +217,21 @@ def test_project_save_does_not_write_legacy_visual_signature_field(tmp_path: Pat
 
     assert "last_render_signature" in content
     assert "last_preview_input_snapshot" not in content
+
+
+def test_project_save_does_not_write_legacy_download_fields(tmp_path: Path):
+    project = ProjectDocument(
+        workflow=WorkflowConfig(
+            input_path=str(tmp_path / "inputs"),
+            work_dir=str(tmp_path / "work"),
+        ),
+        download=DataDownloadConfig(),
+    )
+
+    saved_path = ProjectStore().save(project)
+    content = saved_path.read_text(encoding="utf-8")
+
+    assert "password" not in content.lower()
+    assert "download_dir" not in content
+    assert "download_eof" not in content
+    assert "last_manifest_path" not in content

@@ -1,7 +1,7 @@
 from pathlib import Path
 from zipfile import ZipFile
 
-from isce2_gui.services.input_catalog import InputCatalogService
+from insar_pilot.services.input_catalog import InputCatalogService
 
 
 MANIFEST_TEMPLATE = """<?xml version="1.0" encoding="UTF-8"?>
@@ -35,6 +35,20 @@ def test_scan_detects_aux_requirement(tmp_path: Path):
     assert report.aux_required is True
 
 
+def test_scan_recurses_into_download_date_folders(tmp_path: Path):
+    day_dir = tmp_path / "20240101"
+    day_dir.mkdir()
+    zip_path = day_dir / "S1_TEST_SAFE.zip"
+    with ZipFile(zip_path, "w") as archive:
+        archive.writestr("S1_TEST.SAFE/manifest.safe", MANIFEST_TEMPLATE.format(version="003.10"))
+
+    report = InputCatalogService().scan(tmp_path)
+
+    assert len(report.entries) == 1
+    assert report.entries[0].path == str(zip_path)
+    assert report.entries[0].kind == "zip"
+
+
 def test_prepare_inputs_extracts_zip_and_writes_manifest(tmp_path: Path):
     source_dir = tmp_path / "source"
     source_dir.mkdir()
@@ -60,4 +74,3 @@ def test_prepare_inputs_extracts_zip_and_writes_manifest(tmp_path: Path):
     assert len(lines) == 1
     assert lines[0].endswith(".SAFE")
     assert Path(lines[0]).exists()
-

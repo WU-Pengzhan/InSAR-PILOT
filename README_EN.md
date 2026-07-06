@@ -1,151 +1,101 @@
-# ISCE2 Sentinel-1 TOPS GUI (English Manual)
+# InSAR-PILOT
 
-## 1. Overview
+**InSAR-PILOT** stands for **InSAR Processing Interface and Lightweight Orchestration Toolkit**.
 
-This desktop app orchestrates local ISCE2 `topsStack` workflows on Ubuntu/WSL.
-It is a usability layer over official ISCE2 scripts and generated `run_files`.
+**Subtitle: Open Desktop Workbench for Guided SAR/InSAR Processing**
 
-Current Stage 2 workflow pages:
+[中文](README.md) | [Full User Guide](docs/USER_GUIDE_EN.md) | [Troubleshooting](docs/TROUBLESHOOTING.md)
 
-1. `Data Sources`
-2. `AOI + BBox + IW`
-3. `Processing Plan`
-4. `Run Monitor`
-5. `Results & Visualization`
+InSAR-PILOT is an open-source, desktop, lightweight SAR/InSAR processing workbench. It organizes a project folder and guides operators through SAR data acquisition, orbit and DEM preparation, processing parameter configuration, workflow generation, execution monitoring, and quicklook visualization.
 
-## 2. Environment Requirements
+The current version focuses on Sentinel-1 processing with the official ISCE2 workflow. The long-term goal is to support multiple SAR sensors and time-series InSAR workflows, including SBAS- and StaMPS-based processing chains.
 
-- Ubuntu (WSL preferred)
-- Conda environment (default name in docs: `isce-master`)
-- ISCE2 included in `environment.yml` (`isce2` dependency)
-- Required command-line tools discoverable in your runtime shell
+> Stage note: the current release is still in a testing stage. Validate the runtime, downloads, and processing outputs on small sample projects before using it in production workflows.
 
-The GUI validates environment/tool availability from `Data Sources`.
+## Screenshots
 
-## 3. Install and Launch
+![Start page](docs/assets/screenshots/start-page.png)
 
-### 3.1 Clone repository
+![Data acquisition](docs/assets/screenshots/data-acquisition.png)
+
+![Processing setup](docs/assets/screenshots/processing-setup.png)
+
+See the [full user guide](docs/USER_GUIDE_EN.md) for more screenshots.
+
+## Features
+
+- Project workspace: each project stores downloads, processing work files, logs, quicklooks, and `insar_pilot_project.json`.
+- Data Acquisition: Earthdata account check, ASF Sentinel-1 SLC search, scene selection, SLC/EOF download, map preview, and scene table.
+- Processing Setup: data sources, EOF orbit files, DEM, AOI/BBox, IW swaths, reference scene, processing parameters, preflight, and command preview.
+- Run Executor: discovers and executes `run_files/run_*`; supports next/selected/remaining execution with step, subcommand, log, and exit-code visibility.
+- Results Quicklook: scans outputs and previews/exports SLC, interferogram, and overlay quicklooks.
+- Desktop compatibility: the launcher selects a suitable Qt display backend for WSL2/WSLg or Ubuntu Desktop and provides a native map fallback.
+
+## Install and Launch
+
+Recommended conda workflow:
 
 ```bash
-git clone https://github.com/WU-Pengzhan/isce-master.git
-cd isce-master
-```
+git clone https://github.com/WU-Pengzhan/insar-pilot.git
+cd insar-pilot
 
-You can also download and extract the GitHub release source archive, then run the same commands from the extracted root folder.
-
-### 3.2 Create conda environment
-
-```bash
 conda env create -f environment.yml
-conda activate isce-master
-```
+conda activate insar
 
-### 3.3 Install GUI package
-
-```bash
 pip install .
+insar-pilot
 ```
 
 Developer mode:
 
 ```bash
 pip install -e .[dev]
+insar-pilot
 ```
 
-### 3.4 Start application
+## Typical Workflow
+
+1. Create or open a project folder.
+2. Use Data to configure dates, AOI, orbit direction, polarization, and search Sentinel-1 scenes.
+3. Select scenes and download SLC ZIPs plus EOF orbit files.
+4. Use Setup to configure DEM, BBox/IW, and processing parameters, then run Validate/Prepare and Preflight.
+5. Generate the official processing command and `run_files`.
+6. Use Run to execute run files while inspecting logs, subcommand status, and failures.
+7. Use Results to scan outputs and generate quicklooks.
+
+Default project layout:
+
+```text
+project_root/
+  insar_pilot_project.json
+  data/
+    SLC/
+    Orbit/
+    DEM/
+  processing/work/
+  outputs/quicklooks/
+  logs/
+  .insar_pilot/cache/
+```
+
+## Platform and Runtime
+
+- Ubuntu Desktop or WSL2/WSLg.
+- Python 3.10-3.12.
+- Default conda environment name: `insar`.
+- `environment.yml` installs GUI dependencies, ISCE2, GDAL, aria2, sentineleof, asf-search, and runtime utilities; SLC downloads require aria2c for multipart resumable transfers.
+- Optional WebEngine map support: `pip install '.[map]'`.
+
+For Qt, map, DEM, or run-file issues, start with [docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md).
+
+## Tests
+
+The current development test environment is the existing `insar` environment:
 
 ```bash
-isce2-gui
+conda run -n insar env PYTHONPATH=src QT_QPA_PLATFORM=offscreen pytest -q
 ```
 
-Alternative:
+## License
 
-```bash
-python -m isce2_gui
-```
-
-## 4. Recommended User Flow
-
-### 4.1 Data Sources
-
-- Configure shell/conda/ISCE root (runtime section)
-- Select input dataset folder (ZIP/SAFE), orbit folder, DEM path, optional AUX, work dir
-- If DEM is GeoTIFF, choose height reference (`EGM96` or `WGS84`)
-- Click `Validate & Prepare Data`
-
-### 4.2 AOI + BBox + IW
-
-- Optional AOI import (`.kml` / `.shp`) to auto-fill ISCE bbox
-- Set bbox as SNWE decimal degrees (or use common overlap mode)
-- Select IW swaths
-- Click `Recommend IW` and `Verify Geometry`
-- Verify plot overlays:
-  - AOI
-  - ISCE bbox
-  - IW footprints
-  - auto-selected burst footprints
-  - DEM coverage bounds
-
-### 4.3 Processing Plan
-
-- Set workflow/coregistration/connectivity/looks/parallel settings/reference date
-- Generate official stack command and `run_files`
-
-### 4.4 Run Monitor
-
-- Execute by `Run Next Step`, `Run Selected Step`, or `Run Remaining Steps`
-- Inspect per-step and per-subcommand status, exit codes, and logs
-
-### 4.5 Results & Visualization
-
-- Browse discovered outputs
-- Preview/export quicklooks:
-  - SLC
-  - interferogram phase
-  - SLC background + phase overlay
-
-## 5. Project Metadata Layout
-
-Given `<work_dir>`, GUI metadata is stored under:
-
-- `<work_dir>/.iscegui/project.json`
-- `<work_dir>/.iscegui/logs/`
-- `<work_dir>/.iscegui/inputs/`
-- `<work_dir>/.iscegui/dem_import/`
-- `<work_dir>/.iscegui/visualize/`
-
-Native ISCE outputs remain in standard folders (`run_files/`, `reference/`, `coreg_secondarys/`, `merged/`, etc.).
-
-## 6. Key Processing Notes
-
-- BBox is SNWE rectangle only.
-- Empty bbox (common overlap mode) is not a hard final crop.
-- GeoTIFF import path expects geographic WGS84 grid.
-- Vertical reference conversion is user-driven (`EGM96` vs `WGS84`).
-- Burst-level controls are verify-only in UI (processing remains swath-level).
-
-## 7. Frequent Output Targets
-
-- Interferogram/coherence products in `merged/interferograms/`
-- Merged SLC products in `merged/SLC/`
-- Quicklook BMP exports under `.iscegui/visualize/`
-- Troubleshooting logs under `.iscegui/logs/`
-
-## 8. WSL Notes
-
-- On WSL/WSLg only, app defaults to `QT_QPA_PLATFORM=xcb` when not explicitly set.
-- You can still override manually:
-
-```bash
-QT_QPA_PLATFORM=wayland isce2-gui
-```
-
-See [docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md) for common failures and fixes.
-
-## 9. Validation Commands
-
-```bash
-ruff check src tests
-PYTHONPATH=src pytest -q
-python -m build
-```
+This project is licensed under [Apache-2.0](LICENSE).

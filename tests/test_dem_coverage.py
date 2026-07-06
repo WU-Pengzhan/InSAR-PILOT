@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from isce2_gui.services.dem_coverage import DemCoverageService
+from insar_pilot.services.dem_coverage import DemCoverageService
 
 
 def _write_vrt(path: Path, west: float, north: float, pixel: float, x_size: int, y_size: int) -> None:

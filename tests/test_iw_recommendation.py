@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from isce2_gui.services.iw_recommendation import IwRecommendationService
+from insar_pilot.services.iw_recommendation import IwRecommendationService
 
 
 def _write_annotation(path: Path, swath: str, south: float, north: float, west: float, east: float) -> None:

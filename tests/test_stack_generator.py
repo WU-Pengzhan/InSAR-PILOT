@@ -1,7 +1,7 @@
 from pathlib import Path
 
-from isce2_gui.domain.project import PreparedInputs, ProjectDocument, WorkflowConfig
-from isce2_gui.services.stack_generator import StackWorkflowService
+from insar_pilot.domain.project import APP_METADATA_DIR, PreparedInputs, ProjectDocument, WorkflowConfig
+from insar_pilot.services.stack_generator import StackWorkflowService
 
 
 def test_build_generate_command_uses_managed_empty_aux_dir(tmp_path: Path):
@@ -14,14 +14,16 @@ def test_build_generate_command_uses_managed_empty_aux_dir(tmp_path: Path):
             bbox_snwe="10 11 20 21",
         )
     )
-    prepared = PreparedInputs(manifest_path=str(tmp_path / "work" / ".iscegui" / "inputs" / "safe_inputs.txt"))
+    prepared = PreparedInputs(
+        manifest_path=str(tmp_path / "work" / APP_METADATA_DIR / "inputs" / "safe_inputs.txt")
+    )
 
     command = StackWorkflowService().build_generate_command(project, prepared)
 
     assert "stackSentinel.py" in command
     assert "-s" in command
     assert "-a" in command
-    assert ".iscegui/aux_empty" in command
+    assert f"{APP_METADATA_DIR}/aux_empty" in command
     assert "-b" in command
     assert "-z" in command
     assert "-r" in command
@@ -38,7 +40,9 @@ def test_build_generate_command_supports_custom_looks(tmp_path: Path):
             range_looks=7,
         )
     )
-    prepared = PreparedInputs(manifest_path=str(tmp_path / "work" / ".iscegui" / "inputs" / "safe_inputs.txt"))
+    prepared = PreparedInputs(
+        manifest_path=str(tmp_path / "work" / APP_METADATA_DIR / "inputs" / "safe_inputs.txt")
+    )
 
     command = StackWorkflowService().build_generate_command(project, prepared)
 

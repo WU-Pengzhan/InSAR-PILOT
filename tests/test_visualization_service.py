@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from isce2_gui.services.visualization_service import VisualizationRequest, VisualizationService
+from insar_pilot.services.visualization_service import VisualizationRequest, VisualizationService
 
 
 def test_build_slc_visualization_without_looks(tmp_path: Path):

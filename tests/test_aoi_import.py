@@ -2,7 +2,7 @@ from pathlib import Path
 
 import shapefile
 
-from isce2_gui.services.aoi_import import AoiImportService
+from insar_pilot.services.aoi_import import AoiImportService
 
 
 def test_import_kml_bbox(tmp_path: Path):
