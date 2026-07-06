@@ -153,7 +153,16 @@ QFrame#propertyForm QLineEdit,
 QFrame#propertyForm QComboBox,
 QFrame#propertyForm QSpinBox,
 QFrame#propertyForm QDoubleSpinBox {{
-    min-height: 40px;
+    min-height: 34px;
+}}
+QFrame#propertyForm QPushButton {{
+    min-height: 34px;
+    padding-top: 4px;
+    padding-bottom: 4px;
+}}
+QFrame#propertyForm QCheckBox {{
+    padding-top: 4px;
+    padding-bottom: 4px;
 }}
 QLabel#runtimeSummaryLabel {{
     color: {TOKENS["text_muted"]};

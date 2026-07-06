@@ -93,7 +93,7 @@ class PreflightService:
             )
         )
         checks.append(
-            self._check_path("input_path", "Sentinel-1 input folder", workflow.input_path, must_be_dir=True)
+            self._check_path("input_path", "SLC folder", workflow.input_path, must_be_dir=True)
         )
         checks.append(self._check_path("orbit_path", "EOF orbit folder", workflow.orbit_path, must_be_dir=True))
         checks.append(self._check_path("dem_path", "DEM path", project.state.prepared_dem_path or workflow.dem_path))

@@ -212,6 +212,7 @@ def main(argv: list[str] | None = None) -> int:
     from PySide6.QtWidgets import QApplication
 
     from insar_pilot.bootstrap import create_default_project
+    from insar_pilot.ui.icons import BrandAssets
     from insar_pilot.ui.main_window import MainWindow
     from insar_pilot.ui.theme import build_light_stylesheet
 
@@ -222,6 +223,7 @@ def main(argv: list[str] | None = None) -> int:
     app.setStyleSheet(build_light_stylesheet())
     app.setApplicationName(APP_NAME)
     app.setOrganizationName("Open Source")
+    app.setWindowIcon(BrandAssets.icon())
     window = MainWindow(create_default_project())
     window.show()
     return app.exec()

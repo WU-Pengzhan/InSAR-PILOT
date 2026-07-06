@@ -2,17 +2,18 @@ import os
 import sys
 
 from PySide6.QtGui import QWheelEvent
-from PySide6.QtWidgets import QAbstractButton, QApplication, QCheckBox, QComboBox, QLineEdit, QPushButton, QScrollArea, QSpinBox, QVBoxLayout, QWidget
+from PySide6.QtWidgets import QAbstractButton, QApplication, QCheckBox, QComboBox, QLabel, QLineEdit, QPushButton, QScrollArea, QSpinBox, QVBoxLayout, QWidget
 from PySide6.QtCore import QPoint, QPointF, Qt
 
 from insar_pilot.bootstrap import create_default_project
 from insar_pilot.services.preflight import PreflightCheck, PreflightReport
-from insar_pilot.ui.icons import IconProvider
+from insar_pilot.ui.icons import BrandAssets, IconProvider
 from insar_pilot.ui.pages.project_start_page import ProjectStartPage
 from insar_pilot.ui.pages.processing_setup_page import ProcessingSetupPage
 from insar_pilot.ui.theme import build_light_stylesheet
 from insar_pilot.ui.widgets.command_preview import CommandPreview
 from insar_pilot.ui.widgets.combo_wheel_guard import WHEEL_GUARD_PROPERTY, WHEEL_PASSTHROUGH_PROPERTY, install_no_wheel_on_combos
+from insar_pilot.ui.widgets.footprint_map import FootprintMapWidget
 from insar_pilot.ui.widgets.parameter_grid import ParameterGrid
 from insar_pilot.ui.widgets.preflight_check_list import PreflightCheckList
 from insar_pilot.ui.widgets.property_form import PropertyForm
@@ -34,6 +35,13 @@ def test_icon_provider_falls_back_without_qtawesome(monkeypatch):
     icon = IconProvider.icon("download")
 
     assert icon.isNull() is False
+
+
+def test_brand_assets_return_non_empty_qt_images():
+    _qt_app()
+
+    assert BrandAssets.icon().isNull() is False
+    assert BrandAssets.pixmap().isNull() is False
 
 
 def test_stylesheet_is_composed_from_phase4_gis_modules():
@@ -111,6 +119,15 @@ def test_processing_setup_page_exposes_legacy_aliases():
     assert isinstance(page.setup_step_tree, WorkflowStepTree)
     assert isinstance(page.parameter_grid, PropertyForm)
     assert hasattr(page, "runtime_diagnostics_text")
+    assert page.parameter_grid.label_width == 150
+    assert page.parameter_grid.row_height == 54
+    assert page.parameter_grid.layout.columnMinimumWidth(0) == 150
+    labels = [label.text() for label in page.findChildren(QLabel) if label.objectName() == "propertyFormLabel"]
+    assert "SLC folder" in labels
+    assert "Sentinel-1 input folder" not in labels
+    visible_text = "\n".join(label.text() for label in page.findChildren(QLabel) if label.isVisible())
+    assert "WSL2/conda runtime" not in visible_text
+    assert "Runtime uses the environment" not in visible_text
     assert page.summary_card_container.isVisible() is False
     assert page.summary_card_container.parent() is page
     assert page.setup_step_tree.topLevelItemCount() == 6
@@ -125,11 +142,20 @@ def test_parameter_grid_uses_stable_editor_geometry():
     grid = ParameterGrid("Required")
     editor = QLineEdit()
 
-    grid.add_row("Sentinel-1 input folder", editor)
+    grid.add_row("SLC folder", editor)
 
     assert grid.layout.columnMinimumWidth(0) == ParameterGrid.LABEL_COLUMN_WIDTH
     assert grid.layout.rowMinimumHeight(1) == ParameterGrid.ROW_MIN_HEIGHT
     assert editor.minimumHeight() >= ParameterGrid.EDITOR_MIN_HEIGHT
+
+
+def test_footprint_map_empty_startup_does_not_show_no_geometry_note():
+    _qt_app()
+    widget = FootprintMapWidget()
+
+    html = widget._leaflet_html({}, [], fit_bounds=True)
+
+    assert "No footprint geometry available for current results." not in html
 
 
 def test_wheel_guard_routes_checkbox_wheel_to_parent_scroll():
@@ -181,9 +207,19 @@ def test_project_start_page_shows_recent_projects_and_notices(tmp_path):
     assert page.recent_list.count() == 1
     assert page.recent_empty_label.isHidden() is True
     assert page.open_recent_button.isEnabled() is True
+    logo_label = page.findChild(QLabel, "startBrandLogo")
+    assert logo_label is not None
+    assert logo_label.pixmap() is not None
+    assert logo_label.pixmap().isNull() is False
     assert "InSAR-PILOT" in page.version_label.text()
     assert "9.9.9" in page.version_label.text()
     assert "Project folders are required." in page.notice_label.text()
+    recent_row = page.recent_list.itemWidget(page.recent_list.item(0))
+    assert recent_row is not None
+    recent_labels = recent_row.findChildren(QLabel)
+    assert recent_labels
+    for label in recent_labels:
+        assert label.textInteractionFlags() == Qt.TextInteractionFlag.NoTextInteraction
 
 
 def test_main_window_uses_four_industrial_workflow_pages(monkeypatch):
@@ -217,6 +253,7 @@ def test_main_window_uses_four_industrial_workflow_pages(monkeypatch):
     window = MainWindow(create_default_project())
     try:
         assert window.windowTitle() == "InSAR-PILOT"
+        assert window.windowIcon().isNull() is False
         assert isinstance(window.workflow_stepper, TopWorkflowStepper)
         step_labels = [
             button.text()

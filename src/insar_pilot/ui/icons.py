@@ -2,7 +2,10 @@
 
 from __future__ import annotations
 
-from PySide6.QtGui import QIcon
+from importlib import resources
+
+from PySide6.QtCore import QSize, Qt
+from PySide6.QtGui import QIcon, QPixmap
 from PySide6.QtWidgets import QApplication, QStyle
 
 
@@ -80,3 +83,43 @@ class IconProvider:
         except Exception:
             return False
         return True
+
+
+class BrandAssets:
+    """Load packaged InSAR-PILOT logo assets for Qt widgets."""
+
+    PACKAGE = "insar_pilot.ui.assets"
+    LOGO = "logo.png"
+    MARK = "logo-mark.png"
+
+    @classmethod
+    def logo_path(cls, name: str = LOGO) -> str:
+        """Return a filesystem-like resource path for packaged logo assets."""
+
+        return str(resources.files(cls.PACKAGE).joinpath(name))
+
+    @classmethod
+    def pixmap(cls, name: str = MARK, size: QSize | None = None) -> QPixmap:
+        """Return a logo pixmap loaded from package data."""
+
+        data = resources.files(cls.PACKAGE).joinpath(name).read_bytes()
+        pixmap = QPixmap()
+        pixmap.loadFromData(data, "PNG")
+        if size is not None and not pixmap.isNull():
+            pixmap = pixmap.scaled(
+                size,
+                Qt.AspectRatioMode.KeepAspectRatio,
+                Qt.TransformationMode.SmoothTransformation,
+            )
+        return pixmap
+
+    @classmethod
+    def icon(cls) -> QIcon:
+        """Return the application icon built from the square logo mark."""
+
+        icon = QIcon()
+        for pixels in (16, 24, 32, 48, 64, 96, 128, 256, 512):
+            pixmap = cls.pixmap(cls.MARK, QSize(pixels, pixels))
+            if not pixmap.isNull():
+                icon.addPixmap(pixmap)
+        return icon

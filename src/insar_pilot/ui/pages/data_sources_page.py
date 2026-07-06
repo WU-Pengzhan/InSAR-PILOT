@@ -71,7 +71,7 @@ class DataSourcesPage(QWidget):
         self.work_dir_row = PathPickerRow()
         self.extract_checkbox = QCheckBox("Extract ZIP files to SAFE before workflow generation")
         self.extract_dir_row = PathPickerRow()
-        source_form.addRow("Sentinel-1 input folder", self.input_path_row)
+        source_form.addRow("SLC folder", self.input_path_row)
         source_form.addRow("Orbit folder", self.orbit_path_row)
         source_form.addRow("DEM path", self.dem_path_row)
         source_form.addRow("GeoTIFF height ref", self.dem_reference_combo)

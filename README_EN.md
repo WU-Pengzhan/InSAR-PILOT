@@ -1,5 +1,9 @@
 # InSAR-PILOT
 
+<p align="center">
+  <img src="docs/assets/branding/logo.png" width="640" alt="InSAR-PILOT logo">
+</p>
+
 **InSAR-PILOT** stands for **InSAR Processing Interface and Lightweight Orchestration Toolkit**.
 
 **Subtitle: Open Desktop Workbench for Guided SAR/InSAR Processing**
@@ -22,9 +26,18 @@ The current version focuses on Sentinel-1 processing with the official ISCE2 wor
 
 See the [full user guide](docs/USER_GUIDE_EN.md) for more screenshots.
 
+## GitHub Branding Assets
+
+- Horizontal logo: `docs/assets/branding/logo.png`
+- Repository avatar / project avatar: `docs/assets/branding/github-avatar.png`
+- Repository social preview: `docs/assets/branding/github-social-preview.png`
+
+GitHub does not automatically read repository images for avatars or social previews. Upload the corresponding file manually in the GitHub Settings page after publishing.
+
 ## Features
 
-- Project workspace: each project stores downloads, processing work files, logs, quicklooks, and `insar_pilot_project.json`.
+- Project workspace: each project stores downloads, processing work files, logs, quicklooks, and `project.pilot`.
+- Dedicated project file: `.pilot` is the InSAR-PILOT project suffix; the internal format remains auditable JSON, and legacy `insar_pilot_project.json` files can still be loaded.
 - Data Acquisition: Earthdata account check, ASF Sentinel-1 SLC search, scene selection, SLC/EOF download, map preview, and scene table.
 - Processing Setup: data sources, EOF orbit files, DEM, AOI/BBox, IW swaths, reference scene, processing parameters, preflight, and command preview.
 - Run Executor: discovers and executes `run_files/run_*`; supports next/selected/remaining execution with step, subcommand, log, and exit-code visibility.
@@ -36,8 +49,8 @@ See the [full user guide](docs/USER_GUIDE_EN.md) for more screenshots.
 Recommended conda workflow:
 
 ```bash
-git clone https://github.com/WU-Pengzhan/insar-pilot.git
-cd insar-pilot
+git clone https://github.com/WU-Pengzhan/InSAR-PILOT.git
+cd InSAR-PILOT
 
 conda env create -f environment.yml
 conda activate insar
@@ -67,7 +80,7 @@ Default project layout:
 
 ```text
 project_root/
-  insar_pilot_project.json
+  project.pilot
   data/
     SLC/
     Orbit/

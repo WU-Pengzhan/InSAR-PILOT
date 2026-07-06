@@ -130,7 +130,7 @@ For a project folder:
 
 ```text
 project_root/
-  insar_pilot_project.json
+  project.pilot
   logs/
   processing/work/
   .insar_pilot/cache/

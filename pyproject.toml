@@ -34,9 +34,9 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/WU-Pengzhan/insar-pilot"
-Source = "https://github.com/WU-Pengzhan/insar-pilot"
-Issues = "https://github.com/WU-Pengzhan/insar-pilot/issues"
+Homepage = "https://github.com/WU-Pengzhan/InSAR-PILOT"
+Source = "https://github.com/WU-Pengzhan/InSAR-PILOT"
+Issues = "https://github.com/WU-Pengzhan/InSAR-PILOT/issues"
 
 [project.optional-dependencies]
 map = [
@@ -58,5 +58,6 @@ package-dir = {"" = "src"}
 where = ["src"]
 
 [tool.setuptools.package-data]
+"insar_pilot.ui.assets" = ["*.png"]
 "insar_pilot.ui.widgets.assets" = ["*.css", "*.js"]
 "insar_pilot.i18n.locales" = ["*.json"]

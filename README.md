@@ -1,5 +1,9 @@
 # InSAR-PILOT
 
+<p align="center">
+  <img src="docs/assets/branding/logo.png" width="640" alt="InSAR-PILOT logo">
+</p>
+
 **InSAR-PILOT** 是 **InSAR Processing Interface and Lightweight Orchestration Toolkit** 的缩写，中文可理解为“面向 InSAR 处理的轻量级图形界面与流程编排工具”。
 
 **副标题：Open Desktop Workbench for Guided SAR/InSAR Processing**
@@ -22,9 +26,18 @@ InSAR-PILOT 是一个开源、窗口化、轻量级的 SAR/InSAR 桌面处理工
 
 更多页面截图见 [完整中文手册](docs/USER_GUIDE.md)。
 
+## GitHub 品牌资源
+
+- 横向 logo：`docs/assets/branding/logo.png`
+- 仓库头像 / 项目头像：`docs/assets/branding/github-avatar.png`
+- Repository social preview：`docs/assets/branding/github-social-preview.png`
+
+GitHub 不会自动从仓库文件读取头像或 social preview。发布后需要在 GitHub Settings 页面手动上传对应图片。
+
 ## 核心功能
 
-- 项目制工作区：每个项目保存下载数据、处理工作目录、日志、quicklook 和 `insar_pilot_project.json`。
+- 项目制工作区：每个项目保存下载数据、处理工作目录、日志、quicklook 和 `project.pilot`。
+- 专用项目文件：`.pilot` 是 InSAR-PILOT 的项目后缀，内部仍采用可审计的 JSON 结构；旧版 `insar_pilot_project.json` 仍可读取。
 - Data Acquisition：Earthdata 账户检查、ASF Sentinel-1 SLC 查询、场景选择、SLC/EOF 下载、地图与场景表查看。
 - Processing Setup：数据源、EOF、DEM、AOI/BBox、IW、参考影像、处理参数、preflight 和命令预览集中配置。
 - Run Executor：发现并执行 `run_files/run_*`，支持 next/selected/remaining 执行，显示 step/subcommand 状态、日志和 exit code。
@@ -36,8 +49,8 @@ InSAR-PILOT 是一个开源、窗口化、轻量级的 SAR/InSAR 桌面处理工
 推荐使用 conda 环境：
 
 ```bash
-git clone https://github.com/WU-Pengzhan/insar-pilot.git
-cd insar-pilot
+git clone https://github.com/WU-Pengzhan/InSAR-PILOT.git
+cd InSAR-PILOT
 
 conda env create -f environment.yml
 conda activate insar
@@ -67,7 +80,7 @@ insar-pilot
 
 ```text
 project_root/
-  insar_pilot_project.json
+  project.pilot
   data/
     SLC/
     Orbit/

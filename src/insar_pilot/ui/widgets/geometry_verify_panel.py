@@ -48,7 +48,7 @@ class GeometryVerifyPanel(QWidget):
         toolbar = QHBoxLayout()
         toolbar.setContentsMargins(0, 0, 0, 0)
         toolbar.setSpacing(6)
-        self.status_label = QLabel("Verify plot is empty.")
+        self.status_label = QLabel("")
         self.zoom_in_button = QPushButton("Zoom In")
         self.zoom_out_button = QPushButton("Zoom Out")
         self.fit_button = QPushButton("Fit")
@@ -177,7 +177,7 @@ class GeometryVerifyPanel(QWidget):
             all_points.extend([rect.topLeft(), rect.topRight(), rect.bottomLeft(), rect.bottomRight()])
 
         if not all_points:
-            self.status_label.setText("Verify plot is empty.")
+            self.status_label.setText("")
             self.scene.setSceneRect(QRectF(-1.0, -1.0, 2.0, 2.0))
             return
 
@@ -190,7 +190,7 @@ class GeometryVerifyPanel(QWidget):
         pad_x = width * 0.08
         pad_y = height * 0.08
         self.scene.setSceneRect(min_x - pad_x, min_y - pad_y, width + 2 * pad_x, height + 2 * pad_y)
-        self.status_label.setText("Verify plot ready.")
+        self.status_label.setText("")
         self.fit_to_content()
 
     def fit_to_content(self) -> None:

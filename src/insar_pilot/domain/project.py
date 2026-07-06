@@ -9,8 +9,15 @@ from typing import Any
 
 APP_METADATA_DIR = ".insar_pilot"
 LEGACY_APP_METADATA_DIR = ".iscegui"
+LEGACY_APP_METADATA_DIRS = (".sentinel1" + "_workbench", ".iscegui")
 PROJECT_FILE_NAME = "project.json"
-PROJECT_ROOT_FILE_NAME = "insar_pilot_project.json"
+PROJECT_ROOT_FILE_NAME = "project.pilot"
+LEGACY_PROJECT_ROOT_FILE_NAMES = (
+    "sentinel1" + "_project.pilot",
+    "sentinel1" + "_project.json",
+    "insar_pilot_project.insarpilot",
+    "insar_pilot_project.json",
+)
 
 
 class StepStatus(str, Enum):

@@ -8,7 +8,12 @@ from pathlib import Path
 from typing import Callable
 
 from insar_pilot.domain.project import EnvironmentConfig
-from insar_pilot.services.shell import ShellCommandBuilder
+from insar_pilot.services.shell import (
+    ShellCommandBuilder,
+    is_conda_isce_layout,
+    is_source_isce_layout,
+    resolve_isce_runtime_root,
+)
 
 
 @dataclass
@@ -68,27 +73,33 @@ class EnvironmentProbe:
         )
 
         isce_root_text = environment.isce_root.strip()
-        isce_root = Path(isce_root_text).expanduser() if isce_root_text else None
-        source_stack_script = (
-            isce_root / "contrib" / "stack" / "topsStack" / "stackSentinel.py"
-            if isce_root is not None
-            else None
-        )
-        conda_stack_script = (
-            isce_root / "share" / "isce2" / "topsStack" / "stackSentinel.py"
-            if isce_root is not None
-            else None
-        )
-        if not isce_root_text:
-            isce_root_ok = True
-            isce_root_detail = "No runtime root override configured; using the environment that launched the application."
-        elif source_stack_script is not None and source_stack_script.exists():
-            isce_root_ok = True
-            isce_root_detail = f"Found source layout: {source_stack_script}"
-        elif conda_stack_script is not None and conda_stack_script.exists():
-            isce_root_ok = True
-            isce_root_detail = f"Found conda-style layout: {conda_stack_script}"
+        configured_root = Path(isce_root_text).expanduser() if isce_root_text else None
+        isce_root = resolve_isce_runtime_root(isce_root_text)
+        if isce_root is not None and is_source_isce_layout(isce_root):
+            stack_script = isce_root / "contrib" / "stack" / "topsStack" / "stackSentinel.py"
+            layout_detail = f"source layout: {stack_script}"
+        elif isce_root is not None and is_conda_isce_layout(isce_root):
+            stack_script = isce_root / "share" / "isce2" / "topsStack" / "stackSentinel.py"
+            layout_detail = f"conda-style layout: {stack_script}"
         else:
+            stack_script = None
+            layout_detail = ""
+
+        if isce_root is not None and configured_root is not None and isce_root.resolve() != configured_root.resolve():
+            isce_root_ok = True
+            isce_root_detail = (
+                f"Configured root {configured_root} is not a processing layout; "
+                f"using detected {layout_detail}."
+            )
+        elif isce_root is not None:
+            isce_root_ok = True
+            isce_root_detail = f"Found {layout_detail}."
+        elif not isce_root_text:
+            isce_root_ok = True
+            isce_root_detail = "No runtime root configured; relying on PATH/PYTHONPATH from the launch environment."
+        else:
+            source_stack_script = configured_root / "contrib" / "stack" / "topsStack" / "stackSentinel.py"
+            conda_stack_script = configured_root / "share" / "isce2" / "topsStack" / "stackSentinel.py"
             isce_root_ok = False
             isce_root_detail = (
                 f"Missing stackSentinel.py under source ({source_stack_script}) "
@@ -107,8 +118,9 @@ class EnvironmentProbe:
             (
                 "Python processing modules",
                 "python -c 'import importlib.util, sys; "
-                'ok=importlib.util.find_spec("isce") and importlib.util.find_spec("isceobj"); '
-                'print("available" if ok else "missing"); sys.exit(0 if ok else 1)\'',
+                'missing=[name for name in ("isce", "isceobj") if importlib.util.find_spec(name) is None]; '
+                'print("available" if not missing else "missing: "+", ".join(missing)); '
+                "sys.exit(1 if missing else 0)'",
             ),
             ("stackSentinel.py", "which stackSentinel.py"),
             ("SentinelWrapper.py", "which SentinelWrapper.py"),

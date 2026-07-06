@@ -1,5 +1,9 @@
 # InSAR-PILOT 用户手册
 
+<p align="center">
+  <img src="assets/branding/logo.png" width="640" alt="InSAR-PILOT logo">
+</p>
+
 [返回首页](../README.md) | [English Guide](USER_GUIDE_EN.md) | [故障排查](TROUBLESHOOTING.md)
 
 ## 1. 软件定位
@@ -22,7 +26,7 @@
 
 ```text
 project_root/
-  insar_pilot_project.json
+  project.pilot
   data/
     SLC/
     Orbit/
@@ -33,7 +37,7 @@ project_root/
   .insar_pilot/cache/
 ```
 
-`insar_pilot_project.json` 保存 GUI 状态、下载参数、处理设置、执行状态和 quicklook 配置。底层处理结果仍保存在处理工作目录中的标准输出文件夹内。
+`project.pilot` 保存 GUI 状态、下载参数、处理设置、执行状态和 quicklook 配置。该文件使用 InSAR-PILOT 专用后缀，内部仍是 JSON，便于审计和排查。旧版 `insar_pilot_project.json` 项目文件仍可加载。底层处理结果仍保存在处理工作目录中的标准输出文件夹内。
 
 ## 3. Data Acquisition
 

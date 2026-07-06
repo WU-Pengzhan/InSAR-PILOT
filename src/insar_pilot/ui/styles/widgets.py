@@ -136,6 +136,24 @@ QLabel#startInfoText {
     color: #243042;
     font-weight: 700;
 }
+QWidget#startBrandRow {
+    background: transparent;
+}
+QLabel#startBrandLogo {
+    background: #ffffff;
+    border: 1px solid #d4dde8;
+    border-radius: 4px;
+    padding: 3px;
+}
+QLabel#startBrandName {
+    color: #162840;
+    font-size: 18pt;
+    font-weight: 800;
+}
+QLabel#startBrandSubtitle {
+    color: #586270;
+    font-size: 11.5pt;
+}
 QListWidget#startRecentList {
     background: #ffffff;
     border: 1px solid #d2dbe7;
@@ -159,6 +177,10 @@ QWidget#startRecentRow {
     background: transparent;
 }
 QWidget#startEmptyRow {
+    background: transparent;
+}
+QWidget#startRecentRow QLabel,
+QWidget#startEmptyRow QLabel {
     background: transparent;
 }
 QLabel#startRecentIcon {

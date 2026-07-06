@@ -1,5 +1,9 @@
 # InSAR-PILOT User Guide
 
+<p align="center">
+  <img src="assets/branding/logo.png" width="640" alt="InSAR-PILOT logo">
+</p>
+
 [Home](../README_EN.md) | [中文手册](USER_GUIDE.md) | [Troubleshooting](TROUBLESHOOTING.md)
 
 ## 1. Purpose
@@ -22,7 +26,7 @@ Default project layout:
 
 ```text
 project_root/
-  insar_pilot_project.json
+  project.pilot
   data/
     SLC/
     Orbit/
@@ -33,7 +37,7 @@ project_root/
   .insar_pilot/cache/
 ```
 
-`insar_pilot_project.json` stores GUI state, download settings, processing configuration, execution state, and quicklook settings. Native processing outputs remain in the processing work directory.
+`project.pilot` stores GUI state, download settings, processing configuration, execution state, and quicklook settings. The file uses the dedicated InSAR-PILOT suffix while keeping an auditable JSON payload internally. Legacy `insar_pilot_project.json` files can still be loaded. Native processing outputs remain in the processing work directory.
 
 ## 3. Data Acquisition
 

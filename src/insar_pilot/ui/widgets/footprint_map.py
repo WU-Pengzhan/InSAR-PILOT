@@ -488,7 +488,6 @@ map.on('baselayerchange', (event) => {{
 	    map.fitBounds([[payload.bounds[1], payload.bounds[0]], [payload.bounds[3], payload.bounds[2]]], {{ padding: [20, 20] }});
 	  }} else if (fitBounds) {{
 	    map.setView([0, 0], 2);
-	    showNote('No footprint geometry available for current results.');
 	  }}
 	}}
 	window.updateHighlight = function(sceneId, selectedIds) {{

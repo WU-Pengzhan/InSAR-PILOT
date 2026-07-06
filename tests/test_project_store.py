@@ -6,6 +6,8 @@ from insar_pilot.domain.project import (
     APP_METADATA_DIR,
     DataDownloadConfig,
     LEGACY_APP_METADATA_DIR,
+    LEGACY_APP_METADATA_DIRS,
+    LEGACY_PROJECT_ROOT_FILE_NAMES,
     PROJECT_FILE_NAME,
     PROJECT_ROOT_FILE_NAME,
     ProjectDocument,
@@ -17,7 +19,7 @@ from insar_pilot.domain.project import (
     VisualizationConfig,
     WorkflowConfig,
 )
-from insar_pilot.services.project_store import ProjectStore
+from insar_pilot.services.project_store import ProjectLoadError, ProjectStore
 from insar_pilot.bootstrap import create_default_project
 
 
@@ -53,6 +55,53 @@ def test_project_store_loads_root_project_file_from_folder(tmp_path: Path):
 
     assert loaded.workspace.project_root == created.workspace.project_root
     assert loaded.project_file() == root / PROJECT_ROOT_FILE_NAME
+
+
+def test_project_store_loads_legacy_root_project_file_from_folder(tmp_path: Path):
+    root = tmp_path / "legacy_root_project"
+    store = ProjectStore()
+    project = ProjectDocument(
+        workflow=WorkflowConfig(input_path=str(root / "data" / "SLC"), work_dir=str(root / "processing" / "work"))
+    )
+    legacy_name = LEGACY_PROJECT_ROOT_FILE_NAMES[0]
+    legacy_file = root / legacy_name
+    root.mkdir(parents=True)
+    legacy_file.write_text(json.dumps(store._serialize(project)), encoding="utf-8")
+
+    loaded = store.load(root)
+
+    assert loaded.workflow.input_path.endswith("data/SLC")
+    assert ProjectStore.resolve_project_file(root) == legacy_file
+
+
+def test_project_store_loads_sentinel1_pilot_file_from_recent_project_folder(tmp_path: Path):
+    root = tmp_path / "recent_project"
+    store = ProjectStore()
+    project = ProjectDocument(
+        workspace=ProjectDocument().workspace,
+        workflow=WorkflowConfig(input_path=str(root / "data" / "SLC"), work_dir=str(root / "processing" / "work")),
+    )
+    root.mkdir(parents=True)
+    legacy_file = root / LEGACY_PROJECT_ROOT_FILE_NAMES[0]
+    legacy_file.write_text(json.dumps(store._serialize(project)), encoding="utf-8")
+
+    loaded = store.load(root)
+
+    assert loaded.workflow.input_path.endswith("data/SLC")
+    assert ProjectStore.resolve_project_file(root) == legacy_file
+
+
+def test_project_store_missing_folder_project_reports_new_pilot_file(tmp_path: Path):
+    root = tmp_path / "empty_project"
+    root.mkdir()
+
+    try:
+        ProjectStore().load(root)
+    except ProjectLoadError as exc:
+        assert str(root / PROJECT_ROOT_FILE_NAME) in str(exc)
+        assert ".insar_pilot/project.json" not in str(exc)
+    else:
+        raise AssertionError("Expected empty project folder to fail with project.pilot path.")
 
 
 def test_project_round_trip(tmp_path: Path):
@@ -147,6 +196,70 @@ def test_project_store_reads_legacy_metadata_dir(tmp_path: Path):
     loaded = store.load(work_dir)
 
     assert loaded.workflow.work_dir == str(work_dir)
+
+
+def test_project_store_reads_old_sentinel_workbench_metadata_dir(tmp_path: Path):
+    work_dir = tmp_path / "work"
+    project = ProjectDocument(
+        workflow=WorkflowConfig(input_path=str(tmp_path / "inputs"), work_dir=str(work_dir))
+    )
+    store = ProjectStore()
+    legacy_file = work_dir / LEGACY_APP_METADATA_DIRS[0] / PROJECT_FILE_NAME
+    legacy_file.parent.mkdir(parents=True)
+    legacy_file.write_text(json.dumps(store._serialize(project)), encoding="utf-8")
+
+    loaded = store.load(work_dir)
+
+    assert loaded.workflow.work_dir == str(work_dir)
+
+
+def test_project_store_rejects_invalid_json(tmp_path: Path):
+    path = tmp_path / "bad.pilot"
+    path.write_text("{not-json", encoding="utf-8")
+
+    try:
+        ProjectStore().load(path)
+    except ProjectLoadError as exc:
+        assert "not valid JSON" in str(exc)
+    else:
+        raise AssertionError("Expected invalid JSON to be rejected.")
+
+
+def test_project_store_rejects_non_project_json(tmp_path: Path):
+    path = tmp_path / "notes.pilot"
+    path.write_text(json.dumps({"hello": "world"}), encoding="utf-8")
+
+    try:
+        ProjectStore().load(path)
+    except ProjectLoadError as exc:
+        assert "does not look like" in str(exc)
+    else:
+        raise AssertionError("Expected non-project JSON to be rejected.")
+
+
+def test_project_store_rejects_unsupported_schema(tmp_path: Path):
+    path = tmp_path / "future.pilot"
+    path.write_text(json.dumps({"schema_version": 999, "workflow": {}}), encoding="utf-8")
+
+    try:
+        ProjectStore().load(path)
+    except ProjectLoadError as exc:
+        assert "Unsupported project schema_version" in str(exc)
+    else:
+        raise AssertionError("Expected unsupported schema to be rejected.")
+
+
+def test_project_store_rejects_oversized_project_file(tmp_path: Path, monkeypatch):
+    path = tmp_path / "large.pilot"
+    path.write_text(json.dumps({"workflow": {}, "padding": "x" * 256}), encoding="utf-8")
+    monkeypatch.setattr(ProjectStore, "MAX_PROJECT_FILE_BYTES", 32)
+
+    try:
+        ProjectStore().load(path)
+    except ProjectLoadError as exc:
+        assert "too large" in str(exc)
+    else:
+        raise AssertionError("Expected oversized project file to be rejected.")
 
 
 def test_workflow_defaults_for_legacy_project_payload():

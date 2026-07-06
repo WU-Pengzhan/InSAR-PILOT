@@ -1,3 +1,4 @@
+from importlib import resources
 from pathlib import Path
 
 import insar_pilot
@@ -20,7 +21,7 @@ def test_public_package_and_application_branding():
 
 
 def test_project_workspace_branding_constants():
-    assert PROJECT_ROOT_FILE_NAME == "insar_pilot_project.json"
+    assert PROJECT_ROOT_FILE_NAME == "project.pilot"
     assert APP_METADATA_DIR == ".insar_pilot"
 
 
@@ -28,8 +29,32 @@ def test_pyproject_exposes_only_insar_pilot_cli():
     text = (REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8")
     assert 'name = "insar-pilot"' in text
     assert 'insar-pilot = "insar_pilot.app:main"' in text
+    assert '"insar_pilot.ui.assets" = ["*.png"]' in text
     assert "sentinel" + "-workbench" not in text
     assert "isce2" + "-gui" not in text
+
+
+def test_branding_assets_are_packaged_and_documented():
+    package_files = resources.files("insar_pilot.ui.assets")
+    assert package_files.joinpath("logo.png").is_file()
+    assert package_files.joinpath("logo-mark.png").is_file()
+
+    for relative in [
+        "docs/assets/branding/logo.png",
+        "docs/assets/branding/logo-mark.png",
+        "docs/assets/branding/github-avatar.png",
+        "docs/assets/branding/github-social-preview.png",
+    ]:
+        assert (REPO_ROOT / relative).is_file()
+
+    expected_links = {
+        "README.md": "docs/assets/branding/logo.png",
+        "README_EN.md": "docs/assets/branding/logo.png",
+        "docs/USER_GUIDE.md": "assets/branding/logo.png",
+        "docs/USER_GUIDE_EN.md": "assets/branding/logo.png",
+    }
+    for relative, link in expected_links.items():
+        assert link in (REPO_ROOT / relative).read_text(encoding="utf-8")
 
 
 def test_repository_has_no_old_public_brand_strings():

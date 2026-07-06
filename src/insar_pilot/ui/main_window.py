@@ -97,6 +97,7 @@ from insar_pilot.ui.pages.results_page import ResultsPage
 from insar_pilot.ui.pages.run_monitor_page import RunMonitorPage
 from insar_pilot.ui.icons import IconProvider
 from insar_pilot.ui.widgets.geometry_verify_panel import VerifyPlotData
+from insar_pilot.ui.icons import BrandAssets
 from insar_pilot.ui.widgets.combo_wheel_guard import install_no_scroll_button_focus, install_no_wheel_on_combos
 from insar_pilot.ui.widgets.log_console import append_text_preserving_scroll
 from insar_pilot.ui.widgets.status_badge import StatusBadge
@@ -159,6 +160,7 @@ class MainWindow(QMainWindow):
         self._page_index_by_key: dict[str, int] = {}
 
         self.setWindowTitle(self.translator.tr("app.title"))
+        self.setWindowIcon(BrandAssets.icon())
         self.resize(1720, 980)
         self.setMinimumSize(1366, 768)
 
@@ -526,13 +528,7 @@ class MainWindow(QMainWindow):
         self.action_run_remaining.triggered.connect(self.run_remaining_steps)
         self.action_stop.triggered.connect(self.stop_execution)
         self.action_refresh_outputs.triggered.connect(self.refresh_outputs_view)
-        self.action_about.triggered.connect(
-            lambda: QMessageBox.information(
-                self,
-                "About",
-                "InSAR-PILOT\nInSAR Processing Interface and Lightweight Orchestration Toolkit",
-            )
-        )
+        self.action_about.triggered.connect(self._show_about_dialog)
 
         self.workflow_stepper.currentChanged.connect(self._handle_stepper_changed)
         self.project_start_page.newProjectRequested.connect(self.new_project)
@@ -604,6 +600,20 @@ class MainWindow(QMainWindow):
         self.visual_export_button.clicked.connect(self.run_visualization_export)
         self.visual_mode_combo.currentIndexChanged.connect(self._update_visualization_mode_ui)
 
+    def _show_about_dialog(self) -> None:
+        dialog = QMessageBox(self)
+        dialog.setWindowTitle("About InSAR-PILOT")
+        dialog.setWindowIcon(BrandAssets.icon())
+        dialog.setIconPixmap(BrandAssets.pixmap(size=QSize(72, 72)))
+        dialog.setText("InSAR-PILOT")
+        dialog.setInformativeText(
+            "InSAR Processing Interface and Lightweight Orchestration Toolkit\n"
+            f"Version {__version__}\n\n"
+            "Open Desktop Workbench for Guided SAR/InSAR Processing"
+        )
+        dialog.setStandardButtons(QMessageBox.StandardButton.Ok)
+        dialog.exec()
+
     def _connect_runner(self) -> None:
         self.runner.log_emitted.connect(self.append_log)
         self.runner.command_started.connect(self._handle_command_started)
@@ -654,7 +664,7 @@ class MainWindow(QMainWindow):
         self._browse_dir_into(self.isce_root_edit, "Select processing runtime root")
 
     def _browse_input_dir(self) -> None:
-        self._browse_dir_into(self.input_path_edit, "Select Sentinel-1 input folder")
+        self._browse_dir_into(self.input_path_edit, "Select SLC folder")
 
     def _browse_orbit_dir(self) -> None:
         self._browse_dir_into(self.orbit_path_edit, "Select orbit folder")
@@ -1759,7 +1769,7 @@ class MainWindow(QMainWindow):
             self,
             "Open project",
             str(Path.home()),
-            "Project JSON (insar_pilot_project.json project.json);;All files (*)",
+            "InSAR-PILOT Project (*.pilot);;Legacy Project (*.insarpilot *.json);;All files (*)",
         )
         if not path:
             return
@@ -2478,9 +2488,9 @@ class MainWindow(QMainWindow):
         workflow = self.project.workflow
 
         if not workflow.input_path:
-            errors.append("Sentinel-1 input folder is required.")
+            errors.append("SLC folder is required.")
         elif not Path(workflow.input_path).expanduser().is_dir():
-            errors.append(f"Sentinel-1 input folder was not found: {workflow.input_path}")
+            errors.append(f"SLC folder was not found: {workflow.input_path}")
 
         if not workflow.orbit_path:
             errors.append("Orbit folder is required.")
@@ -2790,7 +2800,7 @@ class MainWindow(QMainWindow):
 
         input_dir = Path(self.project.workflow.input_path).expanduser()
         if not input_dir.is_dir():
-            raise ValueError("Prepare data first or set a valid Sentinel-1 input folder.")
+            raise ValueError("Prepare data first or set a valid SLC folder.")
         report = self.input_catalog_service.scan(input_dir)
         if not report.entries:
             raise ValueError("No Sentinel-1 ZIP/SAFE inputs were found for IW recommendation.")
