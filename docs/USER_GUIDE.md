@@ -14,7 +14,7 @@
 
 当前版本主要聚焦 Sentinel-1 与 ISCE2 官方处理流程。长期目标是逐步接入更多 SAR 载荷和时序 InSAR 处理能力，包括 SBAS、StaMPS 等流程。
 
-当前版本仍处于测试阶段。建议先使用小范围样例项目验证运行环境、下载链路和处理结果，再进入正式生产流程。
+v1.0.0 是首个正式发布版。建议先使用小范围样例项目验证运行环境、下载链路和处理结果，再进入正式生产流程。
 
 ## 2. 启动页与项目制
 
@@ -98,7 +98,11 @@ Results 页面只负责输出浏览和可视化：
 
 ## 7. ISCE2 调用关系
 
-本软件公开文档中明确说明：当前 Sentinel-1 处理依赖 ISCE2 官方 TOPS stack 工作流。GUI 负责：
+InSAR-PILOT 当前的 Sentinel-1 处理能力建立在 [ISCE2](https://github.com/isce-framework/isce2) 及其官方 [stack processors / TOPS stack](https://github.com/isce-framework/isce2/blob/main/contrib/stack/README.md) 之上。ISCE2 是开源 InSAR 科学计算环境，InSAR-PILOT 通过桌面界面、项目制工作区和执行监控把它的 Sentinel-1 TOPS 工作流组织得更容易使用。
+
+> 致谢与边界：InSAR-PILOT 不是 ISCE2 官方项目，不修改 ISCE2 算法，也不重新发布 ISCE2 的处理结果解释。本项目尊重并依赖 ISCE2 开源工作，目标是为用户提供更清晰的输入准备、命令生成、run_files 执行和日志检查界面。
+
+GUI 负责：
 
 - 收集并保存参数。
 - 准备输入目录与 DEM。

@@ -14,7 +14,7 @@ It is an open-source desktop processing workbench for Ubuntu Desktop and WSL2/WS
 
 The current version focuses on Sentinel-1 processing with the official ISCE2 workflow. The long-term goal is to support more SAR sensors and time-series InSAR workflows, including SBAS- and StaMPS-based processing chains.
 
-The current release is still in a testing stage. Validate the runtime, download path, and processing outputs on small sample projects before moving into production workflows.
+v1.0.0 is the first stable release. Validate the runtime, download path, and processing outputs on small sample projects before moving into production workflows.
 
 ## 2. Start Page and Project Workspace
 
@@ -98,7 +98,11 @@ This page does not own workflow state. State is stored in the project file, Run 
 
 ## 7. Relationship to ISCE2
 
-The open-source documentation is technically explicit: current Sentinel-1 processing depends on the official ISCE2 TOPS stack workflow. The GUI:
+InSAR-PILOT's current Sentinel-1 processing capability is built around [ISCE2](https://github.com/isce-framework/isce2) and its official [stack processors / TOPS stack](https://github.com/isce-framework/isce2/blob/main/contrib/stack/README.md). ISCE2 is an open-source InSAR scientific computing environment; InSAR-PILOT adds a desktop interface, project workspace, and execution monitor around its Sentinel-1 TOPS workflow.
+
+> Attribution and scope: InSAR-PILOT is not an official ISCE2 project, does not modify ISCE2 algorithms, and does not reinterpret ISCE2 outputs as a new processing engine. This project respects and depends on the ISCE2 open-source work while providing a clearer interface for input preparation, command generation, run-file execution, and log inspection.
+
+The GUI:
 
 - collects and saves parameters
 - prepares input folders and DEM products

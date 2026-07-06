@@ -10,11 +10,13 @@
 
 [中文](README.md) | [Full User Guide](docs/USER_GUIDE_EN.md) | [Troubleshooting](docs/TROUBLESHOOTING.md)
 
-InSAR-PILOT is an open-source, desktop, lightweight SAR/InSAR processing workbench. It organizes a project folder and guides operators through SAR data acquisition, orbit and DEM preparation, processing parameter configuration, workflow generation, execution monitoring, and quicklook visualization.
+[![ISCE2](https://img.shields.io/badge/Powered%20by-ISCE2-2f6db3)](https://github.com/isce-framework/isce2)
 
-The current version focuses on Sentinel-1 processing with the official ISCE2 workflow. The long-term goal is to support multiple SAR sensors and time-series InSAR workflows, including SBAS- and StaMPS-based processing chains.
+InSAR-PILOT is an open-source desktop workbench for SAR/InSAR processing. It organizes data acquisition, orbit/DEM preparation, parameter setup, workflow execution, and quicklook visualization around a project folder.
 
-> Stage note: the current release is still in a testing stage. Validate the runtime, downloads, and processing outputs on small sample projects before using it in production workflows.
+The current version focuses on Sentinel-1 and the [ISCE2](https://github.com/isce-framework/isce2) TOPS stack workflow, with a long-term path toward additional SAR sensors and time-series InSAR pipelines. The project is primarily Codex-assisted and manually reviewed through iterative development.
+
+> Release note: v1.0.0 is the first stable release. Validate the runtime, downloads, and processing outputs on small sample projects before using it in production workflows.
 
 ## Screenshots
 
@@ -25,14 +27,6 @@ The current version focuses on Sentinel-1 processing with the official ISCE2 wor
 ![Processing setup](docs/assets/screenshots/processing-setup.png)
 
 See the [full user guide](docs/USER_GUIDE_EN.md) for more screenshots.
-
-## GitHub Branding Assets
-
-- Horizontal logo: `docs/assets/branding/logo.png`
-- Repository avatar / project avatar: `docs/assets/branding/github-avatar.png`
-- Repository social preview: `docs/assets/branding/github-social-preview.png`
-
-GitHub does not automatically read repository images for avatars or social previews. Upload the corresponding file manually in the GitHub Settings page after publishing.
 
 ## Features
 

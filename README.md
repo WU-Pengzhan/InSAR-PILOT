@@ -10,11 +10,13 @@
 
 [English](README_EN.md) | [完整中文手册](docs/USER_GUIDE.md) | [故障排查](docs/TROUBLESHOOTING.md)
 
-InSAR-PILOT 是一个开源、窗口化、轻量级的 SAR/InSAR 桌面处理工作台。它以项目文件夹为核心，帮助用户完成 SAR 数据检索与下载、轨道与 DEM 准备、处理参数配置、处理链生成、任务执行监控和结果 quicklook 预览。
+[![ISCE2](https://img.shields.io/badge/Powered%20by-ISCE2-2f6db3)](https://github.com/isce-framework/isce2)
 
-当前版本主要面向 Sentinel-1 与 ISCE2 官方处理流程，后续目标是逐步接入更多 SAR 载荷和时序 InSAR 处理能力，包括 SBAS、StaMPS 等流程。
+InSAR-PILOT 是一个开源、窗口化的 SAR/InSAR 处理工作台，用项目文件夹组织数据下载、轨道/DEM 准备、参数配置、流程执行和 quicklook 预览。
 
-> 阶段说明：当前版本仍处于测试阶段，建议先在小范围样例项目中验证环境、数据下载和处理结果，再用于正式生产流程。
+当前版本聚焦 Sentinel-1 与 [ISCE2](https://github.com/isce-framework/isce2) TOPS stack 工作流，后续计划扩展到更多 SAR 载荷和时序 InSAR 流程。项目主要由 Codex 辅助开发，并经过人工迭代审查。
+
+> 发布说明：v1.0.0 是首个正式发布版。建议先使用小范围样例项目验证运行环境、数据下载和处理结果，再进入正式生产流程。
 
 ## 界面预览
 
@@ -25,14 +27,6 @@ InSAR-PILOT 是一个开源、窗口化、轻量级的 SAR/InSAR 桌面处理工
 ![Processing setup](docs/assets/screenshots/processing-setup.png)
 
 更多页面截图见 [完整中文手册](docs/USER_GUIDE.md)。
-
-## GitHub 品牌资源
-
-- 横向 logo：`docs/assets/branding/logo.png`
-- 仓库头像 / 项目头像：`docs/assets/branding/github-avatar.png`
-- Repository social preview：`docs/assets/branding/github-social-preview.png`
-
-GitHub 不会自动从仓库文件读取头像或 social preview。发布后需要在 GitHub Settings 页面手动上传对应图片。
 
 ## 核心功能
 

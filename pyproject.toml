@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "insar-pilot"
-version = "0.2.0"
+version = "1.0.0"
 description = "Open desktop workbench for guided SAR/InSAR processing on Ubuntu and WSL."
 readme = "README.md"
 requires-python = ">=3.10"
@@ -14,7 +14,7 @@ authors = [
 ]
 keywords = ["insar", "sar", "sentinel-1", "topsstack", "pyside6", "wsl"]
 classifiers = [
-  "Development Status :: 4 - Beta",
+  "Development Status :: 5 - Production/Stable",
   "Environment :: X11 Applications :: Qt",
   "Intended Audience :: Science/Research",
   "Operating System :: POSIX :: Linux",

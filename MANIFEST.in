@@ -1,0 +1,4 @@
+include CHANGELOG.md
+include README_EN.md
+include environment.yml
+recursive-include docs *.md *.png
