@@ -14,6 +14,7 @@ import re
 from datetime import datetime
 from pathlib import Path
 from typing import TYPE_CHECKING
+from urllib.parse import urlparse
 
 from PySide6.QtCore import QObject, QThread, QUrl
 from PySide6.QtGui import QDesktopServices
@@ -43,6 +44,38 @@ from insar_pilot.ui.pages.data_download_page import DataDownloadPage
 
 if TYPE_CHECKING:
     from insar_pilot.ui.main_window import MainWindow
+
+
+_URL_IN_MESSAGE_RE = re.compile(r"https?://[^\s'\"<>)\]]+", re.IGNORECASE)
+_HOST_KWARG_RE = re.compile(r"host=['\"]([^'\"]+)['\"]", re.IGNORECASE)
+
+
+def message_references_host(message: str, host: str) -> bool:
+    """Return True when *message* references *host* as a real hostname.
+
+    Diagnostic error hints must not be fooled by a substring match: a naive
+    ``host in message`` check (CodeQL ``py/incomplete-url-substring-sanitization``)
+    would treat ``https://evil.com/?cmr.earthdata.nasa.gov`` as a reference to the
+    trusted host. We instead accept the host only when it appears as a parsed URL
+    hostname, a requests ``host='...'`` connection-pool token, or a standalone
+    host token (e.g. ``Could not resolve host: cmr.earthdata.nasa.gov``).
+    """
+
+    host = host.lower()
+    for candidate in _URL_IN_MESSAGE_RE.findall(message):
+        if (urlparse(candidate).hostname or "").lower() == host:
+            return True
+    for candidate in _HOST_KWARG_RE.findall(message):
+        if candidate.strip().lower() == host:
+            return True
+    # Standalone host token: bounded by whitespace/quotes/brackets on both
+    # sides so ``.../?<host>`` and ``<host>.evil.com`` are rejected. The host is
+    # taken from the caller and escaped, never used as a raw URL substring test.
+    token_re = re.compile(
+        rf"(?:^|[\s'\"(:]){re.escape(host)}(?=$|[\s'\")\],;:])",
+        re.IGNORECASE,
+    )
+    return token_re.search(message) is not None
 
 
 class DownloadController(QObject):
@@ -354,7 +387,7 @@ class DownloadController(QObject):
                 f"{message} Current proxy settings appear to be unreachable. "
                 "Check HTTP_PROXY/HTTPS_PROXY/ALL_PROXY in the WSL environment, or unset them before launching."
             )
-        if "cmr.earthdata.nasa.gov" in lower:
+        if message_references_host(message, "cmr.earthdata.nasa.gov"):
             return (
                 f"{message} ASF search uses NASA CMR (cmr.earthdata.nasa.gov); "
                 "being able to open search.asf.alaska.edu in a browser does not "

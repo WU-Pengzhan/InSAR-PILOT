@@ -158,3 +158,24 @@ def test_save_earthdata_netrc_replaces_existing_machine_block(tmp_path: Path):
     assert "login keep" in text
     # Only one earthdata machine block remains.
     assert text.count("machine urs.earthdata.nasa.gov") == 1
+
+
+def test_save_earthdata_netrc_keeps_lookalike_host_block(tmp_path: Path):
+    # Regression for py/incomplete-url-substring-sanitization: a look-alike host
+    # that merely contains the trusted host as a substring must not be clobbered.
+    path = tmp_path / ".netrc"
+    path.write_text(
+        "machine urs.earthdata.nasa.gov.evil.com\n  login attacker\n  password secret\n",
+        encoding="utf-8",
+    )
+
+    save_earthdata_netrc("newuser", "newpass", path)
+
+    text = path.read_text(encoding="utf-8")
+    # The unrelated look-alike entry survives untouched...
+    assert "machine urs.earthdata.nasa.gov.evil.com" in text
+    assert "login attacker" in text
+    assert "password secret" in text
+    # ...and a genuine earthdata block is appended alongside it.
+    assert "machine urs.earthdata.nasa.gov\n" in text
+    assert "login newuser" in text

@@ -150,7 +150,11 @@ def save_earthdata_netrc(username: str, password: str, netrc_path: str | Path | 
     index = 0
     while index < len(lines):
         line = lines[index]
-        if line.strip().startswith("machine ") and "urs.earthdata.nasa.gov" in line:
+        tokens = line.strip().split()
+        # Match the Earthdata block by its exact machine host, not a substring:
+        # a loose ``"urs.earthdata.nasa.gov" in line`` would also clobber an
+        # unrelated ``machine urs.earthdata.nasa.gov.evil.com`` entry.
+        if len(tokens) >= 2 and tokens[0] == "machine" and tokens[1] == "urs.earthdata.nasa.gov":
             index += 1
             while index < len(lines) and not lines[index].strip().startswith("machine "):
                 index += 1

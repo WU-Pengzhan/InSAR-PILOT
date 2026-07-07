@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from urllib.parse import urlparse
+
 import requests
 
 from insar_pilot.download.network import NetworkConfig
@@ -70,7 +72,7 @@ def test_fetch_tile_esri_does_not_require_key():
 
     assert status == 200
     assert payload == b"esri"
-    assert "server.arcgisonline.com" in session.urls[0]
+    assert urlparse(session.urls[0]).hostname == "server.arcgisonline.com"
 
 
 def test_fetch_tile_reports_bad_gateway_on_request_error():
