@@ -3,12 +3,16 @@
 from __future__ import annotations
 
 import time
+from collections.abc import Callable
 from pathlib import Path
 
 from insar_pilot.download.geometry import aoi_geojson_from_inputs, bounds_from_geojson
 from insar_pilot.download.models import DemCoveragePlan, DownloadResult, DownloadTask, SceneRecord, SearchCriteria
 from insar_pilot.download.network import NetworkConfig
 from insar_pilot.services.iw_recommendation import IwRecommendationResult, IwRecommendationService
+
+ProgressCallback = Callable[[DownloadTask], None]
+CancelCheck = Callable[[], bool]
 
 DEM_SOURCE_LABELS = {
     "COP30": "COP30 (Copernicus Global DSM 30m)",
@@ -231,8 +235,8 @@ class OpenTopographyDemService:
         *,
         api_key: str,
         network: NetworkConfig | None = None,
-        progress_callback=None,
-        cancel_check=None,
+        progress_callback: ProgressCallback | None = None,
+        cancel_check: CancelCheck | None = None,
     ) -> DownloadResult:
         """Download one planned DEM GeoTIFF into the standalone workspace."""
 

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import TextIO
 
 from PySide6.QtCore import QObject, QProcess, QProcessEnvironment, Signal
 
@@ -26,7 +27,7 @@ class ProcessRunner(QObject):
         self._process: QProcess | None = None
         self._queue: list[CommandPlan] = []
         self._current: CommandPlan | None = None
-        self._log_handle = None
+        self._log_handle: TextIO | None = None
         self._stopping = False
 
     def set_environment(self, environment: EnvironmentConfig) -> None:
@@ -99,7 +100,9 @@ class ProcessRunner(QObject):
     def _read_output(self) -> None:
         if self._process is None:
             return
-        payload = bytes(self._process.readAllStandardOutput()).decode("utf-8", errors="replace")
+        # QByteArray implements the buffer protocol at runtime, but the PySide6
+        # stubs don't advertise it, so bytes() has no matching overload for mypy.
+        payload = bytes(self._process.readAllStandardOutput()).decode("utf-8", errors="replace")  # type: ignore[call-overload]
         if not payload:
             return
         if self._log_handle is not None:
@@ -109,6 +112,9 @@ class ProcessRunner(QObject):
 
     def _handle_finished(self, exit_code: int, exit_status: QProcess.ExitStatus) -> None:
         plan = self._current
+        # _current is always set in _start_next before the process starts, so the
+        # finished signal never fires without a current plan.
+        assert plan is not None
         self._current = None
         if self._log_handle is not None:
             status_code = self._exit_status_code(exit_status)
@@ -141,6 +147,8 @@ class ProcessRunner(QObject):
         if hasattr(exit_status, "value"):
             return int(exit_status.value)
         try:
-            return int(exit_status)
+            # Defensive fallback for non-enum inputs; the Qt stubs type exit_status
+            # strictly as the ExitStatus enum, which int() has no overload for.
+            return int(exit_status)  # type: ignore[call-overload,no-any-return]
         except (TypeError, ValueError):
             return -1

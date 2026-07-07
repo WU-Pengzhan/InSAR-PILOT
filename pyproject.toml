@@ -46,6 +46,7 @@ dev = [
   "pytest>=7.4",
   "ruff",
   "build",
+  "mypy>=1.11",
 ]
 
 [project.scripts]
@@ -85,3 +86,39 @@ source = ["insar_pilot.services", "insar_pilot.domain", "insar_pilot.download"]
 [tool.coverage.report]
 show_missing = true
 skip_covered = true
+
+[tool.mypy]
+python_version = "3.10"
+warn_unused_ignores = true
+warn_redundant_casts = true
+no_implicit_optional = true
+warn_unused_configs = true
+warn_return_any = true
+check_untyped_defs = true
+namespace_packages = true
+explicit_package_bases = true
+mypy_path = "src"
+
+# The Qt-free layers are held to a stricter standard: every def must be typed.
+[[tool.mypy.overrides]]
+module = ["insar_pilot.domain.*", "insar_pilot.services.*", "insar_pilot.download.*"]
+disallow_untyped_defs = true
+
+# run_executor is QObject/QProcess-coupled by necessity; PySide6 ships stubs, so
+# it stays fully typed, but Signal/slot glue is exempt from disallow_untyped_defs
+# where the Qt stubs cannot express the runtime shape.
+[[tool.mypy.overrides]]
+module = ["insar_pilot.services.run_executor"]
+disallow_untyped_defs = false
+
+# pyshp (imported as `shapefile`) ships no type stubs.
+[[tool.mypy.overrides]]
+module = ["shapefile"]
+ignore_missing_imports = true
+
+# Third-party network/geo libraries in the download layer that ship no type
+# stubs or py.typed marker. Their public surfaces are untyped, so we suppress
+# missing-import errors per module rather than globally.
+[[tool.mypy.overrides]]
+module = ["asf_search", "eof.*"]
+ignore_missing_imports = true

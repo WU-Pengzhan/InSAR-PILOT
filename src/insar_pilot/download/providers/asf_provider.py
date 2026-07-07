@@ -177,7 +177,7 @@ class ASFProvider:
         return f"{value}T23:59:59Z" if "T" not in value else value
 
     @staticmethod
-    def _platform(value: str):
+    def _platform(value: str) -> list[Any]:
         normalized = value.strip().upper().replace("_", "-")
         if normalized in {"SENTINEL-1A", "S1A"}:
             return [asf.PLATFORM.SENTINEL1A]
@@ -188,11 +188,11 @@ class ASFProvider:
         return [asf.PLATFORM.SENTINEL1]
 
     @staticmethod
-    def _beam_mode(value: str):
+    def _beam_mode(value: str) -> Any:
         return getattr(asf.BEAMMODE, value.strip().upper() or "IW", value.strip().upper() or "IW")
 
     @staticmethod
-    def _product_type(value: str):
+    def _product_type(value: str) -> Any:
         return getattr(asf.PRODUCT_TYPE, value.strip().upper() or "SLC", value.strip().upper() or "SLC")
 
     @staticmethod
@@ -201,7 +201,7 @@ class ASFProvider:
         return value if value in {"ASCENDING", "DESCENDING"} else None
 
     @staticmethod
-    def _polarization(value: str) -> str | None:
+    def _polarization(value: str) -> Any:
         value = value.strip().upper()
         if value in {"", "ANY"}:
             return None

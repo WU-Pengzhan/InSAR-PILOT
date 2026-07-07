@@ -10,6 +10,7 @@ from __future__ import annotations
 import base64
 from http.cookiejar import MozillaCookieJar
 from pathlib import Path
+from typing import cast
 from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
 
 import asf_search as asf
@@ -32,11 +33,11 @@ def bulk_session(username: str = "", password: str = "", network: NetworkConfig 
         else:
             session.trust_env = False
             session.proxies.update(network.proxy_dict())
-        session._earthdata_username = username.strip()  # type: ignore[attr-defined]
-        session._earthdata_password = password  # type: ignore[attr-defined]
-        session._asf_cookie_jar = session.cookies  # type: ignore[attr-defined]
+        session._earthdata_username = username.strip()
+        session._earthdata_password = password
+        session._asf_cookie_jar = session.cookies
         session.auth_with_creds(username.strip(), password)
-        return session
+        return cast(requests.Session, session)
 
     session = network.session()
     cookie_path = Path.home() / ".bulk_download_cookiejar.txt"
@@ -46,7 +47,7 @@ def bulk_session(username: str = "", password: str = "", network: NetworkConfig 
             cookie_jar.load(ignore_discard=True, ignore_expires=True)
         except Exception:
             cookie_jar = MozillaCookieJar(str(cookie_path))
-    session.cookies = cookie_jar
+    session.cookies = cookie_jar  # type: ignore[assignment]
     session._earthdata_username = username.strip()  # type: ignore[attr-defined]
     session._earthdata_password = password  # type: ignore[attr-defined]
     session._asf_cookie_jar = cookie_jar  # type: ignore[attr-defined]

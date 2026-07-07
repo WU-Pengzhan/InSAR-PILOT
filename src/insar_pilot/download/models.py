@@ -129,7 +129,7 @@ class DownloadTask:
         data["bytes_done"] = int(data.get("bytes_done", 0) or 0)
         data["speed_bps"] = float(data.get("speed_bps", 0.0) or 0.0)
         eta = data.get("eta_seconds")
-        data["eta_seconds"] = None if eta in {"", None} else float(eta)
+        data["eta_seconds"] = None if eta is None or eta == "" else float(eta)
         data.setdefault("backend", "python")
         return cls(**data)
 
@@ -174,7 +174,7 @@ class DownloadResult:
         data["bytes_done"] = int(data.get("bytes_done", 0) or 0)
         data["speed_bps"] = float(data.get("speed_bps", 0.0) or 0.0)
         eta = data.get("eta_seconds")
-        data["eta_seconds"] = None if eta in {"", None} else float(eta)
+        data["eta_seconds"] = None if eta is None or eta == "" else float(eta)
         data.setdefault("backend", "python")
         return cls(**data)
 

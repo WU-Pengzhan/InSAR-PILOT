@@ -4,8 +4,9 @@ from __future__ import annotations
 
 import threading
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+from io import BufferedIOBase
 from pathlib import PurePosixPath
-from typing import ClassVar
+from typing import Any, ClassVar
 from urllib.parse import quote
 
 import requests
@@ -60,7 +61,7 @@ class TiandituTileProxy:
         if self._server is None:
             return ""
         host, port = self._server.server_address[:2]
-        return f"http://{host}:{port}/tianditu"
+        return f"http://{host}:{port}/tianditu"  # type: ignore[str-bytes-safe]
 
     def upstream_url(self, layer: str, z: int, x: int, y: int, *, scheme: str = "https") -> str:
         """Build one upstream Tianditu WMTS URL."""
@@ -105,7 +106,7 @@ class TiandituTileProxy:
                 continue
         return 502, "text/plain; charset=utf-8", b"Tianditu tile fetch failed."
 
-    def _make_handler(self):
+    def _make_handler(self) -> type[BaseHTTPRequestHandler]:
         proxy = self
 
         class Handler(BaseHTTPRequestHandler):
@@ -131,13 +132,13 @@ class TiandituTileProxy:
                 self.end_headers()
                 proxy._write_payload(self.wfile, payload)
 
-            def log_message(self, format: str, *args) -> None:  # noqa: A003
+            def log_message(self, format: str, *args: Any) -> None:  # noqa: A003
                 return
 
         return Handler
 
     @staticmethod
-    def _write_payload(stream, payload: bytes) -> bool:
+    def _write_payload(stream: BufferedIOBase, payload: bytes) -> bool:
         """Write a tile response unless the client already closed the socket."""
 
         try:

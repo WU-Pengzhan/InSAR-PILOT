@@ -139,7 +139,8 @@ class WorkflowConfig:
         parsed = self._parse_bbox(self.bbox_snwe)
         if parsed is None:
             return "", "", "", ""
-        return tuple(f"{value:g}" for value in parsed)
+        south, north, west, east = parsed
+        return f"{south:g}", f"{north:g}", f"{west:g}", f"{east:g}"
 
 
 @dataclass

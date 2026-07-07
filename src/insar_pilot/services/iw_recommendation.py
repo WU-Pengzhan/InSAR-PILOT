@@ -157,7 +157,7 @@ class IwRecommendationService:
             pixel_text = node.findtext("pixel")
             lat_text = node.findtext("latitude")
             lon_text = node.findtext("longitude")
-            if None in (line_text, pixel_text, lat_text, lon_text):
+            if line_text is None or pixel_text is None or lat_text is None or lon_text is None:
                 continue
             try:
                 line = int(float(line_text))

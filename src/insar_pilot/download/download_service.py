@@ -22,6 +22,7 @@ import time
 from collections.abc import Callable
 from http.cookiejar import MozillaCookieJar
 from pathlib import Path
+from typing import cast
 
 import asf_search as asf
 import requests
@@ -516,7 +517,7 @@ class DownloadService:
             cookie_jar = session.cookies
         self._obtain_asf_cookie(
             session,
-            cookie_jar,
+            cast(MozillaCookieJar, cookie_jar),
             username,
             password,
             network,

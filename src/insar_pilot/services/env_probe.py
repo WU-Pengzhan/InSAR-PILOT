@@ -94,7 +94,7 @@ class EnvironmentProbe:
         elif isce_root is not None:
             isce_root_ok = True
             isce_root_detail = f"Found {layout_detail}."
-        elif not isce_root_text:
+        elif configured_root is None:
             isce_root_ok = True
             isce_root_detail = "No runtime root configured; relying on PATH/PYTHONPATH from the launch environment."
         else:

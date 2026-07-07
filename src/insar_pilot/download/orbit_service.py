@@ -5,7 +5,7 @@ from __future__ import annotations
 from collections.abc import Callable
 from datetime import datetime
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 from insar_pilot.download.models import DownloadResult, DownloadTask, SceneRecord
 from insar_pilot.download.task_state import result_from_task
@@ -100,7 +100,7 @@ class OrbitDownloadService:
             from eof.download import download_eofs
         except Exception as exc:
             raise RuntimeError("sentineleof is required for orbit downloads. Install sentineleof>=0.11.1.") from exc
-        return download_eofs
+        return cast(Callable[..., Any], download_eofs)
 
     @staticmethod
     def _mission(scene: SceneRecord) -> str:
