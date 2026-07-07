@@ -27,7 +27,7 @@ jobs:
         run: uv run ruff check src tests
 
       - name: Mypy
-        run: uv run mypy src/insar_pilot/domain src/insar_pilot/services src/insar_pilot/download
+        run: uv run mypy src/insar_pilot/domain src/insar_pilot/services src/insar_pilot/download src/insar_pilot/cli
 
   test:
     runs-on: ubuntu-latest

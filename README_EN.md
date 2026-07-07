@@ -8,7 +8,7 @@
 
 **Subtitle: Open Desktop Workbench for Guided SAR/InSAR Processing**
 
-[中文](README.md) | [Full User Guide](docs/en/user-guide.md) | [Troubleshooting](docs/troubleshooting.md)
+[中文](README.md) | [Docs Site](https://wu-pengzhan.github.io/InSAR-PILOT/) | [Full User Guide](docs/en/user-guide.md) | [Troubleshooting](docs/troubleshooting.md)
 
 [![CI](https://github.com/WU-Pengzhan/InSAR-PILOT/actions/workflows/ci.yml/badge.svg)](https://github.com/WU-Pengzhan/InSAR-PILOT/actions/workflows/ci.yml) [![CodeQL](https://github.com/WU-Pengzhan/InSAR-PILOT/actions/workflows/codeql.yml/badge.svg)](https://github.com/WU-Pengzhan/InSAR-PILOT/actions/workflows/codeql.yml) [![License](https://img.shields.io/badge/License-Apache%202.0-blue)](LICENSE) [![Python](https://img.shields.io/badge/Python-3.10%2B-blue)](https://www.python.org) [![ISCE2](https://img.shields.io/badge/Powered%20by-ISCE2-2f6db3)](https://github.com/isce-framework/isce2)
 
@@ -16,7 +16,7 @@ InSAR-PILOT is an open-source desktop workbench for SAR/InSAR processing. It org
 
 The current version focuses on Sentinel-1 and the [ISCE2](https://github.com/isce-framework/isce2) TOPS stack workflow, with a long-term path toward additional SAR sensors and time-series InSAR pipelines. The project is primarily Codex-assisted and manually reviewed through iterative development.
 
-> Release note: v1.0.0 is the first stable release. Validate the runtime, downloads, and processing outputs on small sample projects before using it in production workflows.
+> Release note: v1.1.0 builds on v1.0.0 with a headless CLI, a Simplified Chinese interface, a dark theme, and a documentation site. Validate the runtime, downloads, and processing outputs on small sample projects before using it in production workflows.
 
 ## Screenshots
 
@@ -25,6 +25,8 @@ The current version focuses on Sentinel-1 and the [ISCE2](https://github.com/isc
 ![Data acquisition](docs/assets/screenshots/data-acquisition.png)
 
 ![Processing setup](docs/assets/screenshots/processing-setup.png)
+
+![Dark mode](docs/assets/screenshots/dark-mode.png)
 
 See the [full user guide](docs/en/user-guide.md) for more screenshots.
 
@@ -36,6 +38,9 @@ See the [full user guide](docs/en/user-guide.md) for more screenshots.
 - Processing Setup: data sources, EOF orbit files, DEM, AOI/BBox, IW swaths, reference scene, processing parameters, preflight, and command preview.
 - Run Executor: discovers and executes `run_files/run_*`; supports next/selected/remaining execution with step, subcommand, log, and exit-code visibility.
 - Results Quicklook: scans outputs and previews/exports SLC, interferogram, and overlay quicklooks.
+- Bilingual interface: built-in Simplified Chinese and English UI with in-app language switching.
+- Light and dark themes: switch between light and dark appearance from within the app.
+- Headless CLI: `insar-pilot-cli` drives the same project state on machines without a display.
 - Desktop compatibility: the launcher selects a suitable Qt display backend for WSL2/WSLg or Ubuntu Desktop and provides a native map fallback.
 
 ## Install and Launch

@@ -8,7 +8,7 @@
 
 **副标题：Open Desktop Workbench for Guided SAR/InSAR Processing**
 
-[English](README_EN.md) | [完整中文手册](docs/user-guide.md) | [故障排查](docs/troubleshooting.md)
+[English](README_EN.md) | [文档站点](https://wu-pengzhan.github.io/InSAR-PILOT/) | [完整中文手册](docs/user-guide.md) | [故障排查](docs/troubleshooting.md)
 
 [![CI](https://github.com/WU-Pengzhan/InSAR-PILOT/actions/workflows/ci.yml/badge.svg)](https://github.com/WU-Pengzhan/InSAR-PILOT/actions/workflows/ci.yml) [![CodeQL](https://github.com/WU-Pengzhan/InSAR-PILOT/actions/workflows/codeql.yml/badge.svg)](https://github.com/WU-Pengzhan/InSAR-PILOT/actions/workflows/codeql.yml) [![License](https://img.shields.io/badge/License-Apache%202.0-blue)](LICENSE) [![Python](https://img.shields.io/badge/Python-3.10%2B-blue)](https://www.python.org) [![ISCE2](https://img.shields.io/badge/Powered%20by-ISCE2-2f6db3)](https://github.com/isce-framework/isce2)
 
@@ -16,7 +16,7 @@ InSAR-PILOT 是一个开源、窗口化的 SAR/InSAR 处理工作台，用项目
 
 当前版本聚焦 Sentinel-1 与 [ISCE2](https://github.com/isce-framework/isce2) TOPS stack 工作流，后续计划扩展到更多 SAR 载荷和时序 InSAR 流程。项目主要由 Codex 辅助开发，并经过人工迭代审查。
 
-> 发布说明：v1.0.0 是首个正式发布版。建议先使用小范围样例项目验证运行环境、数据下载和处理结果，再进入正式生产流程。
+> 发布说明：v1.1.0 在 v1.0.0 基础上带来无界面 CLI、简体中文界面、深色主题与文档站点。建议先使用小范围样例项目验证运行环境、数据下载和处理结果，再进入正式生产流程。
 
 ## 界面预览
 
@@ -25,6 +25,8 @@ InSAR-PILOT 是一个开源、窗口化的 SAR/InSAR 处理工作台，用项目
 ![Data acquisition](docs/assets/screenshots/data-acquisition.png)
 
 ![Processing setup](docs/assets/screenshots/processing-setup.png)
+
+![Dark mode](docs/assets/screenshots/dark-mode.png)
 
 更多页面截图见 [完整中文手册](docs/user-guide.md)。
 
@@ -36,6 +38,9 @@ InSAR-PILOT 是一个开源、窗口化的 SAR/InSAR 处理工作台，用项目
 - Processing Setup：数据源、EOF、DEM、AOI/BBox、IW、参考影像、处理参数、preflight 和命令预览集中配置。
 - Run Executor：发现并执行 `run_files/run_*`，支持 next/selected/remaining 执行，显示 step/subcommand 状态、日志和 exit code。
 - Results Quicklook：扫描输出结果，预览或导出 SLC、干涉图和 overlay quicklook。
+- 多语言界面：内置简体中文与英文界面，可在应用内实时切换语言。
+- 明暗主题：提供浅色与深色主题，并支持应用内一键切换。
+- 无界面 CLI：`insar-pilot-cli` 可在无显示环境下驱动同一套项目状态。
 - 桌面适配：启动器自动选择 WSL2/WSLg 或 Ubuntu Desktop 的 Qt 显示后端，并支持 WebEngine 地图 fallback。
 
 ## 安装与启动

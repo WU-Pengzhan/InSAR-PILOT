@@ -12,7 +12,7 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 
 
 def test_public_package_and_application_branding():
-    assert insar_pilot.__version__ == "1.0.0"
+    assert insar_pilot.__version__ == "1.1.0"
     assert insar_pilot.app.main is launch.main
     assert launch.APP_NAME == "InSAR-PILOT"
     assert AppSettings.APPLICATION == "InSAR-PILOT"

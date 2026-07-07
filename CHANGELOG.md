@@ -2,6 +2,30 @@
 
 All notable changes to this project are documented here.
 
+## [1.1.0] - 2026-07-07
+
+### Added
+
+- Headless command-line workflow: `insar-pilot-cli` with `init`, `generate`, `run`, and `status` subcommands drives the same `project.pilot` state as the GUI, for servers without a display.
+- Simplified Chinese user interface with an in-app language switcher; every UI string is externalized and full English and Chinese locales ship with the app.
+- Dark theme with an in-app theme switcher, alongside a refined light theme.
+- MkDocs Material documentation site published to GitHub Pages, with bilingual guides, an end-to-end tutorial, and an architecture overview.
+- Continuous integration running a ruff/mypy/pytest matrix across Python 3.10-3.12 with an 85% coverage gate, plus CodeQL scanning and Dependabot updates.
+- Community health files: contributing guide, code of conduct, security policy, and citation metadata.
+- Type annotations with a mypy gate for the Qt-free `domain`, `services`, `download`, and `cli` layers.
+- 100+ new behavioral tests, raising test coverage from 77% to 87%.
+
+### Changed
+
+- Refactored the main window, data-acquisition page, and download service into focused modules with no change to behavior.
+- Rebuilt the user-interface design system on shared design tokens: consistent focus rings, styled scrollbars, tooltips, and progress indicators, WCAG-compliant contrast, and normalized spacing.
+- Refreshed README badges and compressed branding assets.
+
+### Fixed
+
+- Language selection collapsed every non-English locale to English, so the Chinese interface could never load.
+- Re-authenticating with Earthdata could crash with an `AttributeError` when the session used a non-persistable cookie jar.
+
 ## [1.0.0] - 2026-07-06
 
 ### Added
