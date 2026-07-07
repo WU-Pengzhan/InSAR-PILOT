@@ -85,6 +85,28 @@ project_root/
   .insar_pilot/cache/
 ```
 
+## Headless / CLI Usage
+
+On servers without a display, `insar-pilot-cli` drives the same project state as the GUI (`project.pilot` and `logs/` stay fully interchangeable between front-ends).
+
+```bash
+# 1. Create the standard project layout and project.pilot
+insar-pilot-cli init /data/aoi_stack --name aoi_stack
+
+# 2. Preview the generation command (no execution); then generate and sync run_files
+insar-pilot-cli generate /data/aoi_stack --dry-run
+insar-pilot-cli generate /data/aoi_stack
+
+# 3. Run steps sequentially (stops on first non-zero exit); a range is also allowed
+insar-pilot-cli run /data/aoi_stack
+insar-pilot-cli run /data/aoi_stack --steps 2-5
+
+# 4. Inspect per-step status and log paths
+insar-pilot-cli status /data/aoi_stack
+```
+
+Exit codes: `0` success, `1` a command failed, `2` usage/config error. Data/DEM/AOI preparation is still done in the GUI today; the CLI focuses on generation, execution, and status.
+
 ## Platform and Runtime
 
 - Ubuntu Desktop or WSL2/WSLg.

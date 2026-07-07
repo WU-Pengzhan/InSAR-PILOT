@@ -135,3 +135,25 @@ pip install '.[map]'
 ```bash
 conda run -n insar env PYTHONPATH=src QT_QPA_PLATFORM=offscreen pytest -q
 ```
+
+## 9. 无界面 / CLI
+
+在没有图形界面的服务器上，`insar-pilot-cli` 复用与 GUI 相同的 Qt-free 服务层，
+`project.pilot` 与 `logs/` 输出在两个前端之间完全兼容、可互换打开。四个子命令：
+
+- `init <dir> [--name NAME]` — 创建标准项目目录与 `project.pilot`。
+- `generate <project_dir> [--dry-run]` — 构造 `stackSentinel.py` 命令，拒绝覆盖已存在的
+  `run_files`/`configs`，执行生成并同步 run 步骤；`--dry-run` 仅打印命令后退出。
+- `run <project_dir> [--steps A[-B]] [--dry-run]` — 按顺序执行待运行步骤，首个非零退出即停止，
+  每步状态写回 `project.pilot`；`--steps` 选择 1 基编号的单步或区间。
+- `status <project_dir>` — 打印步骤/状态/日志的紧凑表格。
+
+退出码：`0` 成功，`1` 命令执行失败，`2` 用法或配置错误。数据/DEM/AOI 的准备目前仍在 GUI 中完成。
+
+```bash
+insar-pilot-cli init /data/aoi_stack --name aoi_stack
+insar-pilot-cli generate /data/aoi_stack --dry-run
+insar-pilot-cli generate /data/aoi_stack
+insar-pilot-cli run /data/aoi_stack --steps 2-5
+insar-pilot-cli status /data/aoi_stack
+```

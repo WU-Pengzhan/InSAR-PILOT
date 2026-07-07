@@ -85,6 +85,28 @@ project_root/
   .insar_pilot/cache/
 ```
 
+## 无界面 / CLI 用法
+
+在没有图形界面的服务器上，可用 `insar-pilot-cli` 直接驱动同一套项目状态（`project.pilot` 与 `logs/` 完全兼容 GUI，可互换打开）。
+
+```bash
+# 1. 创建标准项目目录与 project.pilot
+insar-pilot-cli init /data/aoi_stack --name aoi_stack
+
+# 2. 预览生成命令（不执行）；确认无误后执行生成并同步 run_files
+insar-pilot-cli generate /data/aoi_stack --dry-run
+insar-pilot-cli generate /data/aoi_stack
+
+# 3. 顺序执行 run 步骤（首个非零退出即停止）；也可选步骤区间
+insar-pilot-cli run /data/aoi_stack
+insar-pilot-cli run /data/aoi_stack --steps 2-5
+
+# 4. 查看各步骤状态与日志路径
+insar-pilot-cli status /data/aoi_stack
+```
+
+退出码：`0` 成功，`1` 命令执行失败，`2` 用法或配置错误。数据/DEM/AOI 的准备目前仍在 GUI 中完成；CLI 侧重生成、执行与状态查询。
+
 ## 平台与运行环境
 
 - Ubuntu Desktop 或 WSL2/WSLg。

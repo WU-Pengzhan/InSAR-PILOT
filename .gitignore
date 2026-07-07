@@ -28,3 +28,8 @@ misreg/
 geom_reference/
 coarse_interferograms/
 stack/
+
+# Coverage artifacts
+.coverage
+.coverage.*
+htmlcov/

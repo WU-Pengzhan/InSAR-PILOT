@@ -135,3 +135,29 @@ Tests:
 ```bash
 conda run -n insar env PYTHONPATH=src QT_QPA_PLATFORM=offscreen pytest -q
 ```
+
+## 9. Headless / CLI
+
+For servers without a display, `insar-pilot-cli` reuses the same Qt-free service
+layer as the GUI, so `project.pilot` and the `logs/` output are interchangeable
+between the two front-ends. Four subcommands:
+
+- `init <dir> [--name NAME]` — create the standard project layout and `project.pilot`.
+- `generate <project_dir> [--dry-run]` — build the `stackSentinel.py` command,
+  refuse to overwrite existing `run_files`/`configs`, execute it, and sync the
+  discovered run steps. `--dry-run` prints the command and exits.
+- `run <project_dir> [--steps A[-B]] [--dry-run]` — run pending steps in order,
+  stopping on the first non-zero exit and persisting each step's status. `--steps`
+  selects a 1-based step or range.
+- `status <project_dir>` — print a compact step/status/log table.
+
+Exit codes: `0` success, `1` a shelled command failed, `2` usage/config error.
+Data/DEM/AOI preparation is still done in the GUI today.
+
+```bash
+insar-pilot-cli init /data/aoi_stack --name aoi_stack
+insar-pilot-cli generate /data/aoi_stack --dry-run
+insar-pilot-cli generate /data/aoi_stack
+insar-pilot-cli run /data/aoi_stack --steps 2-5
+insar-pilot-cli status /data/aoi_stack
+```
