@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from PySide6.QtWidgets import QFrame, QLabel, QVBoxLayout
 
+from insar_pilot.i18n import tr
 from insar_pilot.services.preflight import PreflightReport
 from insar_pilot.ui.widgets.status_badge import StatusBadge
 
@@ -18,7 +19,7 @@ class PreflightCheckList(QFrame):
         self.layout = QVBoxLayout(self)
         self.layout.setContentsMargins(0, 0, 0, 0)
         self.layout.setSpacing(6)
-        self.summary_label = QLabel("Preflight has not run yet.")
+        self.summary_label = QLabel(tr("widget.preflight.not_run"))
         self.summary_label.setWordWrap(True)
         self.layout.addWidget(self.summary_label)
 
@@ -26,13 +27,11 @@ class PreflightCheckList(QFrame):
         self._report = report
         self._clear_rows()
         if report.blockers:
-            self.summary_label.setText(
-                f"Preflight found {len(report.blockers)} blocker(s). Resolve them before generation."
-            )
+            self.summary_label.setText(tr("preflight.blocked", count=len(report.blockers)))
         elif report.warnings:
-            self.summary_label.setText(f"Preflight completed with {len(report.warnings)} warning(s).")
+            self.summary_label.setText(tr("preflight.warning", count=len(report.warnings)))
         else:
-            self.summary_label.setText("Preflight complete. No blockers found.")
+            self.summary_label.setText(tr("preflight.ready"))
         for check in report.checks:
             self.layout.addWidget(_PreflightRow(check.label, check.status, check.detail))
 

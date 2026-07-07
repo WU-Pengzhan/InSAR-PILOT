@@ -17,6 +17,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from insar_pilot.i18n import tr
 from insar_pilot.ui.icons import IconProvider
 from insar_pilot.ui.widgets.command_preview import CommandPreview
 from insar_pilot.ui.widgets.geometry_verify_panel import GeometryVerifyPanel
@@ -35,8 +36,8 @@ class ProcessingSetupPage(PageScaffold):
 
     def __init__(self, parent=None) -> None:
         super().__init__(
-            "Processing Setup",
-            "Follow each setup step, confirm parameters, then generate the processing workflow.",
+            tr("nav.processing_setup"),
+            tr("setup.subtitle"),
             parent,
         )
         self._build_workbench_shell()
@@ -53,12 +54,12 @@ class ProcessingSetupPage(PageScaffold):
         self.setup_step_tree = WorkflowStepTree()
         self.setup_step_tree.set_steps(
             [
-                WorkflowStep("1. Environment", "pending", "Runtime and shell readiness"),
-                WorkflowStep("2. Data", "pending", "Input, orbit, DEM, and work folder"),
-                WorkflowStep("3. Geometry", "pending", "AOI, bbox, and IW swaths"),
-                WorkflowStep("4. Parameters", "pending", "Processing mode and looks"),
-                WorkflowStep("5. Preflight", "pending", "Blockers and warnings"),
-                WorkflowStep("6. Generate", "pending", "Create run_files workflow"),
+                WorkflowStep(tr("setup.step.environment"), "pending", tr("setup.step.environment.desc")),
+                WorkflowStep(tr("setup.step.data"), "pending", tr("setup.step.data.desc")),
+                WorkflowStep(tr("setup.step.geometry"), "pending", tr("setup.step.geometry.desc")),
+                WorkflowStep(tr("setup.step.parameters"), "pending", tr("setup.step.parameters.desc")),
+                WorkflowStep(tr("setup.step.preflight"), "pending", tr("setup.step.preflight.desc")),
+                WorkflowStep(tr("setup.step.generate"), "pending", tr("setup.step.generate.desc")),
             ]
         )
         self.workbench_splitter.addWidget(self.setup_step_tree)
@@ -81,22 +82,30 @@ class ProcessingSetupPage(PageScaffold):
         self.summary_card_container.setObjectName("processingSetupSummaryCards")
         self.summary_card_container.hide()
         self.dataset_card = SummaryCard(
-            "Dataset",
-            "Not prepared",
-            "Select Sentinel-1 ZIP/SAFE inputs and build the manifest.",
+            tr("setup.card.dataset.title"),
+            tr("card.value.not_prepared"),
+            tr("setup.card.dataset.body"),
             self.summary_card_container,
         )
-        self.orbit_card = SummaryCard("EOF Orbit", "Not set", "Point to local EOF orbit files.")
-        self.dem_card = SummaryCard("DEM", "Not set", "GeoTIFF or prepared DEM.")
-        self.source_card = SummaryCard("AOI Source", "Manual", "AOI can auto-fill the processing bbox.")
-        self.bbox_card = SummaryCard("Processing BBox (SNWE)", "Not set", "Final geographic processing boundary.")
-        self.iw_card = SummaryCard("IW Swaths", "IW1 IW2 IW3", "At least one IW must be selected.")
-        self.plan_card = SummaryCard(
-            "Processing Plan",
-            "Not generated",
-            "Review workflow, coreg, looks, and parallel settings before generation.",
+        self.orbit_card = SummaryCard(
+            tr("setup.card.orbit.title"), tr("card.value.not_set"), tr("summary.orbit.body")
         )
-        self.parallel_card = SummaryCard("Parallelism", "num_proc = 1", "Used by generation and run_file batching.")
+        self.dem_card = SummaryCard(tr("setup.card.dem.title"), tr("card.value.not_set"), tr("setup.card.dem.body"))
+        self.source_card = SummaryCard(
+            tr("setup.card.source.title"), tr("card.value.manual"), tr("setup.card.source.body")
+        )
+        self.bbox_card = SummaryCard(
+            tr("setup.card.bbox.title"), tr("card.value.not_set"), tr("aoi.bbox.boundary_body")
+        )
+        self.iw_card = SummaryCard(tr("setup.card.iw.title"), "IW1 IW2 IW3", tr("setup.card.iw.body"))
+        self.plan_card = SummaryCard(
+            tr("setup.card.plan.title"),
+            tr("card.value.not_generated"),
+            tr("setup.card.plan.body"),
+        )
+        self.parallel_card = SummaryCard(
+            tr("setup.card.parallel.title"), "num_proc = 1", tr("setup.card.parallel.body")
+        )
         self.summary_cards = [
             self.dataset_card,
             self.orbit_card,
@@ -112,44 +121,44 @@ class ProcessingSetupPage(PageScaffold):
             card.hide()
 
     def _build_environment_and_sources(self) -> None:
-        section = SectionPanel("Environment and Data Sources")
-        grid = PropertyForm("Required Parameters", label_width=150)
+        section = SectionPanel(tr("setup.section.env_sources"))
+        grid = PropertyForm(tr("setup.form.required"), label_width=150)
         grid.set_row_heights(54, full_row_height=48)
         self.shell_init_row = PathPickerRow()
         self.conda_env_edit = QLineEdit()
         self.isce_root_row = PathPickerRow()
-        self.isce_root_row.line_edit.setPlaceholderText("Processing runtime root or conda env prefix")
+        self.isce_root_row.line_edit.setPlaceholderText(tr("setup.placeholder.runtime_root"))
         self.input_path_row = PathPickerRow(compact=True)
         self.orbit_path_row = PathPickerRow(compact=True)
         self.dem_path_row = PathPickerRow(compact=True)
         self.dem_reference_combo = QComboBox()
-        self.dem_reference_combo.addItem("Select GeoTIFF height reference", "")
-        self.dem_reference_combo.addItem("EGM96 geoid -> convert to WGS84", "egm96")
-        self.dem_reference_combo.addItem("EGM2008 geoid -> convert to WGS84", "egm2008")
-        self.dem_reference_combo.addItem("Already WGS84 ellipsoid", "wgs84")
+        self.dem_reference_combo.addItem(tr("setup.dem_ref.select"), "")
+        self.dem_reference_combo.addItem(tr("setup.dem_ref.egm96"), "egm96")
+        self.dem_reference_combo.addItem(tr("setup.dem_ref.egm2008"), "egm2008")
+        self.dem_reference_combo.addItem(tr("setup.dem_ref.wgs84"), "wgs84")
         self.aux_path_row = PathPickerRow(compact=True)
         self.work_dir_row = PathPickerRow(compact=True)
-        self.extract_checkbox = QCheckBox("Extract ZIP files to SAFE before workflow generation")
+        self.extract_checkbox = QCheckBox(tr("setup.extract_checkbox"))
         self.extract_dir_row = PathPickerRow(compact=True)
         self.runtime_summary_label = QLabel("")
         self.runtime_summary_label.setObjectName("runtimeSummaryLabel")
         self.runtime_summary_label.setWordWrap(True)
         self.runtime_summary_label.hide()
-        grid.add_row("SLC folder", self.input_path_row)
-        grid.add_row("EOF folder", self.orbit_path_row)
-        grid.add_row("DEM path", self.dem_path_row)
-        grid.add_row("Height ref", self.dem_reference_combo)
-        grid.add_row("AUX folder", self.aux_path_row)
-        grid.add_row("Work folder", self.work_dir_row)
+        grid.add_row(tr("setup.row.slc_folder"), self.input_path_row)
+        grid.add_row(tr("setup.row.eof_folder"), self.orbit_path_row)
+        grid.add_row(tr("setup.row.dem_path"), self.dem_path_row)
+        grid.add_row(tr("setup.row.height_ref"), self.dem_reference_combo)
+        grid.add_row(tr("setup.row.aux_folder"), self.aux_path_row)
+        grid.add_row(tr("setup.row.work_folder"), self.work_dir_row)
         grid.add_full_row(self.extract_checkbox)
-        grid.add_row("SAFE folder", self.extract_dir_row)
+        grid.add_row(tr("setup.row.safe_folder"), self.extract_dir_row)
         self.parameter_grid = grid
         section.content_layout.addWidget(grid)
 
         actions = ActionBar()
-        self.validate_env_button = QPushButton("Validate Environment")
-        self.prepare_button = QPushButton("Validate and Prepare Data")
-        self.inspect_button = QPushButton("Inspect Inputs")
+        self.validate_env_button = QPushButton(tr("setup.button.validate_env"))
+        self.prepare_button = QPushButton(tr("setup.button.prepare"))
+        self.inspect_button = QPushButton(tr("setup.button.inspect"))
         self.validate_env_button.setIcon(IconProvider.icon("check"))
         self.prepare_button.setIcon(IconProvider.icon("run"))
         self.inspect_button.setIcon(IconProvider.icon("search"))
@@ -164,10 +173,10 @@ class ProcessingSetupPage(PageScaffold):
 
         self.validation_text = QPlainTextEdit()
         self.validation_text.setReadOnly(True)
-        self.validation_text.setPlaceholderText("Environment validation results will appear here.")
+        self.validation_text.setPlaceholderText(tr("setup.placeholder.validation"))
         self.inputs_text = QPlainTextEdit()
         self.inputs_text.setReadOnly(True)
-        self.inputs_text.setPlaceholderText("Prepared input manifest, DEM, and AUX summary will appear here.")
+        self.inputs_text.setPlaceholderText(tr("setup.placeholder.inputs"))
         section.content_layout.addWidget(self.validation_text)
         section.content_layout.addWidget(self.inputs_text)
         self.extract_dir_row.setEnabled(False)
@@ -175,28 +184,28 @@ class ProcessingSetupPage(PageScaffold):
 
     def _build_geometry_section(self) -> None:
         section = SectionPanel(
-            "AOI / BBox / IW",
-            "Confirm the final SNWE bbox and Sentinel-1 IW swaths passed to the processing runtime.",
+            tr("setup.geometry.title"),
+            tr("setup.geometry.subtitle"),
         )
-        form = PropertyForm("Geometry Parameters")
-        self.aoi_file_row = PathPickerRow(secondary_label="Import AOI")
-        self.use_common_overlap_check = QCheckBox("Use common overlap (allow empty bbox)")
+        form = PropertyForm(tr("setup.form.geometry"))
+        self.aoi_file_row = PathPickerRow(secondary_label=tr("setup.button.import_aoi"))
+        self.use_common_overlap_check = QCheckBox(tr("setup.common_overlap_check"))
         self.bbox_south_edit = self._line("e.g. 33.85")
         self.bbox_north_edit = self._line("e.g. 33.90")
         self.bbox_west_edit = self._line("e.g. -118.28")
         self.bbox_east_edit = self._line("e.g. -118.04")
-        form.add_row("AOI file (KML/SHP)", self.aoi_file_row)
+        form.add_row(tr("setup.row.aoi_file"), self.aoi_file_row)
         form.add_full_row(self.use_common_overlap_check)
-        form.add_row("South", self.bbox_south_edit)
-        form.add_row("North", self.bbox_north_edit)
-        form.add_row("West", self.bbox_west_edit)
-        form.add_row("East", self.bbox_east_edit)
+        form.add_row(tr("setup.row.south"), self.bbox_south_edit)
+        form.add_row(tr("setup.row.north"), self.bbox_north_edit)
+        form.add_row(tr("setup.row.west"), self.bbox_west_edit)
+        form.add_row(tr("setup.row.east"), self.bbox_east_edit)
         self.geometry_parameter_grid = form
         section.content_layout.addWidget(form)
 
         swath_row = QHBoxLayout()
         swath_row.setSpacing(10)
-        swath_row.addWidget(QLabel("IW swaths"))
+        swath_row.addWidget(QLabel(tr("setup.iw_swaths_label")))
         self.iw1_check = QCheckBox("IW1")
         self.iw2_check = QCheckBox("IW2")
         self.iw3_check = QCheckBox("IW3")
@@ -212,10 +221,10 @@ class ProcessingSetupPage(PageScaffold):
         section.content_layout.addLayout(swath_row)
 
         actions = ActionBar()
-        self.recommend_iw_button = QPushButton("Recommend IW")
-        self.verify_button = QPushButton("Verify Geometry")
-        self.export_verify_button = QPushButton("Export Verify PNG")
-        self.confirm_button = QPushButton("Confirm AOI/BBox/IW")
+        self.recommend_iw_button = QPushButton(tr("setup.button.recommend_iw"))
+        self.verify_button = QPushButton(tr("setup.button.verify_geometry"))
+        self.export_verify_button = QPushButton(tr("setup.button.export_verify"))
+        self.confirm_button = QPushButton(tr("setup.button.confirm_geometry"))
         self.recommend_iw_button.setIcon(IconProvider.icon("settings"))
         self.verify_button.setIcon(IconProvider.icon("preview"))
         self.export_verify_button.setIcon(IconProvider.icon("save"))
@@ -237,15 +246,13 @@ class ProcessingSetupPage(PageScaffold):
         section.content_layout.addWidget(self.verify_alert_label)
         self.verify_notes = QPlainTextEdit()
         self.verify_notes.setReadOnly(True)
-        self.verify_notes.setPlaceholderText(
-            "AOI import, IW recommendation, and geometry verification notes will appear here."
-        )
+        self.verify_notes.setPlaceholderText(tr("setup.placeholder.verify_notes"))
         section.content_layout.addWidget(self.verify_notes)
         self._add_workbench_widget(section)
 
     def _build_stack_section(self) -> None:
-        section = SectionPanel("Processing Parameters", "Core processing parameters before generating the workflow.")
-        form = PropertyForm("Processing Controls")
+        section = SectionPanel(tr("setup.section.processing_params"), tr("setup.section.processing_params.desc"))
+        form = PropertyForm(tr("setup.form.processing_controls"))
         self.workflow_combo = QComboBox()
         self.workflow_combo.addItems(["interferogram", "slc", "correlation", "offset"])
         self.coreg_combo = QComboBox()
@@ -259,25 +266,22 @@ class ProcessingSetupPage(PageScaffold):
         self.polarization_combo = QComboBox()
         self.polarization_combo.addItems(["vv", "vh"])
         self.reference_date_edit = QLineEdit()
-        self.reference_date_edit.setPlaceholderText("YYYYMMDD (optional)")
+        self.reference_date_edit.setPlaceholderText(tr("setup.placeholder.reference_date"))
         self.num_connections_spin = QSpinBox()
         self.num_connections_spin.setRange(1, 50)
-        form.add_row("Workflow", self.workflow_combo)
-        form.add_row("Coregistration", self.coreg_combo)
-        form.add_row("Range looks", self.range_looks_spin)
-        form.add_row("Azimuth looks", self.azimuth_looks_spin)
-        form.add_row("Parallel tasks", self.num_proc_spin)
-        form.add_row("Polarization", self.polarization_combo)
-        form.add_row("Reference date", self.reference_date_edit)
-        form.add_row("Connections", self.num_connections_spin)
+        form.add_row(tr("setup.row.workflow"), self.workflow_combo)
+        form.add_row(tr("setup.row.coregistration"), self.coreg_combo)
+        form.add_row(tr("setup.row.range_looks"), self.range_looks_spin)
+        form.add_row(tr("setup.row.azimuth_looks"), self.azimuth_looks_spin)
+        form.add_row(tr("setup.row.parallel_tasks"), self.num_proc_spin)
+        form.add_row(tr("setup.row.polarization"), self.polarization_combo)
+        form.add_row(tr("setup.row.reference_date"), self.reference_date_edit)
+        form.add_row(tr("setup.row.connections"), self.num_connections_spin)
         self.processing_parameter_grid = form
         section.content_layout.addWidget(form)
-        self.reference_hint_label = QLabel("Leave empty to let the workflow choose the reference date.")
+        self.reference_hint_label = QLabel(tr("setup.reference_hint"))
         self.reference_hint_label.setWordWrap(True)
-        self.num_proc_hint = QLabel(
-            "The GUI uses num_proc as the run_file subcommand concurrency cap. "
-            "Each step may still contain fewer commands."
-        )
+        self.num_proc_hint = QLabel(tr("setup.num_proc_hint"))
         self.num_proc_hint.setWordWrap(True)
         section.content_layout.addWidget(self.reference_hint_label)
         section.content_layout.addWidget(self.num_proc_hint)
@@ -285,11 +289,10 @@ class ProcessingSetupPage(PageScaffold):
 
     def _build_preflight_section(self) -> None:
         section = SectionPanel(
-            "Preflight",
-            "Check paths, permissions, prepared inputs, run_files/configs conflicts, "
-            "and runtime capability before generation.",
+            tr("setup.section.preflight"),
+            tr("setup.section.preflight.desc"),
         )
-        self.preflight_alert = InlineAlert("Preflight refreshes before command preview or workflow generation.", "info")
+        self.preflight_alert = InlineAlert(tr("setup.preflight.alert"), "info")
         self.preflight_check_list = PreflightCheckList()
         self.preflight_text = self.preflight_check_list
         section.content_layout.addWidget(self.preflight_alert)
@@ -297,11 +300,11 @@ class ProcessingSetupPage(PageScaffold):
         self._add_workbench_widget(section)
 
     def _build_generation_section(self) -> None:
-        section = SectionPanel("Workflow Generation", "Generate the executable workflow after preflight is clear.")
+        section = SectionPanel(tr("setup.section.generation"), tr("setup.section.generation.desc"))
         actions = ActionBar()
-        self.preview_command_button = QPushButton("Preview Command")
-        self.rescan_button = QPushButton("Re-scan run_files")
-        self.generate_button = QPushButton("Generate Workflow")
+        self.preview_command_button = QPushButton(tr("setup.button.preview_command"))
+        self.rescan_button = QPushButton(tr("setup.button.rescan"))
+        self.generate_button = QPushButton(tr("setup.button.generate"))
         self.preview_command_button.setIcon(IconProvider.icon("preview"))
         self.rescan_button.setIcon(IconProvider.icon("refresh"))
         self.generate_button.setIcon(IconProvider.icon("generate"))
@@ -314,10 +317,10 @@ class ProcessingSetupPage(PageScaffold):
         actions.layout.addStretch(1)
         section.content_layout.addWidget(actions)
 
-        self.technical_details_panel = TechnicalDetailsPanel("Technical Details / Command Preview")
+        self.technical_details_panel = TechnicalDetailsPanel(tr("setup.technical_details.title"))
         self.runtime_diagnostics_text = QPlainTextEdit()
         self.runtime_diagnostics_text.setReadOnly(True)
-        self.runtime_diagnostics_text.setPlaceholderText("Runtime diagnostics will appear here.")
+        self.runtime_diagnostics_text.setPlaceholderText(tr("setup.placeholder.runtime_diagnostics"))
         self.technical_details_panel.content_layout.addWidget(self.runtime_diagnostics_text)
         self.command_preview = CommandPreview()
         self.command_preview_text = self.command_preview
@@ -325,17 +328,15 @@ class ProcessingSetupPage(PageScaffold):
 
         self.runfile_estimate_text = QPlainTextEdit()
         self.runfile_estimate_text.setReadOnly(True)
-        self.runfile_estimate_text.setPlaceholderText(
-            "Run-file command counts and parallelism estimates appear after generation."
-        )
+        self.runfile_estimate_text.setPlaceholderText(tr("setup.placeholder.runfile_estimate"))
         self.technical_details_panel.content_layout.addWidget(self.runfile_estimate_text)
         section.content_layout.addWidget(self.technical_details_panel)
         self._add_workbench_widget(section)
 
     def _build_wizard_actions(self) -> None:
         self.wizard_action_bar = WizardActionBar()
-        self.wizard_action_bar.run_button.setText("Generate")
-        self.wizard_action_bar.next_button.setText("Preview >")
+        self.wizard_action_bar.run_button.setText(tr("setup.wizard.generate"))
+        self.wizard_action_bar.next_button.setText(tr("setup.wizard.preview"))
         self.wizard_action_bar.back_button.setEnabled(False)
         self.wizard_action_bar.cancel_button.setEnabled(False)
         self.wizard_action_bar.next_button.clicked.connect(self.preview_command_button.click)

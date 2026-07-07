@@ -4,24 +4,26 @@ from __future__ import annotations
 
 from PySide6.QtWidgets import QFrame, QLabel, QPlainTextEdit, QVBoxLayout
 
+from insar_pilot.i18n import tr
+
 
 class CommandPreview(QFrame):
     """Show generated command text with contextual metadata."""
 
-    def __init__(self, title: str = "stackSentinel.py Command Preview", parent=None) -> None:
+    def __init__(self, title: str | None = None, parent=None) -> None:
         super().__init__(parent)
         self.setObjectName("commandPreview")
         layout = QVBoxLayout(self)
         layout.setContentsMargins(12, 10, 12, 10)
         layout.setSpacing(8)
-        self.title_label = QLabel(title)
+        self.title_label = QLabel(title if title is not None else tr("widget.command_preview.title"))
         self.title_label.setObjectName("sectionPanelTitle")
-        self.meta_label = QLabel("Work directory, log path, and command text will appear before generation.")
+        self.meta_label = QLabel(tr("widget.command_preview.meta"))
         self.meta_label.setObjectName("summaryCardBody")
         self.meta_label.setWordWrap(True)
         self.text_edit = QPlainTextEdit()
         self.text_edit.setReadOnly(True)
-        self.text_edit.setPlaceholderText("Generated stackSentinel.py command will appear here.")
+        self.text_edit.setPlaceholderText(tr("widget.command_preview.placeholder"))
         layout.addWidget(self.title_label)
         layout.addWidget(self.meta_label)
         layout.addWidget(self.text_edit, 1)

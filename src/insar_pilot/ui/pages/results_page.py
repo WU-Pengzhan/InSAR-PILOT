@@ -17,6 +17,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from insar_pilot.i18n import tr
 from insar_pilot.ui.widgets.collapsible_section import CollapsibleSection
 from insar_pilot.ui.widgets.parameter_grid import ParameterGrid
 from insar_pilot.ui.widgets.path_picker_row import PathPickerRow
@@ -33,8 +34,12 @@ class ResultsPage(QWidget):
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(10)
 
-        self.output_card = SummaryCard("Outputs", "Not scanned", "Browse processing outputs and quicklooks.", self)
-        self.preview_card = SummaryCard("Preview", "Idle", "Generate SLC, interferogram, or overlay quicklooks.", self)
+        self.output_card = SummaryCard(
+            tr("results.card.output.title"), tr("results.card.output.value"), tr("results.card.output.body"), self
+        )
+        self.preview_card = SummaryCard(
+            tr("results.card.preview.title"), tr("results.card.preview.value"), tr("results.card.preview.body"), self
+        )
         self.output_card.hide()
         self.preview_card.hide()
 
@@ -45,15 +50,15 @@ class ResultsPage(QWidget):
         left_layout.setContentsMargins(0, 0, 0, 0)
         left_layout.setSpacing(10)
         self.outputs_tree = QTreeWidget()
-        self.outputs_tree.setHeaderLabels(["Name", "Kind", "Path"])
-        left_layout.addWidget(self.outputs_tree, 1)
-        self.empty_outputs_label = QLabel(
-            "No outputs discovered yet. Run preparation and workflow steps, then click 'Refresh Outputs'."
+        self.outputs_tree.setHeaderLabels(
+            [tr("results.tree.name"), tr("results.tree.kind"), tr("results.tree.path")]
         )
+        left_layout.addWidget(self.outputs_tree, 1)
+        self.empty_outputs_label = QLabel(tr("results.empty_outputs"))
         self.empty_outputs_label.setProperty("emptyState", True)
         self.empty_outputs_label.setWordWrap(True)
         left_layout.addWidget(self.empty_outputs_label)
-        self.refresh_outputs_button = QPushButton("Refresh Outputs")
+        self.refresh_outputs_button = QPushButton(tr("action.refresh_outputs"))
         self.refresh_outputs_button.setProperty("role", "secondary")
         left_layout.addWidget(self.refresh_outputs_button)
         splitter.addWidget(left)
@@ -65,14 +70,14 @@ class ResultsPage(QWidget):
         self.preview_panel = PreviewPanel()
         right_layout.addWidget(self.preview_panel, 1)
 
-        self.visual_section = CollapsibleSection("Visualization Controls", expanded=True)
-        visual_form = ParameterGrid("Visualization Parameters")
+        self.visual_section = CollapsibleSection(tr("results.visual.section"), expanded=True)
+        visual_form = ParameterGrid(tr("results.visual.params"))
         self.visual_mode_combo = QComboBox()
-        self.visual_mode_combo.addItem("SLC", "slc")
-        self.visual_mode_combo.addItem("Interferogram", "interferogram")
-        self.visual_mode_combo.addItem("SLC Background + INT Phase Overlay", "overlay")
-        self.visual_primary_row = PathPickerRow(secondary_label="Use Selected Output")
-        self.visual_secondary_row = PathPickerRow(secondary_label="Use Selected Output")
+        self.visual_mode_combo.addItem(tr("results.mode.slc"), "slc")
+        self.visual_mode_combo.addItem(tr("results.mode.interferogram"), "interferogram")
+        self.visual_mode_combo.addItem(tr("results.mode.overlay"), "overlay")
+        self.visual_primary_row = PathPickerRow(secondary_label=tr("results.use_selected_output"))
+        self.visual_secondary_row = PathPickerRow(secondary_label=tr("results.use_selected_output"))
         self.visual_export_dir_row = PathPickerRow(secondary_label=None)
         self.visual_range_looks_spin = QSpinBox()
         self.visual_range_looks_spin.setRange(1, 100)
@@ -85,19 +90,21 @@ class ResultsPage(QWidget):
         self.visual_overlay_brightness_spin.setDecimals(2)
         self.visual_overlay_brightness_spin.setSingleStep(0.05)
         self.visual_overlay_brightness_spin.setValue(0.5)
-        visual_form.add_row("Mode", self.visual_mode_combo)
-        visual_form.add_row("Primary input", self.visual_primary_row)
-        self._secondary_label = visual_form.add_row("Secondary input", self.visual_secondary_row)
-        visual_form.add_row("Export directory", self.visual_export_dir_row)
-        visual_form.add_row("Range looks (rlks)", self.visual_range_looks_spin)
-        visual_form.add_row("Azimuth looks (alks)", self.visual_azimuth_looks_spin)
-        self._brightness_label = visual_form.add_row("Overlay brightness", self.visual_overlay_brightness_spin)
+        visual_form.add_row(tr("results.row.mode"), self.visual_mode_combo)
+        visual_form.add_row(tr("results.row.primary_input"), self.visual_primary_row)
+        self._secondary_label = visual_form.add_row(tr("results.row.secondary_input"), self.visual_secondary_row)
+        visual_form.add_row(tr("results.row.export_dir"), self.visual_export_dir_row)
+        visual_form.add_row(tr("results.row.range_looks"), self.visual_range_looks_spin)
+        visual_form.add_row(tr("results.row.azimuth_looks"), self.visual_azimuth_looks_spin)
+        self._brightness_label = visual_form.add_row(
+            tr("results.row.overlay_brightness"), self.visual_overlay_brightness_spin
+        )
         self.visual_parameter_grid = visual_form
         self.visual_section.content_layout.addWidget(visual_form)
 
         actions = QHBoxLayout()
-        self.visual_preview_button = QPushButton("Preview")
-        self.visual_export_button = QPushButton("Export BMP")
+        self.visual_preview_button = QPushButton(tr("results.button.preview"))
+        self.visual_export_button = QPushButton(tr("results.button.export_bmp"))
         self.visual_preview_button.setProperty("role", "primary")
         self.visual_export_button.setProperty("role", "secondary")
         actions.addWidget(self.visual_preview_button)
@@ -107,7 +114,7 @@ class ResultsPage(QWidget):
 
         self.visual_status_text = QPlainTextEdit()
         self.visual_status_text.setReadOnly(True)
-        self.visual_status_text.setPlaceholderText("Visualization logs and metadata will appear here.")
+        self.visual_status_text.setPlaceholderText(tr("results.visual.placeholder"))
         self.visual_section.content_layout.addWidget(self.visual_status_text)
         right_layout.addWidget(self.visual_section)
         splitter.addWidget(right)

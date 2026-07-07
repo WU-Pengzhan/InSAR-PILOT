@@ -6,7 +6,6 @@ from PySide6.QtCore import Qt, QTimer
 from PySide6.QtWidgets import (
     QFrame,
     QLabel,
-    QPlainTextEdit,
     QScrollArea,
     QSplitter,
     QVBoxLayout,
@@ -14,6 +13,7 @@ from PySide6.QtWidgets import (
 )
 
 from insar_pilot.download.network import NetworkConfig
+from insar_pilot.i18n import tr
 from insar_pilot.ui.pages.data_download.actions_section import ActionsSection
 from insar_pilot.ui.pages.data_download.credentials_section import BasemapSection, CredentialsSection
 from insar_pilot.ui.pages.data_download.results_panel import ResultsController
@@ -64,11 +64,11 @@ class DataDownloadPage(QWidget):
         self.download_step_tree = WorkflowStepTree()
         self.download_step_tree.set_steps(
             [
-                WorkflowStep("1. Account", "pending", "Validate Earthdata access"),
-                WorkflowStep("2. Search Area", "pending", "Set AOI, dates, orbit, and polarization"),
-                WorkflowStep("3. Scene Selection", "pending", "Select scenes from the results table"),
-                WorkflowStep("4. Download", "pending", "Download SLC, orbit files, and optional DEM"),
-                WorkflowStep("5. Import", "pending", "Send downloaded workspace to Processing Setup"),
+                WorkflowStep(tr("download.step.account"), "pending", tr("download.step.account.desc")),
+                WorkflowStep(tr("download.step.search_area"), "pending", tr("download.step.search_area.desc")),
+                WorkflowStep(tr("download.step.scene_selection"), "pending", tr("download.step.scene_selection.desc")),
+                WorkflowStep(tr("download.step.download"), "pending", tr("download.step.download.desc")),
+                WorkflowStep(tr("download.step.import"), "pending", tr("download.step.import.desc")),
             ]
         )
         self.download_step_tree.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
@@ -77,12 +77,14 @@ class DataDownloadPage(QWidget):
         self.download_step_tree.setMaximumHeight(230)
         control_layout.addWidget(self.download_step_tree)
 
-        self.status_card = SummaryCard("Data Acquisition", "Ready", "Account, search, download, and setup handoff.")
+        self.status_card = SummaryCard(
+            tr("download.card.acquisition.title"), tr("card.value.ready"), tr("download.card.acquisition.body")
+        )
         self.result_card = SummaryCard(
-            "Scene Selection", "0 scenes", "ASF search results and selected scenes appear here."
+            tr("download.card.scene.title"), tr("download.card.scene.value"), tr("download.card.scene.body")
         )
         self.task_card = SummaryCard(
-            "Download Tasks", "0 tasks", "Download SLC ZIPs, EOF orbit files, and optional DEM."
+            tr("download.card.task.title"), tr("download.card.task.value"), tr("download.card.task.body")
         )
         for card in (self.status_card, self.result_card, self.task_card):
             card.setProperty("flatSummary", True)
@@ -112,11 +114,11 @@ class DataDownloadPage(QWidget):
             parent=self,
         )
 
-        detail_label = QLabel("Scene Detail")
+        detail_label = QLabel(tr("download.scene_detail_label"))
         detail_label.setObjectName("summaryCardTitle")
         control_layout.addWidget(detail_label)
         control_layout.addWidget(self._results.scene_detail_text)
-        log_label = QLabel("Activity Log")
+        log_label = QLabel(tr("download.activity_log_label"))
         log_label.setObjectName("summaryCardTitle")
         control_layout.addWidget(log_label)
         control_layout.addWidget(self._results.log_text, 1)
@@ -137,11 +139,12 @@ class DataDownloadPage(QWidget):
                 log_label,
                 self._results.log_text,
             ],
+            stretch_widget=self._results.log_text,
         )
         self.download_wizard_bar = WizardActionBar()
         self.download_wizard_bar.back_button.setEnabled(False)
-        self.download_wizard_bar.next_button.setText("Search >")
-        self.download_wizard_bar.run_button.setText("Download")
+        self.download_wizard_bar.next_button.setText(tr("download.wizard.search"))
+        self.download_wizard_bar.run_button.setText(tr("download.wizard.download"))
         self.download_wizard_bar.next_button.clicked.connect(self._search.search_button.click)
         self.download_wizard_bar.run_button.clicked.connect(self._actions.download_selected_button.click)
         self.download_wizard_bar.cancel_button.clicked.connect(self._actions.cancel_download_button.click)
@@ -154,7 +157,7 @@ class DataDownloadPage(QWidget):
         map_workspace_layout = QVBoxLayout(map_workspace)
         map_workspace_layout.setContentsMargins(12, 8, 10, 8)
         map_workspace_layout.setSpacing(8)
-        map_label = QLabel("Footprint Map")
+        map_label = QLabel(tr("download.footprint_map_label"))
         map_label.setObjectName("summaryCardTitle")
         map_workspace_layout.addWidget(map_label)
         self.map_results_splitter = QSplitter(Qt.Orientation.Vertical)
@@ -167,7 +170,7 @@ class DataDownloadPage(QWidget):
         results_layout = QVBoxLayout(results_panel)
         results_layout.setContentsMargins(0, 0, 0, 0)
         results_layout.setSpacing(8)
-        results_label = QLabel("Scenes")
+        results_label = QLabel(tr("download.scenes_label"))
         results_label.setObjectName("summaryCardTitle")
         results_layout.addWidget(results_label)
         results_layout.addWidget(self._results.results_table, 1)
@@ -247,14 +250,13 @@ class DataDownloadPage(QWidget):
         )
 
     @staticmethod
-    def _reorder_control_panel(layout: QVBoxLayout, widgets: list[QWidget]) -> None:
+    def _reorder_control_panel(
+        layout: QVBoxLayout, widgets: list[QWidget], stretch_widget: QWidget | None = None
+    ) -> None:
         for widget in widgets:
             layout.removeWidget(widget)
         for widget in widgets:
-            layout.addWidget(
-                widget,
-                1 if isinstance(widget, QPlainTextEdit) and widget.placeholderText().startswith("ASF search") else 0,
-            )
+            layout.addWidget(widget, 1 if widget is stretch_widget else 0)
 
     def showEvent(self, event) -> None:  # noqa: N802 - Qt override
         super().showEvent(event)
@@ -306,22 +308,22 @@ class DataDownloadPage(QWidget):
         self.credential_status_label.setText(message)
         lowered = message.lower()
         if any(token in lowered for token in ("ok", "success", "validated", "loaded")):
-            self.download_step_tree.set_step_status("1. Account", "ready", message)
+            self.download_step_tree.set_step_status(tr("download.step.account"), "ready", message)
             if any(token in lowered for token in ("ok", "success", "validated")):
                 self.credentials_section.toggle_button.setChecked(False)
         elif any(token in lowered for token in ("fail", "error", "invalid")):
-            self.download_step_tree.set_step_status("1. Account", "failed", message)
+            self.download_step_tree.set_step_status(tr("download.step.account"), "failed", message)
 
     def set_search_busy(self, busy: bool) -> None:
         """Toggle controls that should be locked while an ASF request is running."""
 
         self.search_button.setEnabled(not busy)
-        self.search_button.setText("Searching ASF..." if busy else "Search ASF")
+        self.search_button.setText(tr("download.search.searching") if busy else tr("download.search.button"))
         self.clear_button.setEnabled(not busy)
         self.download_step_tree.set_step_status(
-            "2. Search Area",
+            tr("download.step.search_area"),
             "running" if busy else "pending",
-            "ASF query is running." if busy else "Ready for search.",
+            tr("download.status.query_running") if busy else tr("download.status.ready_search"),
         )
 
     def set_download_busy(self, busy: bool) -> None:
@@ -329,9 +331,13 @@ class DataDownloadPage(QWidget):
 
         if busy:
             self._results.clear_task_updates()
-            self.download_step_tree.set_step_status("4. Download", "running", "Download worker is active.")
+            self.download_step_tree.set_step_status(
+                tr("download.step.download"), "running", tr("download.status.worker_active")
+            )
         else:
-            self.download_step_tree.set_step_status("4. Download", "pending", "Ready to download selected scenes.")
+            self.download_step_tree.set_step_status(
+                tr("download.step.download"), "pending", tr("download.status.ready_download")
+            )
         available = self._dem.opentopography_available
         self.download_selected_button.setEnabled(not busy)
         self.cancel_download_button.setEnabled(busy)

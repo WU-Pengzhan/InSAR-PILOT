@@ -17,6 +17,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from insar_pilot.i18n import tr
 from insar_pilot.ui.icons import BrandAssets, IconProvider
 
 
@@ -48,11 +49,11 @@ class ProjectStartPage(QWidget):
         panel_layout.setContentsMargins(18, 16, 18, 16)
         panel_layout.setSpacing(12)
 
-        heading = QLabel("Recent Projects")
+        heading = QLabel(tr("start.recent.title"))
         heading.setObjectName("startPanelTitle")
         heading.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignTop)
         heading.setMaximumHeight(34)
-        hint = QLabel("Open an existing project workspace and continue from the saved processing state.")
+        hint = QLabel(tr("start.recent.hint"))
         hint.setObjectName("startPanelHint")
         hint.setWordWrap(True)
         hint.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignTop)
@@ -67,7 +68,7 @@ class ProjectStartPage(QWidget):
         self.recent_list.itemActivated.connect(self._emit_recent_item)
         panel_layout.addWidget(self.recent_list, 1)
 
-        self.recent_empty_label = QLabel("No recent projects yet. Create or open a project workspace to begin.")
+        self.recent_empty_label = QLabel(tr("start.recent.empty"))
         self.recent_empty_label.setObjectName("startEmptyText")
         self.recent_empty_label.setWordWrap(True)
         self.recent_empty_label.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignTop)
@@ -75,7 +76,7 @@ class ProjectStartPage(QWidget):
 
         action_row = QHBoxLayout()
         action_row.setSpacing(10)
-        self.open_recent_button = QPushButton("Open Selected")
+        self.open_recent_button = QPushButton(tr("start.open_selected"))
         self.open_recent_button.setIcon(IconProvider.icon("folder"))
         self.open_recent_button.setProperty("role", "secondary")
         self.open_recent_button.clicked.connect(self._open_selected_recent)
@@ -95,13 +96,11 @@ class ProjectStartPage(QWidget):
         action_layout = QVBoxLayout(actions)
         action_layout.setContentsMargins(18, 16, 18, 16)
         action_layout.setSpacing(12)
-        action_title = QLabel("Project Workspace")
+        action_title = QLabel(tr("start.workspace.title"))
         action_title.setObjectName("startPanelTitle")
         action_title.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignTop)
         action_title.setMaximumHeight(34)
-        action_hint = QLabel(
-            "Create a dedicated folder for downloads, logs, processing workspace, and quicklook outputs."
-        )
+        action_hint = QLabel(tr("start.workspace.hint"))
         action_hint.setObjectName("startPanelHint")
         action_hint.setWordWrap(True)
         action_hint.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignTop)
@@ -111,10 +110,10 @@ class ProjectStartPage(QWidget):
 
         button_row = QHBoxLayout()
         button_row.setSpacing(10)
-        self.new_project_button = QPushButton("New Project")
+        self.new_project_button = QPushButton(tr("action.new_project"))
         self.new_project_button.setIcon(IconProvider.icon("folder"))
         self.new_project_button.setProperty("role", "primary")
-        self.open_project_button = QPushButton("Open Project")
+        self.open_project_button = QPushButton(tr("action.open_project"))
         self.open_project_button.setIcon(IconProvider.icon("folder"))
         self.open_project_button.setProperty("role", "secondary")
         self.new_project_button.clicked.connect(self.newProjectRequested.emit)
@@ -144,10 +143,10 @@ class ProjectStartPage(QWidget):
         brand_text = QVBoxLayout()
         brand_text.setContentsMargins(0, 0, 0, 0)
         brand_text.setSpacing(2)
-        brand_name = QLabel("InSAR-PILOT")
+        brand_name = QLabel(tr("app.title"))
         brand_name.setObjectName("startBrandName")
         brand_name.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
-        brand_subtitle = QLabel("Guided SAR/InSAR processing")
+        brand_subtitle = QLabel(tr("start.brand.subtitle"))
         brand_subtitle.setObjectName("startBrandSubtitle")
         brand_subtitle.setWordWrap(True)
         brand_text.addWidget(brand_name)
@@ -155,15 +154,15 @@ class ProjectStartPage(QWidget):
         brand_layout.addLayout(brand_text, 1)
         info_layout.addWidget(brand_row)
 
-        info_title = QLabel("Version")
+        info_title = QLabel(tr("start.version.title"))
         info_title.setObjectName("startPanelTitle")
         info_title.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignTop)
         info_title.setMaximumHeight(34)
-        self.version_label = QLabel("InSAR-PILOT")
+        self.version_label = QLabel(tr("app.title"))
         self.version_label.setObjectName("startInfoText")
         self.version_label.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignTop)
         self.version_label.setMaximumHeight(34)
-        self.runtime_label = QLabel("Runtime is validated from the environment used to launch the application.")
+        self.runtime_label = QLabel(tr("start.runtime_note"))
         self.runtime_label.setObjectName("startPanelHint")
         self.runtime_label.setWordWrap(True)
         self.runtime_label.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignTop)
@@ -178,7 +177,7 @@ class ProjectStartPage(QWidget):
         notice_layout = QVBoxLayout(notices)
         notice_layout.setContentsMargins(18, 16, 18, 16)
         notice_layout.setSpacing(8)
-        notice_title = QLabel("Notices")
+        notice_title = QLabel(tr("start.notices.title"))
         notice_title.setObjectName("startPanelTitle")
         notice_title.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignTop)
         notice_title.setMaximumHeight(34)
@@ -225,7 +224,7 @@ class ProjectStartPage(QWidget):
             self.recent_list.setCurrentRow(0)
 
     def set_version(self, version: str) -> None:
-        self.version_label.setText(f"InSAR-PILOT {version}")
+        self.version_label.setText(f"{tr('app.title')} {version}")
 
     def set_notices(self, notices: list[str]) -> None:
         self.notice_label.setText("\n".join(f"- {item}" for item in notices))
@@ -259,7 +258,9 @@ class ProjectStartPage(QWidget):
         path_label.setTextInteractionFlags(Qt.TextInteractionFlag.NoTextInteraction)
         path_label.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents, True)
         path_label.setWordWrap(True)
-        status_label = QLabel("Available" if Path(path).expanduser().exists() else "Missing on disk")
+        status_label = QLabel(
+            tr("start.recent.available") if Path(path).expanduser().exists() else tr("start.recent.missing")
+        )
         status_label.setObjectName("startRecentStatus")
         status_label.setProperty("missing", not Path(path).expanduser().exists())
         status_label.setTextInteractionFlags(Qt.TextInteractionFlag.NoTextInteraction)
@@ -277,11 +278,11 @@ class ProjectStartPage(QWidget):
         layout = QVBoxLayout(row)
         layout.setContentsMargins(14, 14, 14, 14)
         layout.setSpacing(4)
-        title = QLabel("No recent projects")
+        title = QLabel(tr("start.recent.empty_title"))
         title.setObjectName("startRecentName")
         title.setTextInteractionFlags(Qt.TextInteractionFlag.NoTextInteraction)
         title.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents, True)
-        detail = QLabel("Create or open a project workspace to begin.")
+        detail = QLabel(tr("start.recent.empty_detail"))
         detail.setObjectName("startRecentPath")
         detail.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignTop)
         detail.setTextInteractionFlags(Qt.TextInteractionFlag.NoTextInteraction)

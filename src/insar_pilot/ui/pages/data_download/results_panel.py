@@ -25,6 +25,7 @@ from PySide6.QtWidgets import (
 from insar_pilot.controllers.download_coordinator import DownloadStateReducer
 from insar_pilot.download.dem_service import dem_label_for_source
 from insar_pilot.download.models import DemCoveragePlan, DownloadResult, DownloadTask, SceneRecord, SearchCriteria
+from insar_pilot.i18n import tr
 from insar_pilot.ui.pages.data_download.scroll_filter import NestedScrollFilter
 from insar_pilot.ui.widgets.footprint_map import FootprintMapWidget
 from insar_pilot.ui.widgets.log_console import append_text_preserving_scroll
@@ -46,6 +47,18 @@ class ResultsController(QObject):
         "local_path",
     ]
     TABLE_COLUMN_WIDTHS = [78, 300, 210, 150, 170, 150, 140, 110, 130, 420]
+    TABLE_COLUMN_KEYS = [
+        "download.table.select",
+        "download.table.scene_id",
+        "download.table.acquisition_time",
+        "download.table.platform",
+        "download.table.orbit_direction",
+        "download.table.relative_orbit",
+        "download.table.polarization",
+        "download.table.size",
+        "download.table.status",
+        "download.table.local_path",
+    ]
 
     def __init__(
         self,
@@ -80,7 +93,7 @@ class ResultsController(QObject):
 
         self.results_table = QTableWidget()
         self.results_table.setColumnCount(len(self.TABLE_COLUMNS))
-        self.results_table.setHorizontalHeaderLabels(self.TABLE_COLUMNS)
+        self.results_table.setHorizontalHeaderLabels([tr(key) for key in self.TABLE_COLUMN_KEYS])
         self.results_table.setAlternatingRowColors(True)
         self.results_table.setSortingEnabled(True)
         self.results_table.setMinimumHeight(190)
@@ -94,16 +107,14 @@ class ResultsController(QObject):
         self.scene_detail_text = QPlainTextEdit()
         self.scene_detail_text.setReadOnly(True)
         self.scene_detail_text.setFocusPolicy(Qt.FocusPolicy.WheelFocus)
-        self.scene_detail_text.setPlaceholderText(
-            "Select a scene to inspect orbit, polarization, size, status, and local path."
-        )
+        self.scene_detail_text.setPlaceholderText(tr("download.scene_detail.placeholder"))
         self.scene_detail_text.setMinimumHeight(120)
         self.scene_detail_text.setMaximumHeight(150)
 
         self.log_text = QPlainTextEdit()
         self.log_text.setReadOnly(True)
         self.log_text.setFocusPolicy(Qt.FocusPolicy.WheelFocus)
-        self.log_text.setPlaceholderText("ASF search, selection, save, and download status will appear here.")
+        self.log_text.setPlaceholderText(tr("download.log.placeholder"))
         self.log_text.setMinimumHeight(160)
         self.log_text.setMaximumHeight(260)
         self._install_nested_scroll_filter(self.scene_detail_text)
@@ -165,10 +176,12 @@ class ResultsController(QObject):
         self._planned_download_tasks = list(tasks)
         self._download_task_updates = {task.task_id: task for task in self._planned_download_tasks}
         self.task_progress_panel.apply_state(DownloadStateReducer.from_tasks(self._planned_download_tasks))
-        self.task_card.set_value(f"0/{len(self._planned_download_tasks)} tasks")
-        self.task_card.set_body("Download plan ready. Waiting for worker updates.")
+        self.task_card.set_value(tr("download.tasks.count", done=0, total=len(self._planned_download_tasks)))
+        self.task_card.set_body(tr("download.tasks.plan_ready"))
         if tasks:
-            self.download_step_tree.set_step_status("4. Download", "ready", f"{len(tasks)} task(s) planned.")
+            self.download_step_tree.set_step_status(
+                tr("download.step.download"), "ready", tr("download.tasks.planned", count=len(tasks))
+            )
 
     def set_scenes(self, scenes: list[SceneRecord]) -> None:
         """Render search results in the table."""
@@ -202,17 +215,17 @@ class ResultsController(QObject):
         self.results_table.setSortingEnabled(True)
         self.results_table.blockSignals(False)
         self._apply_results_table_geometry()
-        self.result_card.set_value(f"{len(self._scenes)} scenes")
-        self.result_card.set_body("All scenes are checked for save/download by default.")
+        self.result_card.set_value(tr("download.scenes.count", count=len(self._scenes)))
+        self.result_card.set_body(tr("download.scenes.all_checked"))
         self.download_step_tree.set_step_status(
-            "2. Search Area",
+            tr("download.step.search_area"),
             "ready" if self._scenes else "warning",
-            f"{len(self._scenes)} scene(s) found.",
+            tr("download.scenes.found", count=len(self._scenes)),
         )
         self.download_step_tree.set_step_status(
-            "3. Scene Selection",
+            tr("download.step.scene_selection"),
             "ready" if self._scenes else "pending",
-            "Review and adjust selected scenes.",
+            tr("download.scenes.review"),
         )
         if self._scenes:
             self.results_table.selectRow(0)
@@ -251,27 +264,37 @@ class ResultsController(QObject):
         for result in result_by_scene.values():
             self._update_scene_row(result.scene.scene_id, result.status, result.local_path)
         self._update_scene_detail_from_selection(update_map=False)
-        self.task_card.set_value(f"{len(results)} tasks")
+        self.task_card.set_value(tr("download.tasks.total", count=len(results)))
         completed = sum(result.status == "completed" for result in results)
         skipped = sum(result.status == "skipped" for result in results)
         failed = sum(result.status == "failed" for result in results)
         cancelled = sum(result.status == "cancelled" for result in results)
         dem_result = next((result for result in results if result.product_type.upper() == "DEM"), None)
         self.task_card.set_body(
-            f"{completed} completed, {skipped} skipped, {failed} failed, {cancelled} cancelled."
+            tr(
+                "download.tasks.summary",
+                completed=completed,
+                skipped=skipped,
+                failed=failed,
+                cancelled=cancelled,
+            )
         )
         self.task_progress_panel.apply_state(DownloadStateReducer.from_results(list(results)))
         self.download_step_tree.set_step_status(
-            "4. Download",
+            tr("download.step.download"),
             "failed" if failed else "ready",
-            f"{completed} completed, {failed} failed, {cancelled} cancelled.",
+            tr("download.tasks.summary_short", completed=completed, failed=failed, cancelled=cancelled),
         )
         if results and not failed and not cancelled:
-            self.download_step_tree.set_step_status("5. Import", "ready", "Downloaded workspace can be imported.")
+            self.download_step_tree.set_step_status(
+                tr("download.step.import"), "ready", tr("download.import.ready")
+            )
         if dem_result is not None and dem_result.message:
             self.download_status_label.setText(dem_result.message)
         elif dem_result is None:
-            self.download_status_label.setText("Download finished." if results else "No active download.")
+            self.download_status_label.setText(
+                tr("download.status.finished") if results else tr("download.status.no_active")
+            )
 
     def apply_task_update(self, task: DownloadTask, completed_count: int, total_count: int) -> None:
         """Reflect a task status update in the table and progress summary."""
@@ -299,14 +322,14 @@ class ResultsController(QObject):
             self.download_status_label.setText(
                 f"{task.product_type}: {task.status} ({completed_count}/{total_count})"
                 + (f" | {task_progress}" if task_progress else "")
-                + (f"\nTotal: {total_progress}" if total_progress else "")
+                + (f"\n{tr('download.total_label')}: {total_progress}" if total_progress else "")
             )
-        self.task_card.set_value(f"{completed_count}/{total_count} tasks")
+        self.task_card.set_value(tr("download.tasks.count", done=completed_count, total=total_count))
         self.task_card.set_body(
             " | ".join(part for part in [task.message or task.local_path or task.scene.scene_id, task_progress] if part)
         )
         self.download_step_tree.set_step_status(
-            "4. Download",
+            tr("download.step.download"),
             "running" if task.status == "running" else task.status,
             f"{task.product_type}: {task.status} ({completed_count}/{total_count})",
         )
@@ -319,17 +342,25 @@ class ResultsController(QObject):
         self.results_table.setRowCount(0)
         self.scene_detail_text.clear()
         self.footprint_map.clear()
-        self.result_card.set_value("0 scenes")
-        self.result_card.set_body("Run search to list matching scenes.")
-        self.task_card.set_value("0 tasks")
-        self.task_card.set_body("Select scenes to download SLC ZIPs and EOF orbits.")
+        self.result_card.set_value(tr("download.scenes.count", count=0))
+        self.result_card.set_body(tr("download.scenes.run_search"))
+        self.task_card.set_value(tr("download.tasks.total", count=0))
+        self.task_card.set_body(tr("download.tasks.select_scenes"))
         self._planned_download_tasks = []
         self._download_task_updates = {}
         self.task_progress_panel.reset()
-        self.download_step_tree.set_step_status("2. Search Area", "pending", "Ready for search.")
-        self.download_step_tree.set_step_status("3. Scene Selection", "pending", "No scenes selected.")
-        self.download_step_tree.set_step_status("4. Download", "pending", "No download plan.")
-        self.download_step_tree.set_step_status("5. Import", "pending", "Download workspace is not ready.")
+        self.download_step_tree.set_step_status(
+            tr("download.step.search_area"), "pending", tr("download.status.ready_search")
+        )
+        self.download_step_tree.set_step_status(
+            tr("download.step.scene_selection"), "pending", tr("download.scenes.none_selected")
+        )
+        self.download_step_tree.set_step_status(
+            tr("download.step.download"), "pending", tr("download.tasks.no_plan")
+        )
+        self.download_step_tree.set_step_status(
+            tr("download.step.import"), "pending", tr("download.import.not_ready")
+        )
         self._update_selection_summary()
 
     def append_log(self, message: str) -> None:
@@ -342,18 +373,18 @@ class ResultsController(QObject):
 
         selected_count = len(self.selected_scenes())
         total_count = len(self._scenes)
-        self.selection_label.setText(f"{selected_count} selected of {total_count}")
+        self.selection_label.setText(tr("download.selection.count", selected=selected_count, total=total_count))
         if total_count:
-            self.result_card.set_value(f"{total_count} scenes")
-            self.result_card.set_body(f"{selected_count} selected for save/download.")
+            self.result_card.set_value(tr("download.scenes.count", count=total_count))
+            self.result_card.set_body(tr("download.selection.for_download", selected=selected_count))
             self.download_step_tree.set_step_status(
-                "3. Scene Selection",
+                tr("download.step.scene_selection"),
                 "ready" if selected_count else "warning",
-                f"{selected_count} of {total_count} selected.",
+                tr("download.selection.of_total", selected=selected_count, total=total_count),
             )
         else:
-            self.result_card.set_value("0 scenes")
-            self.result_card.set_body("Run search to list matching scenes.")
+            self.result_card.set_value(tr("download.scenes.count", count=0))
+            self.result_card.set_body(tr("download.scenes.run_search"))
         if self._scenes:
             self.footprint_map.set_highlight(self._current_scene_id(), self._selected_scene_ids())
 
@@ -378,19 +409,24 @@ class ResultsController(QObject):
                 self.footprint_map.set_highlight("", self._selected_scene_ids())
             return
 
+        footprint_state = (
+            tr("download.detail.footprint_available")
+            if scene.footprint_geojson
+            else tr("download.detail.footprint_missing")
+        )
         detail = "\n".join(
             [
                 scene.scene_id,
                 "",
-                f"Acquisition time: {scene.acquisition_time}",
-                f"Platform: {scene.platform}",
-                f"Orbit direction: {scene.orbit_direction}",
-                f"Relative orbit: {scene.relative_orbit}",
-                f"Polarization: {scene.polarization}",
-                f"Size: {scene.size_mb:g} MB",
-                f"Footprint: {'available' if scene.footprint_geojson else 'missing'}",
-                f"Status: {scene.status}",
-                f"Local path: {scene.local_path or '-'}",
+                f"{tr('download.detail.acquisition_time')}: {scene.acquisition_time}",
+                f"{tr('download.detail.platform')}: {scene.platform}",
+                f"{tr('download.detail.orbit_direction')}: {scene.orbit_direction}",
+                f"{tr('download.detail.relative_orbit')}: {scene.relative_orbit}",
+                f"{tr('download.detail.polarization')}: {scene.polarization}",
+                f"{tr('download.detail.size')}: {scene.size_mb:g} MB",
+                f"{tr('download.detail.footprint')}: {footprint_state}",
+                f"{tr('download.detail.status')}: {scene.status}",
+                f"{tr('download.detail.local_path')}: {scene.local_path or '-'}",
             ]
         )
         if self.scene_detail_text.toPlainText() != detail:
@@ -448,7 +484,7 @@ class ResultsController(QObject):
             self.footprint_map.set_dem_bbox(plan.planned_bbox_snwe if plan is not None else None)
         if plan is not None:
             label = dem_label_for_source(plan.source_id)
-            self.task_card.set_body(f"DEM plan ready: {label} / {plan.planning_mode}.")
+            self.task_card.set_body(tr("download.dem.plan_ready", label=label, mode=plan.planning_mode))
 
     def clear_dem_plan(self, *, update_map: bool = True) -> None:
         """Clear the current DEM planning result and map overlay."""

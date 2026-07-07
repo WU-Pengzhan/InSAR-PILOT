@@ -4,18 +4,20 @@ from __future__ import annotations
 
 from PySide6.QtWidgets import QPlainTextEdit
 
+from insar_pilot.i18n import tr
 from insar_pilot.ui.widgets.collapsible_section import CollapsibleSection
 
 
 class TechnicalDetailsPanel(CollapsibleSection):
     """Collapsed-by-default technical details for advanced operators."""
 
-    def __init__(self, title: str = "Technical Details", parent=None) -> None:
-        super().__init__(title, expanded=False, parent=parent)
+    def __init__(self, title: str | None = None, parent=None) -> None:
+        resolved_title = title if title is not None else tr("widget.technical_details.title")
+        super().__init__(resolved_title, expanded=False, parent=parent)
         self.setObjectName("technicalDetailsPanel")
         self.text = QPlainTextEdit()
         self.text.setReadOnly(True)
-        self.text.setPlaceholderText("Commands, paths, run_files, and diagnostics appear here.")
+        self.text.setPlaceholderText(tr("widget.technical_details.placeholder"))
         self.text.setMaximumHeight(180)
         self.content_layout.addWidget(self.text)
 

@@ -26,6 +26,7 @@ from insar_pilot.domain.project import (
     ProjectStatus,
     WorkflowConfig,
 )
+from insar_pilot.i18n import tr
 from insar_pilot.services.aoi_import import AoiImportService
 from insar_pilot.services.command_plan import CommandPlan
 from insar_pilot.services.dem_coverage import DemCoverageService
@@ -76,35 +77,35 @@ class SetupController(QObject):
         self._window.data_sources_page.extract_dir_row.setEnabled(checked)
 
     def _browse_shell_init(self) -> None:
-        self._window._browse_file_into(self._window.shell_init_edit, "Select shell init file")
+        self._window._browse_file_into(self._window.shell_init_edit, tr("setup.dialog.select_shell_init"))
 
     def _browse_isce_root(self) -> None:
-        self._window._browse_dir_into(self._window.isce_root_edit, "Select processing runtime root")
+        self._window._browse_dir_into(self._window.isce_root_edit, tr("setup.dialog.select_runtime_root"))
 
     def _browse_input_dir(self) -> None:
-        self._window._browse_dir_into(self._window.input_path_edit, "Select SLC folder")
+        self._window._browse_dir_into(self._window.input_path_edit, tr("setup.dialog.select_slc"))
 
     def _browse_orbit_dir(self) -> None:
-        self._window._browse_dir_into(self._window.orbit_path_edit, "Select orbit folder")
+        self._window._browse_dir_into(self._window.orbit_path_edit, tr("setup.dialog.select_orbit"))
 
     def _browse_dem_file(self) -> None:
-        self._window._browse_file_into(self._window.dem_path_edit, "Select DEM file")
+        self._window._browse_file_into(self._window.dem_path_edit, tr("setup.dialog.select_dem"))
 
     def _browse_aux_dir(self) -> None:
-        self._window._browse_dir_into(self._window.aux_path_edit, "Select AUX directory")
+        self._window._browse_dir_into(self._window.aux_path_edit, tr("setup.dialog.select_aux"))
 
     def _browse_work_dir(self) -> None:
-        self._window._browse_dir_into(self._window.work_dir_edit, "Select working directory")
+        self._window._browse_dir_into(self._window.work_dir_edit, tr("setup.dialog.select_work"))
 
     def _browse_extract_dir(self) -> None:
-        self._window._browse_dir_into(self._window.extract_dir_edit, "Select extracted SAFE directory")
+        self._window._browse_dir_into(self._window.extract_dir_edit, tr("setup.dialog.select_safe"))
 
     def _browse_aoi_file(self) -> None:
         path, _ = QFileDialog.getOpenFileName(
             self._window,
-            "Select AOI file",
+            tr("setup.dialog.select_aoi"),
             self._window.aoi_source_edit.text() or str(Path.home()),
-            "AOI files (*.kml *.shp);;All files (*)",
+            tr("setup.dialog.aoi_filter"),
         )
         if path:
             self._window.aoi_source_edit.setText(path)
@@ -121,32 +122,34 @@ class SetupController(QObject):
         self._window.validation_text.setPlainText(report.as_text())
         self._window.refresh_status_labels()
         self._window._sync_summary_sidebar()
-        self._window.statusBar().showMessage("Environment validation finished.", 5000)
+        self._window.statusBar().showMessage(tr("setup.status.env_validated"), 5000)
 
     def inspect_inputs(self) -> None:
         self._window._update_project_from_form()
         try:
             report = self.input_catalog_service.scan(Path(self._window.project.workflow.input_path))
         except Exception as exc:
-            self._window._show_error("Input inspection failed", str(exc))
+            self._window._show_error(tr("setup.dialog.inspect_failed.title"), str(exc))
             return
 
         self._window._last_catalog_report = report
         self._window.inputs_text.setPlainText(report.as_text())
-        self._window.data_sources_page.dataset_card.set_value(f"{len(report.entries)} detected inputs")
-        self._window.data_sources_page.dataset_card.set_body("ZIP/SAFE scan complete.")
-        self._window.statusBar().showMessage("Input inspection finished.", 5000)
+        self._window.data_sources_page.dataset_card.set_value(
+            tr("setup.card.detected_inputs", count=len(report.entries))
+        )
+        self._window.data_sources_page.dataset_card.set_body(tr("setup.card.scan_complete"))
+        self._window.statusBar().showMessage(tr("setup.status.inputs_inspected"), 5000)
         self._window._sync_summary_sidebar()
 
     def prepare_data_sources(self) -> None:
         self._window._update_project_from_form()
         if self._window.runner.is_running():
-            QMessageBox.warning(self._window, "Busy", "Another command is already running.")
+            QMessageBox.warning(self._window, tr("dialog.busy.title"), tr("dialog.busy.body"))
             return
 
         errors = self._validate_data_source_inputs()
         if errors:
-            self._window._show_error("Cannot prepare data", "\n".join(errors))
+            self._window._show_error(tr("setup.dialog.cannot_prepare.title"), "\n".join(errors))
             return
 
         self._window.log_view.clear()
@@ -171,7 +174,7 @@ class SetupController(QObject):
             self._window.project.state.status = ProjectStatus.FAILED
             self._window.refresh_status_labels()
             self._window._update_action_states()
-            self._window._show_error("Data preparation failed", str(exc))
+            self._window._show_error(tr("setup.dialog.prepare_failed.title"), str(exc))
             return
 
         self._window._last_catalog_report = report
@@ -181,7 +184,7 @@ class SetupController(QObject):
         signature = self._preparation_signature(self._window.project.workflow)
         if not dem_preparation.plans:
             self._commit_preparation_result(prepared, dem_preparation.final_dem_path, signature)
-            self._window.statusBar().showMessage("Data validation and preparation finished.", 5000)
+            self._window.statusBar().showMessage(tr("setup.status.prepared"), 5000)
             return
 
         self._window.project.state.last_error = ""
@@ -235,17 +238,15 @@ class SetupController(QObject):
         prepared = self._window.project.state.prepared_inputs
         workflow = self._window.project.workflow
         self._window.data_sources_page.orbit_card.set_value(
-            Path(workflow.orbit_path).name if workflow.orbit_path else "Not set"
+            Path(workflow.orbit_path).name if workflow.orbit_path else tr("card.value.not_set")
         )
         self._window.data_sources_page.dem_card.set_value(
-            Path(workflow.dem_path).name if workflow.dem_path else "Not set"
+            Path(workflow.dem_path).name if workflow.dem_path else tr("card.value.not_set")
         )
         if not prepared.entries:
-            self._window.inputs_text.setPlainText("Data has not been prepared yet.")
-            self._window.data_sources_page.dataset_card.set_value("Not prepared")
-            self._window.data_sources_page.dataset_card.set_body(
-                "Run Validate & Prepare Data to create the SAFE manifest."
-            )
+            self._window.inputs_text.setPlainText(tr("setup.panel.not_prepared_hint"))
+            self._window.data_sources_page.dataset_card.set_value(tr("card.value.not_prepared"))
+            self._window.data_sources_page.dataset_card.set_body(tr("setup.card.prepare_hint"))
             return
 
         lines: list[str] = []
@@ -255,9 +256,11 @@ class SetupController(QObject):
         lines.extend(["", "Prepared inputs:"])
         lines.extend(f"- {entry.path}" for entry in prepared.entries)
         self._window.inputs_text.setPlainText("\n".join(lines))
-        self._window.data_sources_page.dataset_card.set_value(f"{len(prepared.entries)} prepared scenes")
+        self._window.data_sources_page.dataset_card.set_value(
+            tr("setup.card.prepared_scenes", count=len(prepared.entries))
+        )
         self._window.data_sources_page.dataset_card.set_body(
-            Path(prepared.manifest_path).name if prepared.manifest_path else "Manifest ready"
+            Path(prepared.manifest_path).name if prepared.manifest_path else tr("setup.card.manifest_ready")
         )
 
     def _commit_preparation_result(self, prepared: PreparedInputs, dem_path: str, signature: str) -> None:
@@ -285,30 +288,32 @@ class SetupController(QObject):
 
     def _sync_iw_selection_card(self) -> None:
         swaths = self._window.aoi_iw_page.selected_swaths() or "1 2 3"
-        text = " ".join(f"IW{token}" for token in swaths.split()) if swaths.strip() else "None"
+        text = " ".join(f"IW{token}" for token in swaths.split()) if swaths.strip() else tr("setup.iw.none")
         self._window.aoi_iw_page.iw_card.set_value(text)
         self._window.summary_selection_card.set_value(text)
-        self._window.summary_selection_card.set_body("Swath-level control is active.")
+        self._window.summary_selection_card.set_body(tr("setup.card.swath_control"))
 
     def confirm_aoi_iw(self) -> None:
         self._window._update_project_from_form()
         errors = self._validate_processing_inputs()
         if errors:
-            self._window._show_error("Invalid AOI/BBox/IW", "\n".join(errors))
+            self._window._show_error(tr("setup.dialog.invalid_geometry.title"), "\n".join(errors))
             return
         self._window._sync_summary_sidebar()
-        self._window.statusBar().showMessage("AOI/BBox/IW parameters confirmed.", 4000)
+        self._window.statusBar().showMessage(tr("setup.status.geometry_confirmed"), 4000)
 
     def import_aoi_file(self) -> None:
         source_path = self._window.aoi_source_edit.text().strip()
         if not source_path:
-            self._window._show_error("AOI import failed", "Select a KML or SHP AOI file first.")
+            self._window._show_error(
+                tr("setup.dialog.aoi_import_failed.title"), tr("setup.dialog.aoi_import_failed.body")
+            )
             return
 
         try:
             result = self.aoi_import_service.import_aoi(source_path)
         except Exception as exc:
-            self._window._show_error("AOI import failed", str(exc))
+            self._window._show_error(tr("setup.dialog.aoi_import_failed.title"), str(exc))
             return
 
         self._window._last_aoi_import = result
@@ -317,7 +322,7 @@ class SetupController(QObject):
         south, north, west, east = result.bbox_snwe.split()
         self._window.aoi_iw_page.set_bbox_components(south, north, west, east)
         self._window.aoi_iw_page.source_card.set_value(Path(result.source_path).name)
-        self._window.aoi_iw_page.source_card.set_body("Imported AOI data was used to fill the processing bbox.")
+        self._window.aoi_iw_page.source_card.set_body(tr("setup.card.source_used"))
         notes = list(result.notes)
         if result.warnings:
             notes.extend(["", "Warnings:"])
@@ -327,7 +332,7 @@ class SetupController(QObject):
         self._window.aoi_iw_page.verify_alert_label.hide()
         self._window._update_project_from_form()
         self.recommend_iw()
-        self._window.statusBar().showMessage("AOI imported and processing bbox updated.", 5000)
+        self._window.statusBar().showMessage(tr("setup.status.aoi_imported"), 5000)
 
     def _first_entry_for_iw_recommendation(self) -> str:
         prepared = self._window.project.state.prepared_inputs.entries
@@ -362,13 +367,13 @@ class SetupController(QObject):
         self._window.aoi_iw_page.verify_alert_label.hide()
         if self._window.project.workflow.use_common_overlap:
             self._window._show_error(
-                "IW recommendation unavailable",
-                "Disable 'Use common overlap' and provide the processing bbox first.",
+                tr("setup.dialog.iw_unavailable.title"),
+                tr("setup.dialog.iw_unavailable.disable_overlap"),
             )
             return
         if not self._window.project.workflow.bbox_snwe.strip():
             self._window._show_error(
-                "IW recommendation unavailable", "Processing bbox is required for IW recommendation."
+                tr("setup.dialog.iw_unavailable.title"), tr("setup.dialog.iw_unavailable.bbox_required")
             )
             return
 
@@ -379,7 +384,7 @@ class SetupController(QObject):
                 self._window.project.workflow.normalized_bbox(),
             )
         except Exception as exc:
-            self._window._show_error("IW recommendation failed", str(exc))
+            self._window._show_error(tr("setup.dialog.iw_failed.title"), str(exc))
             return
 
         self._window._last_iw_recommendation = result
@@ -391,7 +396,9 @@ class SetupController(QObject):
             notes.extend(f"- {line}" for line in result.warnings)
         self._window.verify_notes.setPlainText("\n".join(notes))
         self._window._update_project_from_form()
-        self._window.statusBar().showMessage(f"Recommended IW: {result.recommended_swaths}", 5000)
+        self._window.statusBar().showMessage(
+            tr("setup.status.recommended_iw", swaths=result.recommended_swaths), 5000
+        )
 
     def _selected_swath_set(self) -> set[str]:
         return {item for item in (self._window.aoi_iw_page.selected_swaths() or "").split() if item}
@@ -433,8 +440,8 @@ class SetupController(QObject):
         self._window.aoi_iw_page.verify_alert_label.hide()
         if self._window.project.workflow.use_common_overlap or not self._window.project.workflow.bbox_snwe.strip():
             self._window._show_error(
-                "Verify unavailable",
-                "Provide the processing bbox first (disable 'Use common overlap').",
+                tr("setup.dialog.verify_unavailable.title"),
+                tr("setup.dialog.verify_unavailable.body"),
             )
             return
 
@@ -444,7 +451,7 @@ class SetupController(QObject):
             basis_entry = self._first_entry_for_iw_recommendation()
             self._window._last_iw_recommendation = self.iw_recommendation_service.recommend(basis_entry, bbox_text)
         except Exception as exc:
-            self._window._show_error("Verify failed", str(exc))
+            self._window._show_error(tr("setup.dialog.verify_failed.title"), str(exc))
             return
 
         footprints = {
@@ -523,21 +530,23 @@ class SetupController(QObject):
             self._window.aoi_iw_page.verify_alert_label.clear()
             self._window.aoi_iw_page.verify_alert_label.hide()
         self._window.verify_notes.setPlainText("\n".join(notes))
-        self._window.statusBar().showMessage("AOI/BBox/IW + burst/DEM verify plot updated.", 5000)
+        self._window.statusBar().showMessage(tr("setup.status.verify_updated"), 5000)
 
     def export_verify_geometry_png(self) -> None:
         try:
             work_dir = self._window.project.resolved_work_dir()
         except ValueError:
-            self._window._show_error("Export failed", "Set working directory first.")
+            self._window._show_error(
+                tr("dialog.export_failed.title"), tr("setup.dialog.export_failed.work_dir")
+            )
             return
         stamp = datetime.now().strftime("%Y%m%dT%H%M%S")
         default_path = work_dir / APP_METADATA_DIR / "verify" / f"aoi_iw_verify_{stamp}.png"
         output_path, _ = QFileDialog.getSaveFileName(
             self._window,
-            "Export verify image",
+            tr("setup.dialog.export_verify.caption"),
             str(default_path),
-            "PNG image (*.png)",
+            tr("setup.dialog.export_verify.filter"),
         )
         if not output_path:
             return
@@ -546,9 +555,9 @@ class SetupController(QObject):
         try:
             saved = self._window.aoi_iw_page.verify_panel.export_png(output_path)
         except Exception as exc:
-            self._window._show_error("Export failed", str(exc))
+            self._window._show_error(tr("dialog.export_failed.title"), str(exc))
             return
-        self._window.statusBar().showMessage(f"Verify image exported: {saved}", 5000)
+        self._window.statusBar().showMessage(tr("setup.status.verify_exported", path=saved), 5000)
 
     # ------------------------------------------------------------------
     # Processing plan / generation
@@ -563,7 +572,7 @@ class SetupController(QObject):
             if f"Preflight: {check.label}: {check.detail}" not in errors
         )
         if errors:
-            self._window._show_error("Cannot generate workflow", "\n".join(errors))
+            self._window._show_error(tr("setup.dialog.cannot_generate.title"), "\n".join(errors))
             return
 
         self._window.log_view.clear()
@@ -588,7 +597,7 @@ class SetupController(QObject):
             self._window.project.state.last_error = str(exc)
             self._window.project.state.status = ProjectStatus.FAILED
             self._window.refresh_status_labels()
-            self._window._show_error("Workflow generation setup failed", str(exc))
+            self._window._show_error(tr("setup.dialog.generate_setup_failed.title"), str(exc))
             return
 
         plan = CommandPlan(
@@ -608,9 +617,7 @@ class SetupController(QObject):
         self._window._update_project_from_form()
         self._refresh_preflight_report()
         if not self._is_prepared_for_current_sources():
-            self._window.command_preview_text.setPlainText(
-                "Prepare data first. The generated processing command will appear here."
-            )
+            self._window.command_preview_text.setPlainText(tr("setup.panel.prepare_command_hint"))
             return
         try:
             command = self.workflow_service.build_generate_command(
@@ -627,29 +634,26 @@ class SetupController(QObject):
                 f"Log: {self._window.project.logs_dir() / 'stack_generate.log'}"
             )
         self._window.command_preview_text.setPlainText(command)
-        self._window.statusBar().showMessage("Generated command preview updated.", 3000)
+        self._window.statusBar().showMessage(tr("setup.status.preview_updated"), 3000)
 
     def _rescan_existing_runfiles(self) -> None:
         try:
             self.workflow_service.synchronize_project_steps(self._window.project)
         except Exception as exc:
-            self._window._show_error("Re-scan failed", str(exc))
+            self._window._show_error(tr("setup.dialog.rescan_failed.title"), str(exc))
             return
         self._window.run_controller.refresh_steps_view()
         self._window.refresh_status_labels()
         self._window._sync_summary_sidebar()
-        self._window.statusBar().showMessage("Existing run_files re-scanned.", 4000)
+        self._window.statusBar().showMessage(tr("setup.status.rescanned"), 4000)
 
     def _populate_reference_candidates(self) -> None:
         dates = self._prepared_dates()
         recommended = dates[0] if dates else "Unavailable"
         self._window.processing_page.reference_hint_label.setText(
-            (
-                f"Recommended reference date from prepared inputs: {recommended}. "
-                "Leave empty to let workflow choose automatically."
-            )
+            tr("setup.hint.reference_recommended", date=recommended)
             if dates
-            else "Run Validate & Prepare Data to populate available dates. Leave empty to auto-select reference."
+            else tr("setup.hint.reference_run_prepare")
         )
 
     def _prepared_dates(self) -> list[str]:
@@ -663,10 +667,12 @@ class SetupController(QObject):
     def _refresh_runfile_estimates(self) -> None:
         current_parallel = max(1, self._window.project.workflow.num_proc)
         if not self._window.project.state.steps:
-            text = "Generate workflow first. Run-file command estimates will appear here."
+            text = tr("setup.panel.estimate_hint")
             self._window.runfile_estimate_text.setPlainText(text)
             self._window.monitor_runfile_estimate_text.setPlainText(text)
-            self._window.processing_page.parallel_card.set_value(f"num_proc = {current_parallel}")
+            self._window.processing_page.parallel_card.set_value(
+                tr("setup.card.parallel_value", value=current_parallel)
+            )
             return
 
         lines = [f"Current num_proc = {current_parallel}", ""]
@@ -685,8 +691,10 @@ class SetupController(QObject):
         text = "\n".join(lines)
         self._window.runfile_estimate_text.setPlainText(text)
         self._window.monitor_runfile_estimate_text.setPlainText(text)
-        self._window.processing_page.parallel_card.set_value(f"num_proc = {current_parallel}")
-        self._window.processing_page.parallel_card.set_body("Review estimates before running large stacks.")
+        self._window.processing_page.parallel_card.set_value(
+            tr("setup.card.parallel_value", value=current_parallel)
+        )
+        self._window.processing_page.parallel_card.set_body(tr("setup.card.parallel_body"))
 
     def _refresh_preflight_report(self) -> PreflightReport:
         try:
@@ -701,17 +709,17 @@ class SetupController(QObject):
         if hasattr(self._window.processing_page, "preflight_alert"):
             if report.blockers:
                 self._window.processing_page.preflight_alert.set_message(
-                    f"Preflight found {len(report.blockers)} blocker(s). Resolve them before generation.",
+                    tr("preflight.blocked", count=len(report.blockers)),
                     "blocker",
                 )
             elif report.warnings:
                 self._window.processing_page.preflight_alert.set_message(
-                    f"Preflight completed with {len(report.warnings)} warning(s).",
+                    tr("preflight.warning", count=len(report.warnings)),
                     "warning",
                 )
             else:
                 self._window.processing_page.preflight_alert.set_message(
-                    "Preflight complete. No blockers found.", "info"
+                    tr("preflight.ready"), "info"
                 )
 
         header = (

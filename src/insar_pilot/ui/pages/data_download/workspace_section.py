@@ -11,6 +11,7 @@ from PySide6.QtWidgets import (
     QPushButton,
 )
 
+from insar_pilot.i18n import tr
 from insar_pilot.ui.icons import IconProvider
 from insar_pilot.ui.pages.data_download.base import DownloadSection
 from insar_pilot.ui.widgets.path_picker_row import PathPickerRow
@@ -20,24 +21,22 @@ class WorkspaceSection(DownloadSection):
     """Output directory, orbit toggle, and aria2 backend status."""
 
     def __init__(self, parent=None) -> None:
-        super().__init__("Download Workspace", parent, expanded=True)
+        super().__init__(tr("download.workspace.title"), parent, expanded=True)
         workspace_form = QFormLayout()
         workspace_form.setContentsMargins(0, 0, 0, 0)
         workspace_form.setSpacing(10)
         self.output_dir_row = PathPickerRow()
         self.output_dir_row.line_edit.setPlaceholderText("~/sentinel1_downloads")
-        workspace_form.addRow(self._form_label("Output directory"), self.output_dir_row)
-        self.include_orbits_checkbox = QCheckBox("Download matching EOF orbit files")
+        workspace_form.addRow(self._form_label(tr("download.workspace.output_dir")), self.output_dir_row)
+        self.include_orbits_checkbox = QCheckBox(tr("download.workspace.include_orbits"))
         self.include_orbits_checkbox.setChecked(True)
         workspace_form.addRow("", self.include_orbits_checkbox)
         self.content_layout.addLayout(workspace_form)
-        workspace_hint = QLabel(
-            "SLC ZIPs are saved to SLC/. If enabled, matching EOF orbit files are saved to Orbit/."
-        )
+        workspace_hint = QLabel(tr("download.workspace.hint"))
         workspace_hint.setProperty("emptyState", True)
         workspace_hint.setWordWrap(True)
         self.content_layout.addWidget(workspace_hint)
-        self.aria2_status_label = QLabel("Checking aria2c availability...")
+        self.aria2_status_label = QLabel(tr("download.workspace.aria2_checking"))
         self.aria2_status_label.setProperty("emptyState", True)
         self.aria2_status_label.setWordWrap(True)
         self.content_layout.addWidget(self.aria2_status_label)
@@ -56,50 +55,41 @@ class WorkspaceSection(DownloadSection):
         """Display current aria2c backend availability."""
 
         if available:
-            self.aria2_status_label.setText(
-                f"aria2c available: {path}. SLC downloads use the aria2c multipart resumable backend."
-            )
+            self.aria2_status_label.setText(tr("download.aria2.available", path=path))
         else:
-            self.aria2_status_label.setText(
-                "aria2c was not found on PATH. SLC downloads require aria2c for multipart resumable downloads."
-            )
+            self.aria2_status_label.setText(tr("download.aria2.missing"))
 
 
 class DemSection(DownloadSection):
     """OpenTopography key validation and DEM-download options."""
 
     def __init__(self, parent=None) -> None:
-        super().__init__("DEM Download", parent, expanded=False)
+        super().__init__(tr("download.dem.title"), parent, expanded=False)
         self.opentopography_available = False
         dem_form = QFormLayout()
         dem_form.setContentsMargins(0, 0, 0, 0)
         dem_form.setSpacing(10)
         self.opentopography_key_edit = QLineEdit()
         self.opentopography_key_edit.setEchoMode(QLineEdit.EchoMode.Password)
-        self.opentopography_key_edit.setPlaceholderText("OpenTopography API key")
-        self.opentopography_status_label = QLabel(
-            "OpenTopography key is required for DEM download. Validate your key to enable DEM controls."
-        )
+        self.opentopography_key_edit.setPlaceholderText(tr("download.dem.key_placeholder"))
+        self.opentopography_status_label = QLabel(tr("download.dem.key_required"))
         self.opentopography_status_label.setWordWrap(True)
-        self.download_dem_checkbox = QCheckBox("Download matching DEM after SLC download")
+        self.download_dem_checkbox = QCheckBox(tr("download.dem.download_checkbox"))
         self.download_dem_checkbox.setEnabled(False)
         self.dem_source_combo = QComboBox()
-        self.dem_source_combo.addItem("COP30 (Copernicus Global DSM 30m)", "COP30")
-        self.dem_source_combo.addItem("AW3D30_E (ALOS World 3D Ellipsoidal, 30m)", "AW3D30_E")
+        self.dem_source_combo.addItem(tr("download.dem.source.cop30"), "COP30")
+        self.dem_source_combo.addItem(tr("download.dem.source.aw3d30"), "AW3D30_E")
         self.dem_source_combo.setEnabled(False)
-        dem_form.addRow(self._form_label("OpenTopography key"), self.opentopography_key_edit)
-        dem_form.addRow(self._form_label("Status"), self.opentopography_status_label)
+        dem_form.addRow(self._form_label(tr("download.dem.key_label")), self.opentopography_key_edit)
+        dem_form.addRow(self._form_label(tr("download.status_label")), self.opentopography_status_label)
         dem_form.addRow("", self.download_dem_checkbox)
-        dem_form.addRow(self._form_label("DEM source"), self.dem_source_combo)
+        dem_form.addRow(self._form_label(tr("download.dem.source_label")), self.dem_source_combo)
         self.content_layout.addLayout(dem_form)
-        self.test_opentopography_button = QPushButton("Test and Save Key")
+        self.test_opentopography_button = QPushButton(tr("download.key.test_save"))
         self.test_opentopography_button.setIcon(IconProvider.icon("check"))
         self.test_opentopography_button.setProperty("role", "secondary")
         self.content_layout.addWidget(self.test_opentopography_button)
-        dem_hint = QLabel(
-            "DEM coverage is planned after SLC download using local burst footprints. "
-            "COP30 uses EGM2008 heights; AW3D30_E is already ellipsoidal."
-        )
+        dem_hint = QLabel(tr("download.dem.hint"))
         dem_hint.setProperty("emptyState", True)
         dem_hint.setWordWrap(True)
         self.content_layout.addWidget(dem_hint)
@@ -124,11 +114,9 @@ class DemSection(DownloadSection):
 
         self.opentopography_key_edit.setText(key)
         if source:
-            self.opentopography_status_label.setText(f"Loaded OpenTopography key from {source}.")
+            self.opentopography_status_label.setText(tr("download.dem.key_loaded", source=source))
         else:
-            self.opentopography_status_label.setText(
-                "OpenTopography key is required for DEM download. Validate your key to enable DEM controls."
-            )
+            self.opentopography_status_label.setText(tr("download.dem.key_required"))
 
     def set_opentopography_status(self, message: str) -> None:
         """Update the OpenTopography key status message."""
@@ -139,7 +127,9 @@ class DemSection(DownloadSection):
         """Toggle the OpenTopography key action while validation runs."""
 
         self.test_opentopography_button.setEnabled(not busy)
-        self.test_opentopography_button.setText("Testing Key..." if busy else "Test and Save Key")
+        self.test_opentopography_button.setText(
+            tr("download.key.testing") if busy else tr("download.key.test_save")
+        )
 
     def set_opentopography_available(self, available: bool) -> None:
         """Enable or disable DEM controls based on OpenTopography key health."""

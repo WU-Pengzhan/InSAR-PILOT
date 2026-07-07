@@ -7,7 +7,7 @@ import sys
 from pathlib import Path
 
 from PySide6.QtCore import QSize, Qt, QThread
-from PySide6.QtGui import QAction, QCloseEvent, QPixmap
+from PySide6.QtGui import QAction, QActionGroup, QCloseEvent, QPixmap
 from PySide6.QtWidgets import (
     QApplication,
     QDockWidget,
@@ -16,6 +16,7 @@ from PySide6.QtWidgets import (
     QHBoxLayout,
     QLabel,
     QMainWindow,
+    QMenu,
     QMessageBox,
     QPlainTextEdit,
     QStackedWidget,
@@ -39,7 +40,7 @@ from insar_pilot.download import (
     SearchService,
 )
 from insar_pilot.download.tile_proxy import TiandituTileProxy
-from insar_pilot.i18n import Translator
+from insar_pilot.i18n import Translator, get_translator, set_shared_language
 from insar_pilot.services.aoi_import import AoiImportResult, AoiImportService
 from insar_pilot.services.dem_coverage import DemCoverageService
 from insar_pilot.services.dem_preparer import DemPreparationService
@@ -82,7 +83,10 @@ class MainWindow(QMainWindow):
         super().__init__(parent)
         self.project = project
         self.app_settings = AppSettings()
-        self.translator = Translator("en")
+        # Configure the process-wide shared translator so pages/widgets that are
+        # constructed without a translator reference resolve the same language.
+        set_shared_language(self.app_settings.language())
+        self.translator = get_translator()
         self.project_store = ProjectStore()
         self.environment_probe = EnvironmentProbe()
         self.dem_preparation_service = DemPreparationService()
@@ -204,7 +208,9 @@ class MainWindow(QMainWindow):
         project_col = QVBoxLayout()
         project_col.setContentsMargins(10, 4, 10, 4)
         project_col.setSpacing(2)
-        self.header_project_label = QLabel(f"{self.translator.tr('header.project')}: new session")
+        self.header_project_label = QLabel(
+            f"{self.translator.tr('header.project')}: {self.translator.tr('header.new_session')}"
+        )
         self.header_current_step_label = QLabel(f"{self.translator.tr('header.current_step')}: -")
         project_col.addWidget(self.header_project_label)
         project_col.addWidget(self.header_current_step_label)
@@ -212,7 +218,7 @@ class MainWindow(QMainWindow):
         layout.addWidget(project_meta, 0, Qt.AlignmentFlag.AlignVCenter)
 
         self.header_status_badge = StatusBadge("draft", "neutral")
-        self.header_env_badge = StatusBadge("Env unchecked", "warning")
+        self.header_env_badge = StatusBadge(self.translator.tr("status.env.unchecked"), "warning")
         layout.addWidget(self.header_status_badge)
         layout.addWidget(self.header_env_badge)
         return widget
@@ -220,12 +226,13 @@ class MainWindow(QMainWindow):
     def _build_workflow_stepper(self) -> TopWorkflowStepper:
         self.workflow_stepper = TopWorkflowStepper()
         self.workflow_stepper.setMaximumWidth(500)
+        tr = self.translator.tr
         self.workflow_stepper.set_steps(
             [
-                ("Data", "Sentinel-1 Data Download"),
-                ("Setup", "Processing Setup"),
-                ("Run", "Run Executor"),
-                ("Results", "Results Quicklook"),
+                (tr("stepper.short.data"), tr("nav.data_download")),
+                (tr("stepper.short.setup"), tr("nav.processing_setup")),
+                (tr("stepper.short.run"), tr("nav.monitor")),
+                (tr("stepper.short.results"), tr("nav.results")),
             ]
         )
         return self.workflow_stepper
@@ -243,9 +250,9 @@ class MainWindow(QMainWindow):
         self.project_start_page.set_version(__version__)
         self.project_start_page.set_notices(
             [
-                "Project folders keep downloads, processing state, logs, and quicklook outputs together.",
-                "Launch from the target runtime environment before validating or running processing.",
-                "Use Results after processing to browse quicklooks and exported products.",
+                self.translator.tr("start.notice.folders"),
+                self.translator.tr("start.notice.runtime"),
+                self.translator.tr("start.notice.results"),
             ]
         )
         self.data_download_page = DataDownloadPage()
@@ -279,7 +286,7 @@ class MainWindow(QMainWindow):
         return container
 
     def _build_project_inspector_dock(self) -> None:
-        self.project_inspector_dock = QDockWidget("Project Inspector", self)
+        self.project_inspector_dock = QDockWidget(self.translator.tr("dock.project_inspector"), self)
         self.project_inspector_dock.setObjectName("projectInspectorDock")
         self.project_inspector_dock.setWidget(self._build_summary_sidebar())
         self.project_inspector_dock.setAllowedAreas(Qt.DockWidgetArea.RightDockWidgetArea)
@@ -297,25 +304,30 @@ class MainWindow(QMainWindow):
         title.setObjectName("summaryCardTitle")
         layout.addWidget(title)
 
+        tr = self.translator.tr
         self.summary_download_card = SummaryCard(
-            self.translator.tr("summary.download.title"),
-            "Ready",
-            "Define AOI, dates, and Sentinel-1 SLC filters.",
+            tr("summary.download.title"),
+            tr("card.value.ready"),
+            tr("summary.download.body"),
         )
         self.summary_sources_card = SummaryCard(
-            self.translator.tr("summary.setup.title"), "Not prepared", "Dataset, orbit, and DEM readiness."
+            tr("summary.setup.title"), tr("card.value.not_prepared"), tr("summary.setup.body")
         )
         self.summary_aoi_card = SummaryCard(
-            "AOI / BBox", "Not set", "AOI file is optional input; bbox is the processing parameter."
+            tr("summary.aoi.title"), tr("card.value.not_set"), tr("summary.aoi.body")
         )
         self.summary_selection_card = SummaryCard(
-            "IW", "IW1 IW2 IW3", "Swath-level control for the processing workflow."
+            tr("summary.iw.title"), "IW1 IW2 IW3", tr("summary.iw.body")
         )
-        self.summary_reference_card = SummaryCard("Reference", "Auto", "Manual override optional.")
+        self.summary_reference_card = SummaryCard(
+            tr("summary.reference.title"), tr("card.value.auto"), tr("summary.reference.body")
+        )
         self.summary_processing_card = SummaryCard(
-            "Processing", "Not generated", "Workflow, coreg, looks, and concurrency."
+            tr("summary.processing.title"), tr("card.value.not_generated"), tr("summary.processing.body")
         )
-        self.summary_results_card = SummaryCard("Results", "No outputs scanned", "Quicklooks and processing outputs.")
+        self.summary_results_card = SummaryCard(
+            tr("summary.results_card.title"), tr("summary.results_card.value"), tr("summary.results_card.body")
+        )
         for card in (
             self.summary_sources_card,
             self.summary_download_card,
@@ -332,8 +344,8 @@ class MainWindow(QMainWindow):
     def _build_log_console(self) -> None:
         self.log_view = QPlainTextEdit()
         self.log_view.setReadOnly(True)
-        self.log_view.setPlaceholderText("Live stdout/stderr will appear here.")
-        self.log_dock = QDockWidget("Log Console", self)
+        self.log_view.setPlaceholderText(self.translator.tr("console.placeholder"))
+        self.log_dock = QDockWidget(self.translator.tr("console.title"), self)
         self.log_dock.setWidget(self.log_view)
         self.log_dock.setAllowedAreas(Qt.DockWidgetArea.BottomDockWidgetArea)
         self.log_dock.visibilityChanged.connect(self._handle_log_dock_visibility)
@@ -341,43 +353,45 @@ class MainWindow(QMainWindow):
         self.log_dock.hide()
 
     def _build_menu_bar(self) -> None:
-        self.action_new_project = QAction(IconProvider.icon("info"), "New Project", self)
-        self.action_open_project = QAction(IconProvider.icon("folder"), "Open Project", self)
-        self.action_save_project = QAction(IconProvider.icon("save"), "Save Project", self)
-        self.action_toggle_console = QAction(IconProvider.icon("settings"), "Log Console", self)
+        tr = self.translator.tr
+        self.action_new_project = QAction(IconProvider.icon("info"), tr("action.new_project"), self)
+        self.action_open_project = QAction(IconProvider.icon("folder"), tr("action.open_project"), self)
+        self.action_save_project = QAction(IconProvider.icon("save"), tr("action.save_project"), self)
+        self.action_toggle_console = QAction(IconProvider.icon("settings"), tr("action.log_console"), self)
         self.action_toggle_console.setCheckable(True)
-        self.action_exit = QAction("Exit", self)
-        self.action_search = QAction(IconProvider.icon("search"), "Search Scenes", self)
-        self.action_download = QAction(IconProvider.icon("download"), "Download Selected", self)
-        self.action_use_sources = QAction(IconProvider.icon("import"), "Use as Data Sources", self)
-        self.action_validate = QAction(IconProvider.icon("check"), "Validate", self)
-        self.action_prepare = QAction(IconProvider.icon("run"), "Prepare Data", self)
-        self.action_preview_command = QAction(IconProvider.icon("preview"), "Preview Command", self)
-        self.action_generate = QAction(IconProvider.icon("generate"), "Generate Workflow", self)
-        self.action_run_next = QAction(IconProvider.icon("run"), "Run Next Step", self)
-        self.action_run_selected = QAction("Run Selected Step", self)
-        self.action_run_remaining = QAction("Run Remaining Steps", self)
-        self.action_stop = QAction(IconProvider.icon("stop"), "Stop", self)
-        self.action_refresh_outputs = QAction(IconProvider.icon("refresh"), "Refresh Outputs", self)
-        self.action_about = QAction("About", self)
+        self.action_exit = QAction(tr("action.exit"), self)
+        self.action_search = QAction(IconProvider.icon("search"), tr("action.search_scenes"), self)
+        self.action_download = QAction(IconProvider.icon("download"), tr("action.download_selected"), self)
+        self.action_use_sources = QAction(IconProvider.icon("import"), tr("action.use_as_data_sources"), self)
+        self.action_validate = QAction(IconProvider.icon("check"), tr("action.validate"), self)
+        self.action_prepare = QAction(IconProvider.icon("run"), tr("action.prepare_data"), self)
+        self.action_preview_command = QAction(IconProvider.icon("preview"), tr("action.preview_command"), self)
+        self.action_generate = QAction(IconProvider.icon("generate"), tr("action.generate_workflow"), self)
+        self.action_run_next = QAction(IconProvider.icon("run"), tr("action.run_next_step"), self)
+        self.action_run_selected = QAction(tr("action.run_selected_step"), self)
+        self.action_run_remaining = QAction(tr("action.run_remaining_steps"), self)
+        self.action_stop = QAction(IconProvider.icon("stop"), tr("action.stop"), self)
+        self.action_refresh_outputs = QAction(IconProvider.icon("refresh"), tr("action.refresh_outputs"), self)
+        self.action_about = QAction(tr("action.about"), self)
 
-        project_menu = self.menuBar().addMenu("Project")
+        project_menu = self.menuBar().addMenu(tr("menu.project"))
         project_menu.addActions([self.action_new_project, self.action_open_project, self.action_save_project])
         project_menu.addSeparator()
         project_menu.addAction(self.action_exit)
 
         self.action_project_inspector = self.project_inspector_dock.toggleViewAction()
-        self.action_project_inspector.setText("Project Inspector")
+        self.action_project_inspector.setText(tr("dock.project_inspector"))
         self.action_project_inspector.setIcon(IconProvider.icon("settings"))
 
-        self.view_menu = self.menuBar().addMenu("View")
+        self.view_menu = self.menuBar().addMenu(tr("menu.view"))
         self.view_menu.addAction(self.action_project_inspector)
         self.view_menu.addAction(self.action_toggle_console)
+        self._build_language_menu(self.view_menu)
 
-        data_menu = self.menuBar().addMenu("Data")
+        data_menu = self.menuBar().addMenu(tr("menu.data"))
         data_menu.addActions([self.action_search, self.action_download, self.action_use_sources])
 
-        processing_menu = self.menuBar().addMenu("Processing")
+        processing_menu = self.menuBar().addMenu(tr("menu.processing"))
         processing_menu.addActions([
             self.action_validate,
             self.action_prepare,
@@ -385,7 +399,7 @@ class MainWindow(QMainWindow):
             self.action_generate,
         ])
 
-        run_menu = self.menuBar().addMenu("Run")
+        run_menu = self.menuBar().addMenu(tr("menu.run"))
         run_menu.addActions([
             self.action_run_next,
             self.action_run_selected,
@@ -393,14 +407,41 @@ class MainWindow(QMainWindow):
             self.action_stop,
         ])
 
-        results_menu = self.menuBar().addMenu("Results")
+        results_menu = self.menuBar().addMenu(tr("menu.results"))
         results_menu.addAction(self.action_refresh_outputs)
 
-        help_menu = self.menuBar().addMenu("Help")
+        help_menu = self.menuBar().addMenu(tr("menu.help"))
         help_menu.addAction(self.action_about)
 
+    def _build_language_menu(self, parent_menu: QMenu) -> None:
+        parent_menu.addSeparator()
+        language_menu = parent_menu.addMenu(self.translator.tr("menu.language"))
+        self.language_action_group = QActionGroup(self)
+        self.language_action_group.setExclusive(True)
+        current_language = Translator._normalize(self.app_settings.language())
+        for code, label_key in (("en", "menu.language.english"), ("zh", "menu.language.chinese")):
+            action = QAction(self.translator.tr(label_key), self)
+            action.setCheckable(True)
+            action.setChecked(code == current_language)
+            action.setData(code)
+            self.language_action_group.addAction(action)
+            language_menu.addAction(action)
+        self.language_action_group.triggered.connect(self._change_language)
+
+    def _change_language(self, action: QAction) -> None:
+        code = str(action.data() or Translator.DEFAULT_LANGUAGE)
+        if Translator._normalize(code) == Translator._normalize(self.app_settings.language()):
+            return
+        self.app_settings.set_language(code)
+        self.app_settings.sync()
+        QMessageBox.information(
+            self,
+            self.translator.tr("dialog.language.restart.title"),
+            self.translator.tr("dialog.language.restart.body"),
+        )
+
     def _build_main_toolbar(self) -> None:
-        toolbar = QToolBar("Workflow", self)
+        toolbar = QToolBar(self.translator.tr("nav.workflow"), self)
         toolbar.setObjectName("mainWorkflowToolbar")
         toolbar.setIconSize(QSize(16, 16))
         toolbar.setMovable(False)
@@ -595,14 +636,12 @@ class MainWindow(QMainWindow):
 
     def _show_about_dialog(self) -> None:
         dialog = QMessageBox(self)
-        dialog.setWindowTitle("About InSAR-PILOT")
+        dialog.setWindowTitle(self.translator.tr("about.title"))
         dialog.setWindowIcon(BrandAssets.icon())
         dialog.setIconPixmap(BrandAssets.pixmap(size=QSize(72, 72)))
-        dialog.setText("InSAR-PILOT")
+        dialog.setText(self.translator.tr("app.title"))
         dialog.setInformativeText(
-            "InSAR Processing Interface and Lightweight Orchestration Toolkit\n"
-            f"Version {__version__}\n\n"
-            "Open Desktop Workbench for Guided SAR/InSAR Processing"
+            self.translator.tr("about.body", version=__version__)
         )
         dialog.setStandardButtons(QMessageBox.StandardButton.Ok)
         dialog.exec()
@@ -633,7 +672,7 @@ class MainWindow(QMainWindow):
         if not self._has_project_workspace():
             self.page_stack.setCurrentIndex(self._page_index_by_key["start"])
             self.workflow_stepper.set_current_index(0)
-            self.statusBar().showMessage("Create or open a project workspace first.", 4000)
+            self.statusBar().showMessage(self.translator.tr("status.create_or_open_first"), 4000)
             return
         key = self._step_keys[row] if row < len(self._step_keys) else "data_download"
         self.page_stack.setCurrentIndex(self._page_index_by_key[key])
@@ -672,8 +711,8 @@ class MainWindow(QMainWindow):
         self.download_controller.set_page_state(
             self.project.download.last_status.replace("_", " ").title()
             if self.project.download.last_status
-            else "Ready",
-            self.project.download.last_message or "Define AOI, dates, and Sentinel-1 SLC filters.",
+            else self.translator.tr("card.value.ready"),
+            self.project.download.last_message or self.translator.tr("summary.download.body"),
         )
         self.shell_init_edit.setText(self.project.environment.shell_init_path)
         self.conda_env_edit.setText(self.project.environment.conda_env_name)
@@ -755,7 +794,7 @@ class MainWindow(QMainWindow):
             )
         else:
             self.preview_image_label.setPixmap(QPixmap())
-            self.preview_image_label.setText("No preview generated yet.")
+            self.preview_image_label.setText(self.translator.tr("results.preview.none"))
             self.preview_image_label.resize(480, 320)
             self.preview_meta_text.setPlainText("")
 
@@ -771,13 +810,14 @@ class MainWindow(QMainWindow):
         conda_env = os.environ.get("CONDA_DEFAULT_ENV", "") or self.project.environment.conda_env_name or "-"
         conda_prefix = os.environ.get("CONDA_PREFIX", "") or self.project.environment.isce_root or "-"
         path_head = os.environ.get("PATH", "").split(os.pathsep)[:8]
+        tr = self.translator.tr
         lines = [
-            "Runtime is inherited from the process that launched this application.",
-            f"Python: {sys.executable}",
-            f"Conda env: {conda_env}",
-            f"Conda prefix: {conda_prefix}",
+            tr("diagnostics.runtime_inherited"),
+            f"{tr('diagnostics.python')}: {sys.executable}",
+            f"{tr('diagnostics.conda_env')}: {conda_env}",
+            f"{tr('diagnostics.conda_prefix')}: {conda_prefix}",
             "",
-            "PATH head:",
+            f"{tr('diagnostics.path_head')}:",
             *[f"- {item}" for item in path_head if item],
         ]
         if hasattr(self.processing_setup_page, "runtime_diagnostics_text"):
@@ -851,7 +891,7 @@ class MainWindow(QMainWindow):
         ):
             self.setup_controller._clear_prepared_state()
             self.statusBar().showMessage(
-                "Data source changed. Please run Validate & Prepare Data again.",
+                self.translator.tr("status.data_source_changed"),
                 5000,
             )
 
@@ -933,23 +973,24 @@ class MainWindow(QMainWindow):
         except ValueError:
             work_dir = "-"
 
+        tr = self.translator.tr
         if self.project.workspace.configured:
             project_name = self.project.workspace.root_path().name
         else:
-            project_name = "select project"
-        self.header_project_label.setText(f"Project: {project_name}")
-        self.header_current_step_label.setText(f"Current step: {current_step}")
+            project_name = tr("header.select_project")
+        self.header_project_label.setText(f"{tr('header.project')}: {project_name}")
+        self.header_current_step_label.setText(f"{tr('header.current_step')}: {current_step}")
         self.header_status_badge.set_status(status_text, self._tone_for_status(status_text))
         self.run_monitor_page.status_card.set_value(status_text)
         self.run_monitor_page.status_card.set_badge(status_text, self._tone_for_status(status_text))
         self.run_monitor_page.current_step_card.set_value(current_step)
         self.run_monitor_page.work_dir_card.set_value(Path(work_dir).name if work_dir != "-" else "-")
-        self.run_monitor_page.work_dir_card.set_body("Full path is available in diagnostics and logs.")
+        self.run_monitor_page.work_dir_card.set_body(tr("monitor.work_dir.body"))
         if hasattr(self.run_monitor_page, "project_status_label"):
-            self.run_monitor_page.project_status_label.setText(f"Status: {status_text}")
-            self.run_monitor_page.current_step_label.setText(f"Step: {current_step}")
+            self.run_monitor_page.project_status_label.setText(f"{tr('monitor.status_label')}: {status_text}")
+            self.run_monitor_page.current_step_label.setText(f"{tr('monitor.step_label')}: {current_step}")
             self.run_monitor_page.work_dir_label.setText(
-                f"Work dir: {Path(work_dir).name if work_dir != '-' else '-'}"
+                f"{tr('monitor.work_dir_label')}: {Path(work_dir).name if work_dir != '-' else '-'}"
             )
 
         env_text, env_tone = self._environment_health_badge()
@@ -967,17 +1008,17 @@ class MainWindow(QMainWindow):
         try:
             path = self.project_store.save(self.project)
         except Exception as exc:
-            self._show_error("Save failed", str(exc))
+            self._show_error(self.translator.tr("dialog.save_failed.title"), str(exc))
             return
         self._remember_current_project(path)
-        self.statusBar().showMessage(f"Project saved: {path}", 5000)
+        self.statusBar().showMessage(self.translator.tr("status.project_saved", path=path), 5000)
 
     def open_project(self) -> None:
         path, _ = QFileDialog.getOpenFileName(
             self,
-            "Open project",
+            self.translator.tr("dialog.open_project.title"),
             str(Path.home()),
-            "InSAR-PILOT Project (*.pilot);;Legacy Project (*.insarpilot *.json);;All files (*)",
+            self.translator.tr("dialog.open_project.filter"),
         )
         if not path:
             return
@@ -995,12 +1036,12 @@ class MainWindow(QMainWindow):
             if recovered:
                 self.project_store.save(self.project)
         except Exception as exc:
-            self._show_error("Open failed", str(exc))
+            self._show_error(self.translator.tr("dialog.open_failed.title"), str(exc))
             return
 
         self._remember_current_project(path)
         self._finish_project_workspace_change()
-        self.statusBar().showMessage(f"Loaded project: {path}", 5000)
+        self.statusBar().showMessage(self.translator.tr("status.project_loaded", path=path), 5000)
 
     def _finish_project_workspace_change(self) -> None:
         self._last_catalog_report = None
@@ -1023,7 +1064,9 @@ class MainWindow(QMainWindow):
         self._refresh_start_page()
 
     def new_project(self) -> None:
-        root = QFileDialog.getExistingDirectory(self, "Select project folder", str(Path.home()))
+        root = QFileDialog.getExistingDirectory(
+            self, self.translator.tr("dialog.select_project_folder"), str(Path.home())
+        )
         if not root:
             self._set_current_page("start")
             return
@@ -1034,7 +1077,9 @@ class MainWindow(QMainWindow):
         self.runner.set_environment(self.project.environment)
         self._remember_current_project(root)
         self._finish_project_workspace_change()
-        self.statusBar().showMessage(f"Project created: {self.project.project_file()}", 5000)
+        self.statusBar().showMessage(
+            self.translator.tr("status.project_created", path=self.project.project_file()), 5000
+        )
 
     def _refresh_start_page(self) -> None:
         if hasattr(self.app_settings, "recent_projects"):
@@ -1112,29 +1157,33 @@ class MainWindow(QMainWindow):
         self.data_download_page.status_card.set_value(self.download_controller.page_status)
         self.data_download_page.status_card.set_body(self.download_controller.page_message)
 
+        tr = self.translator.tr
         prepared = self.project.state.prepared_inputs
         self.summary_sources_card.set_value(
-            f"{len(prepared.entries)} prepared inputs" if prepared.entries else "Not prepared"
+            tr("summary.setup.prepared_count", count=len(prepared.entries))
+            if prepared.entries
+            else tr("card.value.not_prepared")
         )
         if self.project.state.prepared_dem_path:
             self.summary_sources_card.set_body(Path(self.project.state.prepared_dem_path).name)
         else:
-            self.summary_sources_card.set_body("Dataset, orbit, and DEM still need validation.")
+            self.summary_sources_card.set_body(tr("summary.setup.needs_validation"))
+        not_set = tr("card.value.not_set")
         self.data_sources_page.orbit_card.set_value(
-            Path(self.project.workflow.orbit_path).name if self.project.workflow.orbit_path else "Not set"
+            Path(self.project.workflow.orbit_path).name if self.project.workflow.orbit_path else not_set
         )
         self.data_sources_page.dem_card.set_value(
-            Path(self.project.workflow.dem_path).name if self.project.workflow.dem_path else "Not set"
+            Path(self.project.workflow.dem_path).name if self.project.workflow.dem_path else not_set
         )
         self.data_sources_page.orbit_card.set_body(
             Path(self.project.workflow.orbit_path).name
             if self.project.workflow.orbit_path
-            else "Point to local EOF orbit files."
+            else tr("summary.orbit.body")
         )
         self.data_sources_page.dem_card.set_body(
             Path(self.project.state.prepared_dem_path or self.project.workflow.dem_path).name
             if (self.project.state.prepared_dem_path or self.project.workflow.dem_path)
-            else "GeoTIFF or prepared DEM path."
+            else tr("summary.dem.body")
         )
 
         try:
@@ -1142,43 +1191,53 @@ class MainWindow(QMainWindow):
         except ValueError:
             bbox = ""
         if self.project.workflow.use_common_overlap:
-            self.summary_aoi_card.set_value("Common overlap")
-            self.summary_aoi_card.set_body("Empty bbox is allowed by compatibility switch.")
-            self.aoi_iw_page.bbox_card.set_value("Common overlap")
-            self.aoi_iw_page.bbox_card.set_body("Processing bbox will be omitted.")
+            self.summary_aoi_card.set_value(tr("card.value.common_overlap"))
+            self.summary_aoi_card.set_body(tr("summary.aoi.common_overlap_body"))
+            self.aoi_iw_page.bbox_card.set_value(tr("card.value.common_overlap"))
+            self.aoi_iw_page.bbox_card.set_body(tr("aoi.bbox.common_overlap_body"))
         else:
-            self.summary_aoi_card.set_value(bbox or "Not set")
-            self.summary_aoi_card.set_body("Processing bbox in SNWE decimal degrees.")
-            self.aoi_iw_page.bbox_card.set_value(bbox or "Not set")
-            self.aoi_iw_page.bbox_card.set_body("Final geographic processing boundary.")
+            self.summary_aoi_card.set_value(bbox or tr("card.value.not_set"))
+            self.summary_aoi_card.set_body(tr("summary.aoi.snwe_body"))
+            self.aoi_iw_page.bbox_card.set_value(bbox or tr("card.value.not_set"))
+            self.aoi_iw_page.bbox_card.set_body(tr("aoi.bbox.boundary_body"))
         self.aoi_iw_page.source_card.set_value(
-            Path(self.project.workflow.aoi_source_path).name if self.project.workflow.aoi_source_path else "Manual"
+            Path(self.project.workflow.aoi_source_path).name
+            if self.project.workflow.aoi_source_path
+            else tr("card.value.manual")
         )
         self.aoi_iw_page.source_card.set_body(
-            self.project.workflow.aoi_source_path or "AOI file optional; you can fill bbox manually."
+            self.project.workflow.aoi_source_path or tr("aoi.source.optional_body")
         )
 
         swaths = self.project.workflow.swath_numbers.strip() or "1 2 3"
         self.summary_selection_card.set_value(" ".join(f"IW{item}" for item in swaths.split()))
         self.aoi_iw_page.iw_card.set_value(" ".join(f"IW{item}" for item in swaths.split()))
-        self.summary_reference_card.set_value(self.project.workflow.reference_date or "Auto")
+        self.summary_reference_card.set_value(self.project.workflow.reference_date or tr("card.value.auto"))
         self.summary_reference_card.set_body(
-            "Manual override applied."
+            tr("summary.reference.manual_body")
             if self.project.workflow.reference_date
-            else "Master date left to workflow defaults."
+            else tr("summary.reference.default_body")
         )
         self.summary_processing_card.set_value(
             f"{self.project.workflow.workflow} / {self.project.workflow.coregistration}"
         )
         self.summary_processing_card.set_body(
-            f"Looks {self.project.workflow.azimuth_looks}x{self.project.workflow.range_looks}, "
-            f"num_proc={self.project.workflow.num_proc}"
+            tr(
+                "summary.processing.looks_body",
+                azimuth=self.project.workflow.azimuth_looks,
+                rng=self.project.workflow.range_looks,
+                num_proc=self.project.workflow.num_proc,
+            )
         )
         self.processing_page.plan_card.set_value(
             f"{self.project.workflow.workflow} / {self.project.workflow.coregistration}"
         )
         self.processing_page.plan_card.set_body(
-            f"Range looks {self.project.workflow.range_looks}, azimuth looks {self.project.workflow.azimuth_looks}"
+            tr(
+                "processing.plan.looks_body",
+                rng=self.project.workflow.range_looks,
+                azimuth=self.project.workflow.azimuth_looks,
+            )
         )
         if self.project.visualization.last_preview_path:
             self.summary_results_card.set_body(Path(self.project.visualization.last_preview_path).name)
@@ -1192,15 +1251,19 @@ class MainWindow(QMainWindow):
             self.download_controller.page_status,
             "neutral",
         )
+        ready_text = self.translator.tr("nav.status.ready")
+        pending_text = self.translator.tr("nav.status.pending")
         self._set_nav_status(
             "setup",
-            "Ready" if self.setup_controller._is_prepared_for_current_sources() else "Pending",
+            ready_text if self.setup_controller._is_prepared_for_current_sources() else pending_text,
             "ready" if self.setup_controller._is_prepared_for_current_sources() else "warning",
         )
         has_steps = bool(self.project.state.steps)
-        self._set_nav_status("monitor", "Ready" if has_steps else "Pending", "ready" if has_steps else "neutral")
+        self._set_nav_status("monitor", ready_text if has_steps else pending_text, "ready" if has_steps else "neutral")
         has_results = self.outputs_tree.topLevelItemCount() > 0
-        self._set_nav_status("results", "Ready" if has_results else "Pending", "ready" if has_results else "neutral")
+        self._set_nav_status(
+            "results", ready_text if has_results else pending_text, "ready" if has_results else "neutral"
+        )
         for index, _key in enumerate(self._step_keys):
             self.workflow_stepper.set_step_enabled(index, project_ready)
         self._sync_nav_selection_state()
@@ -1220,10 +1283,10 @@ class MainWindow(QMainWindow):
     def _environment_health_badge(self) -> tuple[str, str]:
         text = self.project.state.last_validation.strip()
         if not text:
-            return "Env unchecked", "warning"
+            return self.translator.tr("status.env.unchecked"), "warning"
         if "[FAIL]" in text:
-            return "Env issue", "failed"
-        return "Env ready", "ready"
+            return self.translator.tr("status.env.issue"), "failed"
+        return self.translator.tr("status.env.ready"), "ready"
 
     @staticmethod
     def _tone_for_status(status_text: str) -> str:

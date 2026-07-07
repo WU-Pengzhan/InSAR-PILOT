@@ -19,6 +19,7 @@ from PySide6.QtGui import QPixmap
 from PySide6.QtWidgets import QFileDialog, QMessageBox, QTreeWidgetItem
 
 from insar_pilot.domain.project import APP_METADATA_DIR
+from insar_pilot.i18n import tr
 from insar_pilot.services.output_discovery import OutputDiscoveryService, OutputNode
 from insar_pilot.services.visualization_service import (
     VisualizationRequest,
@@ -49,30 +50,34 @@ class ResultsController(QObject):
     # ------------------------------------------------------------------
     def _browse_visual_primary(self) -> None:
         self._window._browse_file_into(
-            self._window.visual_primary_path_edit, "Select primary visualization input"
+            self._window.visual_primary_path_edit, tr("results.dialog.select_primary")
         )
 
     def _browse_visual_secondary(self) -> None:
         self._window._browse_file_into(
-            self._window.visual_secondary_path_edit, "Select secondary visualization input"
+            self._window.visual_secondary_path_edit, tr("results.dialog.select_secondary")
         )
 
     def _browse_visual_export_dir(self) -> None:
         self._window._browse_dir_into(
-            self._window.visual_export_dir_edit, "Select visualization export directory"
+            self._window.visual_export_dir_edit, tr("results.dialog.select_export_dir")
         )
 
     def _fill_visual_primary_from_outputs(self) -> None:
         selected = self._selected_output_file_path()
         if selected is None:
-            QMessageBox.warning(self._window, "No output file selected", "Select a file in Results first.")
+            QMessageBox.warning(
+                self._window, tr("results.dialog.no_output.title"), tr("results.dialog.no_output.body")
+            )
             return
         self._window.visual_primary_path_edit.setText(selected)
 
     def _fill_visual_secondary_from_outputs(self) -> None:
         selected = self._selected_output_file_path()
         if selected is None:
-            QMessageBox.warning(self._window, "No output file selected", "Select a file in Results first.")
+            QMessageBox.warning(
+                self._window, tr("results.dialog.no_output.title"), tr("results.dialog.no_output.body")
+            )
             return
         self._window.visual_secondary_path_edit.setText(selected)
 
@@ -96,17 +101,13 @@ class ResultsController(QObject):
         is_overlay = mode == "overlay"
         self._window.results_page.set_overlay_fields_visible(is_overlay)
         if mode == "slc":
-            self._window.visual_primary_path_edit.setPlaceholderText(
-                "Select .slc/.slc.vrt/.slc.full.vrt or a file with sibling .xml"
-            )
+            self._window.visual_primary_path_edit.setPlaceholderText(tr("results.placeholder.slc"))
         elif mode == "interferogram":
-            self._window.visual_primary_path_edit.setPlaceholderText(
-                "Select .int/.int.vrt/.int.full.vrt or a file with sibling .xml"
-            )
+            self._window.visual_primary_path_edit.setPlaceholderText(tr("results.placeholder.interferogram"))
         else:
-            self._window.visual_primary_path_edit.setPlaceholderText("Select SLC input (.slc/.vrt/.xml)")
+            self._window.visual_primary_path_edit.setPlaceholderText(tr("results.placeholder.overlay_primary"))
             self._window.visual_secondary_path_edit.setPlaceholderText(
-                "Select interferogram input (.int/.vrt/.xml)"
+                tr("results.placeholder.overlay_secondary")
             )
 
     def run_visualization_preview(self) -> None:
@@ -136,7 +137,7 @@ class ResultsController(QObject):
         try:
             work_dir = str(self._window.project.resolved_work_dir())
         except ValueError as exc:
-            self._window._show_error("Visualization setup failed", str(exc))
+            self._window._show_error(tr("results.dialog.visualization_setup_failed.title"), str(exc))
             return None
 
         return VisualizationRequest(
@@ -163,7 +164,7 @@ class ResultsController(QObject):
             if preview_path.resolve() != destination.resolve():
                 shutil.copy2(preview_path, destination)
         except OSError as exc:
-            self._window._show_error("Export failed", f"Failed to copy preview image:\n{exc}")
+            self._window._show_error(tr("dialog.export_failed.title"), f"Failed to copy preview image:\n{exc}")
             return False
 
         summary = self._window.project.visualization.last_render_summary.strip()
@@ -171,7 +172,7 @@ class ResultsController(QObject):
         self._window.visual_status_text.setPlainText(
             f"{details}\n\nStatus: export reused cached preview\nSource: {preview_path}\nOutput: {destination}"
         )
-        self._window.statusBar().showMessage(f"Export reused preview: {destination}", 5000)
+        self._window.statusBar().showMessage(tr("results.status.export_reused", path=destination), 5000)
         self._window.project.state.last_error = ""
         self._window.project_store.save(self._window.project)
         return True
@@ -181,7 +182,7 @@ class ResultsController(QObject):
         try:
             work_dir = self._window.project.resolved_work_dir()
         except ValueError as exc:
-            self._window._show_error("Cannot preview", str(exc))
+            self._window._show_error(tr("results.dialog.cannot_preview.title"), str(exc))
             return None
         mode = str(self._window.visual_mode_combo.currentData() or "slc")
         preview_dir = work_dir / APP_METADATA_DIR / "visualize" / "cache" / "latest"
@@ -197,8 +198,8 @@ class ResultsController(QObject):
             default_dir = self._preferred_visual_export_dir()
             if default_dir is None:
                 self._window._show_error(
-                    "Export setup failed",
-                    "Set data source/work directory first so export can default inside the project work folder.",
+                    tr("results.dialog.export_setup_failed.title"),
+                    tr("results.dialog.export_setup_failed.body"),
                 )
                 return None
 
@@ -206,9 +207,9 @@ class ResultsController(QObject):
         initial = str(default_dir / f"{mode}_quicklook.bmp")
         output_path, _ = QFileDialog.getSaveFileName(
             self._window,
-            "Export visualization BMP",
+            tr("results.dialog.export_bmp.caption"),
             initial,
-            "BMP files (*.bmp);;All files (*)",
+            tr("results.dialog.export_bmp.filter"),
         )
         if not output_path:
             return None
@@ -228,13 +229,13 @@ class ResultsController(QObject):
 
     def _run_visualization(self, request: VisualizationRequest, *, action: str, render_signature: str) -> None:
         if self._window.runner.is_running():
-            QMessageBox.warning(self._window, "Busy", "Another command is already running.")
+            QMessageBox.warning(self._window, tr("dialog.busy.title"), tr("dialog.busy.body"))
             return
 
         try:
             result = self.visualization_service.build(request, self._window.project.logs_dir())
         except Exception as exc:
-            self._window._show_error("Visualization setup failed", str(exc))
+            self._window._show_error(tr("results.dialog.visualization_setup_failed.title"), str(exc))
             return
 
         result.render_signature = render_signature
@@ -252,7 +253,7 @@ class ResultsController(QObject):
         self._window.preview_meta_text.setPlainText(
             f"{result.summary}\n\nOutput: {result.output_bmp_path}\nLog: {result.log_path}"
         )
-        self._window.preview_image_label.setText("Rendering preview ...")
+        self._window.preview_image_label.setText(tr("status.rendering_preview"))
         self._window.preview_image_label.setPixmap(QPixmap())
         self._window.runner.run_queue([result.plan])
         self._window._update_action_states()
@@ -267,13 +268,13 @@ class ResultsController(QObject):
             work_dir = self._window.project.resolved_work_dir()
         except ValueError:
             self._window.results_page.empty_outputs_label.setVisible(True)
-            self._window.summary_results_card.set_value("No outputs scanned")
-            self._window.summary_results_card.set_body("Resolve a work directory first.")
+            self._window.summary_results_card.set_value(tr("summary.results_card.value"))
+            self._window.summary_results_card.set_body(tr("results.card.resolve_work_dir"))
             return
         if not work_dir.exists():
             self._window.results_page.empty_outputs_label.setVisible(True)
-            self._window.summary_results_card.set_value("No outputs scanned")
-            self._window.summary_results_card.set_body("Work directory does not exist yet.")
+            self._window.summary_results_card.set_value(tr("summary.results_card.value"))
+            self._window.summary_results_card.set_body(tr("results.card.work_dir_missing"))
             return
 
         nodes = self.output_discovery_service.discover(work_dir)
@@ -283,9 +284,9 @@ class ResultsController(QObject):
         self._window.results_page.empty_outputs_label.setVisible(
             self._window.outputs_tree.topLevelItemCount() == 0
         )
-        self._window.summary_results_card.set_value(f"{len(nodes)} output roots")
-        self._window.summary_results_card.set_body("Results and visualization outputs discovered.")
-        self._window.results_page.output_card.set_value(f"{len(nodes)} output roots")
+        self._window.summary_results_card.set_value(tr("results.card.output_roots", count=len(nodes)))
+        self._window.summary_results_card.set_body(tr("results.card.outputs_discovered"))
+        self._window.results_page.output_card.set_value(tr("results.card.output_roots", count=len(nodes)))
         self._window.results_page.output_card.set_body(str(work_dir))
         self._window._refresh_navigation_status()
 
@@ -299,7 +300,7 @@ class ResultsController(QObject):
         path = Path(image_path).expanduser()
         if not path.exists():
             self._window.preview_image_label.setPixmap(QPixmap())
-            self._window.preview_image_label.setText(f"Preview image not found:\n{path}")
+            self._window.preview_image_label.setText(tr("results.preview.not_found", path=path))
             self._window.preview_image_label.resize(480, 320)
             self._window.preview_meta_text.setPlainText(summary)
             return
@@ -307,7 +308,7 @@ class ResultsController(QObject):
         pixmap = QPixmap(str(path))
         if pixmap.isNull():
             self._window.preview_image_label.setPixmap(QPixmap())
-            self._window.preview_image_label.setText(f"Failed to load preview image:\n{path}")
+            self._window.preview_image_label.setText(tr("results.preview.load_failed", path=path))
             self._window.preview_image_label.resize(480, 320)
         else:
             self._window.preview_image_label.setText("")
@@ -322,5 +323,5 @@ class ResultsController(QObject):
         else:
             details += f"Preview image: {path}"
         self._window.preview_meta_text.setPlainText(details)
-        self._window.results_page.preview_card.set_value("Ready")
+        self._window.results_page.preview_card.set_value(tr("card.value.ready"))
         self._window.results_page.preview_card.set_body(Path(image_path).name)

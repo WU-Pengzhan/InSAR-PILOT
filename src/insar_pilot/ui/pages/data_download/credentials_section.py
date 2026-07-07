@@ -11,6 +11,7 @@ from PySide6.QtWidgets import (
     QPushButton,
 )
 
+from insar_pilot.i18n import tr
 from insar_pilot.ui.icons import IconProvider
 from insar_pilot.ui.pages.data_download.base import DownloadSection
 
@@ -19,31 +20,29 @@ class CredentialsSection(DownloadSection):
     """ASF Earthdata account credentials and connection test."""
 
     def __init__(self, parent=None) -> None:
-        super().__init__("ASF Earthdata Account", parent, expanded=True)
+        super().__init__(tr("download.credentials.title"), parent, expanded=True)
         credentials_form = QFormLayout()
         credentials_form.setContentsMargins(0, 0, 0, 0)
         credentials_form.setSpacing(10)
         self.username_edit = QLineEdit()
-        self.username_edit.setPlaceholderText("Earthdata username")
+        self.username_edit.setPlaceholderText(tr("download.credentials.username_placeholder"))
         self.password_edit = QLineEdit()
         self.password_edit.setEchoMode(QLineEdit.EchoMode.Password)
-        self.password_edit.setPlaceholderText("Earthdata password")
-        self.credential_status_label = QLabel("Connection has not been tested.")
+        self.password_edit.setPlaceholderText(tr("download.credentials.password_placeholder"))
+        self.credential_status_label = QLabel(tr("download.credentials.not_tested"))
         self.credential_status_label.setWordWrap(True)
-        self.credential_hint_label = QLabel(
-            "Recommended first step: test ASF Earthdata credentials before searching or downloading."
-        )
+        self.credential_hint_label = QLabel(tr("download.credentials.hint"))
         self.credential_hint_label.setProperty("emptyState", True)
         self.credential_hint_label.setWordWrap(True)
-        self.save_netrc_checkbox = QCheckBox("Save credentials to ~/.netrc")
-        credentials_form.addRow(self._form_label("Username"), self.username_edit)
-        credentials_form.addRow(self._form_label("Password"), self.password_edit)
-        credentials_form.addRow(self._form_label("Status"), self.credential_status_label)
+        self.save_netrc_checkbox = QCheckBox(tr("download.credentials.save_netrc"))
+        credentials_form.addRow(self._form_label(tr("download.credentials.username")), self.username_edit)
+        credentials_form.addRow(self._form_label(tr("download.credentials.password")), self.password_edit)
+        credentials_form.addRow(self._form_label(tr("download.status_label")), self.credential_status_label)
         credentials_form.addRow("", self.save_netrc_checkbox)
         self.content_layout.addLayout(credentials_form)
         self.content_layout.addWidget(self.credential_hint_label)
         credentials_actions = QHBoxLayout()
-        self.test_credentials_button = QPushButton("Test ASF Connection")
+        self.test_credentials_button = QPushButton(tr("download.credentials.test_button"))
         self.test_credentials_button.setIcon(IconProvider.icon("account"))
         self.test_credentials_button.setProperty("role", "secondary")
         credentials_actions.addWidget(self.test_credentials_button, 1)
@@ -60,7 +59,7 @@ class CredentialsSection(DownloadSection):
         self.username_edit.setText(username)
         self.password_edit.setText(password)
         if source:
-            self.credential_status_label.setText(f"Loaded Earthdata credentials from {source}.")
+            self.credential_status_label.setText(tr("download.credentials.loaded", source=source))
 
     def should_save_netrc(self) -> bool:
         """Return whether credentials should be persisted to ~/.netrc."""
@@ -72,28 +71,23 @@ class BasemapSection(DownloadSection):
     """Optional Tianditu basemap API key controls."""
 
     def __init__(self, parent=None) -> None:
-        super().__init__("Basemap", parent, expanded=False)
+        super().__init__(tr("download.basemap.title"), parent, expanded=False)
         basemap_form = QFormLayout()
         basemap_form.setContentsMargins(0, 0, 0, 0)
         basemap_form.setSpacing(10)
         self.tianditu_key_edit = QLineEdit()
         self.tianditu_key_edit.setEchoMode(QLineEdit.EchoMode.Password)
-        self.tianditu_key_edit.setPlaceholderText("Tianditu API key")
-        self.tianditu_status_label = QLabel(
-            "Tianditu key is optional. External Imagery will be used automatically until Tianditu is available."
-        )
+        self.tianditu_key_edit.setPlaceholderText(tr("download.basemap.key_placeholder"))
+        self.tianditu_status_label = QLabel(tr("download.basemap.key_optional"))
         self.tianditu_status_label.setWordWrap(True)
-        basemap_form.addRow(self._form_label("Tianditu key"), self.tianditu_key_edit)
-        basemap_form.addRow(self._form_label("Status"), self.tianditu_status_label)
+        basemap_form.addRow(self._form_label(tr("download.basemap.key_label")), self.tianditu_key_edit)
+        basemap_form.addRow(self._form_label(tr("download.status_label")), self.tianditu_status_label)
         self.content_layout.addLayout(basemap_form)
-        self.test_tianditu_button = QPushButton("Test and Save Key")
+        self.test_tianditu_button = QPushButton(tr("download.key.test_save"))
         self.test_tianditu_button.setIcon(IconProvider.icon("check"))
         self.test_tianditu_button.setProperty("role", "secondary")
         self.content_layout.addWidget(self.test_tianditu_button)
-        basemap_hint = QLabel(
-            "Tianditu is used by default for mainland-friendly basemaps. External Esri "
-            "imagery and terrain layers are available only when selected on the map."
-        )
+        basemap_hint = QLabel(tr("download.basemap.hint"))
         basemap_hint.setProperty("emptyState", True)
         basemap_hint.setWordWrap(True)
         self.content_layout.addWidget(basemap_hint)
@@ -108,11 +102,9 @@ class BasemapSection(DownloadSection):
 
         self.tianditu_key_edit.setText(key)
         if source:
-            self.tianditu_status_label.setText(f"Loaded Tianditu key from {source}.")
+            self.tianditu_status_label.setText(tr("download.basemap.key_loaded", source=source))
         else:
-            self.tianditu_status_label.setText(
-                "Tianditu key is optional. External Imagery will be used automatically until Tianditu is available."
-            )
+            self.tianditu_status_label.setText(tr("download.basemap.key_optional"))
 
     def set_tianditu_status(self, message: str) -> None:
         """Update the Tianditu key status message."""
@@ -123,4 +115,4 @@ class BasemapSection(DownloadSection):
         """Toggle the Tianditu key check button while validation runs."""
 
         self.test_tianditu_button.setEnabled(not busy)
-        self.test_tianditu_button.setText("Testing Key..." if busy else "Test and Save Key")
+        self.test_tianditu_button.setText(tr("download.key.testing") if busy else tr("download.key.test_save"))

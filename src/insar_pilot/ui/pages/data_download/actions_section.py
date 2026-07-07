@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from PySide6.QtWidgets import QHBoxLayout, QLabel, QPushButton
 
+from insar_pilot.i18n import tr
 from insar_pilot.ui.icons import IconProvider
 from insar_pilot.ui.pages.data_download.base import DownloadSection
 from insar_pilot.ui.widgets.task_progress_panel import TaskProgressPanel
@@ -13,14 +14,14 @@ class ActionsSection(DownloadSection):
     """Scene selection, download, workspace, and task-progress controls."""
 
     def __init__(self, parent=None) -> None:
-        super().__init__("Selection and Download", parent, expanded=True)
-        self.select_all_button = QPushButton("Select All")
-        self.select_none_button = QPushButton("Select None")
-        self.save_selected_button = QPushButton("Save Selection")
-        self.download_selected_button = QPushButton("Download Selected")
-        self.cancel_download_button = QPushButton("Cancel Download")
-        self.use_as_sources_button = QPushButton("Use as Data Sources")
-        self.open_workspace_button = QPushButton("Open Workspace")
+        super().__init__(tr("download.actions.title"), parent, expanded=True)
+        self.select_all_button = QPushButton(tr("download.actions.select_all"))
+        self.select_none_button = QPushButton(tr("download.actions.select_none"))
+        self.save_selected_button = QPushButton(tr("download.actions.save_selection"))
+        self.download_selected_button = QPushButton(tr("action.download_selected"))
+        self.cancel_download_button = QPushButton(tr("download.actions.cancel_download"))
+        self.use_as_sources_button = QPushButton(tr("action.use_as_data_sources"))
+        self.open_workspace_button = QPushButton(tr("download.actions.open_workspace"))
         self.select_all_button.setIcon(IconProvider.icon("check"))
         self.select_none_button.setIcon(IconProvider.icon("cancel", "muted"))
         self.save_selected_button.setIcon(IconProvider.icon("save"))
@@ -36,7 +37,7 @@ class ActionsSection(DownloadSection):
         self.open_workspace_button.setProperty("role", "secondary")
         self.download_selected_button.setProperty("role", "primary")
         self.cancel_download_button.setEnabled(False)
-        self.selection_label = QLabel("0 selected")
+        self.selection_label = QLabel(tr("download.selection.initial"))
         self.selection_label.setObjectName("summaryCardTitle")
         self.content_layout.addWidget(self.selection_label)
         selection_row = QHBoxLayout()

@@ -7,6 +7,7 @@ from pathlib import Path
 from PySide6.QtWidgets import QFrame, QGridLayout, QLabel, QProgressBar, QVBoxLayout
 
 from insar_pilot.controllers.download_coordinator import DownloadRuntimeState
+from insar_pilot.i18n import tr
 
 
 class TaskProgressPanel(QFrame):
@@ -24,7 +25,7 @@ class TaskProgressPanel(QFrame):
         self.progress_bar.setValue(0)
         layout.addWidget(self.progress_bar)
 
-        self.status_label = QLabel("No active download.")
+        self.status_label = QLabel(tr("download.status.no_active"))
         self.status_label.setWordWrap(True)
         layout.addWidget(self.status_label)
 
@@ -33,17 +34,17 @@ class TaskProgressPanel(QFrame):
         grid.setHorizontalSpacing(10)
         grid.setVerticalSpacing(4)
         self.current_file_label = QLabel("-")
-        self.total_label = QLabel("0/0 tasks")
+        self.total_label = QLabel(tr("download.tasks.count", done=0, total=0))
         self.speed_label = QLabel("-")
         self.eta_label = QLabel("-")
         self.backend_label = QLabel("-")
         for row, (title, value) in enumerate(
             (
-                ("Current file", self.current_file_label),
-                ("Total", self.total_label),
-                ("Speed", self.speed_label),
-                ("ETA", self.eta_label),
-                ("Backend", self.backend_label),
+                (tr("widget.progress.current_file"), self.current_file_label),
+                (tr("download.total_label"), self.total_label),
+                (tr("widget.progress.speed"), self.speed_label),
+                (tr("widget.progress.eta"), self.eta_label),
+                (tr("widget.progress.backend"), self.backend_label),
             )
         ):
             title_label = QLabel(title)
@@ -55,9 +56,9 @@ class TaskProgressPanel(QFrame):
 
     def reset(self) -> None:
         self.progress_bar.setValue(0)
-        self.status_label.setText("No active download.")
+        self.status_label.setText(tr("download.status.no_active"))
         self.current_file_label.setText("-")
-        self.total_label.setText("0/0 tasks")
+        self.total_label.setText(tr("download.tasks.count", done=0, total=0))
         self.speed_label.setText("-")
         self.eta_label.setText("-")
         self.backend_label.setText("-")
@@ -73,12 +74,12 @@ class TaskProgressPanel(QFrame):
                 headline += f"\n{state.active_message}"
             self.status_label.setText(headline)
         else:
-            self.status_label.setText("No active download.")
+            self.status_label.setText(tr("download.status.no_active"))
         self.current_file_label.setText(self._short_path(state.active_file))
         self.total_label.setText(
-            f"{state.completed_tasks}/{state.total_tasks} tasks"
-            + (f", {state.failed_tasks} failed" if state.failed_tasks else "")
-            + (f", {state.cancelled_tasks} cancelled" if state.cancelled_tasks else "")
+            tr("download.tasks.count", done=state.completed_tasks, total=state.total_tasks)
+            + (tr("widget.progress.failed_suffix", count=state.failed_tasks) if state.failed_tasks else "")
+            + (tr("widget.progress.cancelled_suffix", count=state.cancelled_tasks) if state.cancelled_tasks else "")
         )
         self.speed_label.setText(f"{self._format_bytes(state.speed_bps)}/s" if state.speed_bps > 0 else "-")
         self.eta_label.setText(self._format_duration(state.eta_seconds) if state.eta_seconds is not None else "-")

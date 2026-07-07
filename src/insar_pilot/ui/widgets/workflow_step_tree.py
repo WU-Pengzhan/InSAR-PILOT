@@ -7,6 +7,8 @@ from dataclasses import dataclass
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QAbstractItemView, QTreeWidget, QTreeWidgetItem
 
+from insar_pilot.i18n import tr
+
 
 @dataclass(frozen=True)
 class WorkflowStep:
@@ -20,22 +22,22 @@ class WorkflowStep:
 class WorkflowStepTree(QTreeWidget):
     """SARscape-style step tree with status and short details."""
 
-    STATUS_LABELS = {
-        "done": "Done",
-        "success": "Done",
-        "ready": "Ready",
-        "running": "Running",
-        "warning": "Warning",
-        "failed": "Failed",
-        "error": "Failed",
-        "pending": "Pending",
-        "blocked": "Blocked",
+    STATUS_LABEL_KEYS = {
+        "done": "widget.step_state.done",
+        "success": "widget.step_state.done",
+        "ready": "widget.step_state.ready",
+        "running": "widget.step_state.running",
+        "warning": "widget.step_state.warning",
+        "failed": "widget.step_state.failed",
+        "error": "widget.step_state.failed",
+        "pending": "widget.step_state.pending",
+        "blocked": "widget.step_state.blocked",
     }
 
     def __init__(self, parent=None) -> None:
         super().__init__(parent)
         self.setObjectName("workflowStepTree")
-        self.setHeaderLabels(["Step", "State"])
+        self.setHeaderLabels([tr("widget.step_tree.step"), tr("widget.step_tree.state")])
         self.setRootIsDecorated(True)
         self.setAlternatingRowColors(True)
         self.setUniformRowHeights(True)
@@ -79,4 +81,5 @@ class WorkflowStepTree(QTreeWidget):
     @classmethod
     def _state_text(cls, status: str) -> str:
         key = status.strip().lower() or "pending"
-        return cls.STATUS_LABELS.get(key, key.title())
+        label_key = cls.STATUS_LABEL_KEYS.get(key)
+        return tr(label_key) if label_key else key.title()

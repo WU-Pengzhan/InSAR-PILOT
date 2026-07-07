@@ -12,6 +12,8 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
 )
 
+from insar_pilot.i18n import tr
+
 
 class RunStepMonitor(QFrame):
     """Execution dashboard for run_files and subcommands."""
@@ -26,7 +28,15 @@ class RunStepMonitor(QFrame):
         self.splitter = QSplitter(Qt.Orientation.Horizontal)
         self.steps_tree = QTreeWidget()
         self.steps_tree.setObjectName("runFilesTree")
-        self.steps_tree.setHeaderLabels(["Step", "Status", "Exit", "Log", "Message"])
+        self.steps_tree.setHeaderLabels(
+            [
+                tr("widget.runmonitor.col.step"),
+                tr("widget.runmonitor.col.status"),
+                tr("widget.runmonitor.col.exit"),
+                tr("widget.runmonitor.col.log"),
+                tr("widget.runmonitor.col.message"),
+            ]
+        )
         self.steps_tree.setSelectionMode(QAbstractItemView.SelectionMode.ExtendedSelection)
         self.steps_tree.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         self.steps_tree.setAlternatingRowColors(True)
@@ -40,10 +50,10 @@ class RunStepMonitor(QFrame):
         detail_layout.setSpacing(6)
         self.command_detail_text = QPlainTextEdit()
         self.command_detail_text.setReadOnly(True)
-        self.command_detail_text.setPlaceholderText("Selected step and subcommand details will appear here.")
+        self.command_detail_text.setPlaceholderText(tr("widget.runmonitor.detail_placeholder"))
         self.runfile_estimate_text = QPlainTextEdit()
         self.runfile_estimate_text.setReadOnly(True)
-        self.runfile_estimate_text.setPlaceholderText("Run-file command estimates appear here after generation.")
+        self.runfile_estimate_text.setPlaceholderText(tr("widget.runmonitor.estimate_placeholder"))
         detail_layout.addWidget(self.command_detail_text, 2)
         detail_layout.addWidget(self.runfile_estimate_text, 1)
         self.splitter.addWidget(detail)

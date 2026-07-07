@@ -13,6 +13,7 @@ from PySide6.QtWidgets import (
 )
 
 from insar_pilot.download.models import SearchCriteria
+from insar_pilot.i18n import tr
 from insar_pilot.ui.icons import IconProvider
 from insar_pilot.ui.pages.data_download.base import DownloadSection
 from insar_pilot.ui.widgets.path_picker_row import PathPickerRow
@@ -22,7 +23,7 @@ class SearchSection(DownloadSection):
     """AOI, date, orbit, and polarization query controls plus search actions."""
 
     def __init__(self, parent=None) -> None:
-        super().__init__("Search Definition", parent, expanded=True)
+        super().__init__(tr("download.search.title"), parent, expanded=True)
         self.setProperty("density", "compact")
         self.content_layout.setContentsMargins(10, 4, 10, 10)
         self.content_layout.setSpacing(6)
@@ -31,13 +32,13 @@ class SearchSection(DownloadSection):
         self.aoi_mode_combo = QComboBox()
         self.aoi_mode_combo.addItem("BBOX", "bbox")
         self.aoi_mode_combo.addItem("WKT", "wkt")
-        self.aoi_mode_combo.addItem("KML file", "kml")
+        self.aoi_mode_combo.addItem(tr("download.search.aoi_mode.kml"), "kml")
         self.bbox_edit = QLineEdit()
         self.bbox_edit.setPlaceholderText("minLon,minLat,maxLon,maxLat")
         self.wkt_edit = QLineEdit()
         self.wkt_edit.setPlaceholderText("POLYGON((lon lat, ...))")
         self.aoi_file_row = PathPickerRow()
-        self.aoi_file_row.line_edit.setPlaceholderText("Select AOI KML file")
+        self.aoi_file_row.line_edit.setPlaceholderText(tr("download.search.aoi_file_placeholder"))
         self.aoi_stack = QStackedWidget()
         self.aoi_stack.addWidget(self.bbox_edit)
         self.aoi_stack.addWidget(self.wkt_edit)
@@ -54,7 +55,7 @@ class SearchSection(DownloadSection):
         for value in ("ANY", "ASCENDING", "DESCENDING"):
             self.orbit_direction_combo.addItem(value, value)
         self.relative_orbit_edit = QLineEdit()
-        self.relative_orbit_edit.setPlaceholderText("optional")
+        self.relative_orbit_edit.setPlaceholderText(tr("download.search.optional"))
         self.polarization_combo = QComboBox()
         for value in ("ANY", "VV", "VH", "VV+VH"):
             self.polarization_combo.addItem(value, value)
@@ -65,23 +66,23 @@ class SearchSection(DownloadSection):
         quick_form.setVerticalSpacing(6)
         quick_form.setLabelAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
         self.search_definition_form = quick_form
-        quick_form.addRow(self._form_label("Dataset"), self.platform_combo)
-        quick_form.addRow(self._form_label("Start date"), self.start_date_edit)
-        quick_form.addRow(self._form_label("End date"), self.end_date_edit)
-        quick_form.addRow(self._form_label("AOI type"), self.aoi_mode_combo)
-        quick_form.addRow(self._form_label("AOI"), self.aoi_stack)
-        quick_form.addRow(self._form_label("Orbit direction"), self.orbit_direction_combo)
-        quick_form.addRow(self._form_label("Relative orbit"), self.relative_orbit_edit)
-        quick_form.addRow(self._form_label("Polarization"), self.polarization_combo)
+        quick_form.addRow(self._form_label(tr("download.search.dataset")), self.platform_combo)
+        quick_form.addRow(self._form_label(tr("download.search.start_date")), self.start_date_edit)
+        quick_form.addRow(self._form_label(tr("download.search.end_date")), self.end_date_edit)
+        quick_form.addRow(self._form_label(tr("download.search.aoi_type")), self.aoi_mode_combo)
+        quick_form.addRow(self._form_label(tr("download.search.aoi")), self.aoi_stack)
+        quick_form.addRow(self._form_label(tr("download.search.orbit_direction")), self.orbit_direction_combo)
+        quick_form.addRow(self._form_label(tr("download.search.relative_orbit")), self.relative_orbit_edit)
+        quick_form.addRow(self._form_label(tr("download.search.polarization")), self.polarization_combo)
         self.content_layout.addLayout(quick_form)
         self._apply_search_definition_compact_geometry()
 
         query_actions = QHBoxLayout()
         query_actions.setSpacing(8)
-        self.search_button = QPushButton("Search ASF")
+        self.search_button = QPushButton(tr("download.search.button"))
         self.search_button.setIcon(IconProvider.icon("search"))
         self.search_button.setProperty("role", "primary")
-        self.clear_button = QPushButton("Clear Results")
+        self.clear_button = QPushButton(tr("download.search.clear"))
         self.clear_button.setIcon(IconProvider.icon("refresh"))
         self.clear_button.setProperty("role", "secondary")
         self.search_button.setFixedHeight(38)

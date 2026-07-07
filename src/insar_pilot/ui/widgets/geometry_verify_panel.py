@@ -20,6 +20,8 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from insar_pilot.i18n import tr
+
 Coord = tuple[float, float]  # (lon, lat)
 
 
@@ -48,9 +50,9 @@ class GeometryVerifyPanel(QWidget):
         toolbar.setContentsMargins(0, 0, 0, 0)
         toolbar.setSpacing(6)
         self.status_label = QLabel("")
-        self.zoom_in_button = QPushButton("Zoom In")
-        self.zoom_out_button = QPushButton("Zoom Out")
-        self.fit_button = QPushButton("Fit")
+        self.zoom_in_button = QPushButton(tr("widget.geometry.zoom_in"))
+        self.zoom_out_button = QPushButton(tr("widget.geometry.zoom_out"))
+        self.fit_button = QPushButton(tr("widget.geometry.fit"))
         self.zoom_in_button.setProperty("role", "secondary")
         self.zoom_out_button.setProperty("role", "secondary")
         self.fit_button.setProperty("role", "secondary")

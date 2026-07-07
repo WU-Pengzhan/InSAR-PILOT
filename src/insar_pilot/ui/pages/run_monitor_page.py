@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from PySide6.QtWidgets import QGridLayout, QLabel, QPushButton, QVBoxLayout, QWidget
 
+from insar_pilot.i18n import tr
 from insar_pilot.ui.widgets.page_scaffold import StatusStrip
 from insar_pilot.ui.widgets.run_step_monitor import RunStepMonitor
 from insar_pilot.ui.widgets.summary_card import SummaryCard
@@ -20,27 +21,27 @@ class RunMonitorPage(QWidget):
         layout.setSpacing(10)
 
         self.status_strip = StatusStrip()
-        self.project_status_label = QLabel("Status: -")
-        self.current_step_label = QLabel("Step: -")
-        self.work_dir_label = QLabel("Work dir: -")
+        self.project_status_label = QLabel(f"{tr('monitor.status_label')}: -")
+        self.current_step_label = QLabel(f"{tr('monitor.step_label')}: -")
+        self.work_dir_label = QLabel(f"{tr('monitor.work_dir_label')}: -")
         for label in (self.project_status_label, self.current_step_label, self.work_dir_label):
             label.setObjectName("summaryCardTitle")
             self.status_strip.layout.addWidget(label)
         self.status_strip.layout.addStretch(1)
         layout.addWidget(self.status_strip)
 
-        self.status_card = SummaryCard("Project Status", "-", "Execution state across run_files.", self)
-        self.current_step_card = SummaryCard("Current Step", "-", "Currently active workflow step.", self)
-        self.work_dir_card = SummaryCard("Work Directory", "-", "Resolved project work directory.", self)
+        self.status_card = SummaryCard(tr("monitor.card.status.title"), "-", tr("monitor.card.status.body"), self)
+        self.current_step_card = SummaryCard(tr("monitor.card.step.title"), "-", tr("monitor.card.step.body"), self)
+        self.work_dir_card = SummaryCard(tr("monitor.card.work_dir.title"), "-", tr("monitor.card.work_dir.body"), self)
         for card in (self.status_card, self.current_step_card, self.work_dir_card):
             card.hide()
 
         button_grid = QGridLayout()
-        self.run_next_button = QPushButton("Run Next Step")
-        self.run_selected_button = QPushButton("Run Selected Step")
-        self.run_all_button = QPushButton("Run Remaining Steps")
-        self.stop_button = QPushButton("Stop")
-        self.refresh_outputs_button = QPushButton("Refresh Outputs")
+        self.run_next_button = QPushButton(tr("action.run_next_step"))
+        self.run_selected_button = QPushButton(tr("action.run_selected_step"))
+        self.run_all_button = QPushButton(tr("action.run_remaining_steps"))
+        self.stop_button = QPushButton(tr("action.stop"))
+        self.refresh_outputs_button = QPushButton(tr("action.refresh_outputs"))
         self.run_next_button.setProperty("role", "primary")
         self.run_selected_button.setProperty("role", "secondary")
         self.run_all_button.setProperty("role", "secondary")
@@ -53,9 +54,7 @@ class RunMonitorPage(QWidget):
         button_grid.addWidget(self.refresh_outputs_button, 2, 0, 1, 2)
         layout.addLayout(button_grid)
 
-        self.empty_state_label = QLabel(
-            "No run files yet. Generate workflow in Processing Setup to populate executable steps."
-        )
+        self.empty_state_label = QLabel(tr("monitor.empty_state"))
         self.empty_state_label.setProperty("emptyState", True)
         self.empty_state_label.setWordWrap(True)
         layout.addWidget(self.empty_state_label)
@@ -68,9 +67,9 @@ class RunMonitorPage(QWidget):
 
         self.run_wizard_bar = WizardActionBar()
         self.run_wizard_bar.back_button.setEnabled(False)
-        self.run_wizard_bar.next_button.setText("Selected >")
-        self.run_wizard_bar.run_button.setText("Run Next")
-        self.run_wizard_bar.cancel_button.setText("Stop")
+        self.run_wizard_bar.next_button.setText(tr("monitor.wizard.selected"))
+        self.run_wizard_bar.run_button.setText(tr("monitor.wizard.run_next"))
+        self.run_wizard_bar.cancel_button.setText(tr("action.stop"))
         self.run_wizard_bar.run_button.clicked.connect(self.run_next_button.click)
         self.run_wizard_bar.next_button.clicked.connect(self.run_selected_button.click)
         self.run_wizard_bar.cancel_button.clicked.connect(self.stop_button.click)

@@ -19,6 +19,7 @@ from PySide6.QtGui import QPixmap
 from PySide6.QtWidgets import QMenu, QMessageBox, QTreeWidgetItem
 
 from insar_pilot.domain.project import ProjectStatus, RunStep, RunSubcommand, StepStatus
+from insar_pilot.i18n import tr
 from insar_pilot.services.command_plan import CommandPlan
 from insar_pilot.services.runfile_plan import (
     build_parallel_batch_command,
@@ -53,7 +54,7 @@ class RunController(QObject):
         step = self.workflow_service.next_runnable_step(self._window.project)
         if step is None:
             QMessageBox.information(
-                self._window, "No runnable steps", "There are no remaining run files to execute."
+                self._window, tr("run.dialog.no_runnable.title"), tr("run.dialog.no_runnable.body")
             )
             return
         self._run_steps([step])
@@ -64,28 +65,31 @@ class RunController(QObject):
         if not steps:
             QMessageBox.information(
                 self._window,
-                "No step selected",
-                "Select one or more run steps in Run Monitor, then click 'Run Selected Step'.",
+                tr("run.dialog.no_selection.title"),
+                tr("run.dialog.no_selection.body"),
             )
             return
         for step in steps:
             if not step.path:
-                self._window._show_error("Invalid step", f"{step.name} does not have a valid run file path.")
+                self._window._show_error(
+                    tr("run.dialog.invalid_step.title"), tr("run.dialog.invalid_step.body", name=step.name)
+                )
                 return
             if not Path(step.path).expanduser().exists():
                 self._window._show_error(
-                    "Run file missing", f"Run file was not found for {step.name}:\n{step.path}"
+                    tr("run.dialog.runfile_missing.title"),
+                    tr("run.dialog.runfile_missing.body", name=step.name, path=step.path),
                 )
                 return
 
         if len(steps) == 1:
             self._window.statusBar().showMessage(
-                "Running selected step only. Downstream step statuses are left unchanged.",
+                tr("run.status.selected_only"),
                 7000,
             )
         else:
             self._window.statusBar().showMessage(
-                f"Running {len(steps)} selected steps in run-file order. Downstream statuses are left unchanged.",
+                tr("run.status.selected_multi", count=len(steps)),
                 7000,
             )
         self._run_steps(steps)
@@ -95,7 +99,7 @@ class RunController(QObject):
         steps = self.workflow_service.remaining_steps(self._window.project)
         if not steps:
             QMessageBox.information(
-                self._window, "No runnable steps", "There are no remaining run files to execute."
+                self._window, tr("run.dialog.no_runnable.title"), tr("run.dialog.no_runnable.body")
             )
             return
         self._run_steps(steps)
@@ -106,7 +110,7 @@ class RunController(QObject):
 
     def _run_steps(self, steps: list[RunStep]) -> None:
         if self._window.runner.is_running():
-            QMessageBox.warning(self._window, "Busy", "Another command is already running.")
+            QMessageBox.warning(self._window, tr("dialog.busy.title"), tr("dialog.busy.body"))
             return
 
         self._window._stop_requested = False
@@ -117,11 +121,14 @@ class RunController(QObject):
             try:
                 parsed_batches = parse_run_file(run_file)
             except Exception as exc:
-                self._window._show_error("Run file parsing failed", f"{step.name}: {exc}")
+                self._window._show_error(tr("run.dialog.parse_failed.title"), f"{step.name}: {exc}")
                 return
 
             if not parsed_batches:
-                self._window._show_error("Run file parsing failed", f"{step.name}: no executable commands found.")
+                self._window._show_error(
+                    tr("run.dialog.parse_failed.title"),
+                    tr("run.dialog.parse_failed.no_commands", name=step.name),
+                )
                 return
 
             batches = split_batches_for_parallelism(parsed_batches, runfile_parallel)
@@ -196,7 +203,7 @@ class RunController(QObject):
                         subcommand.exit_code = None
         elif plan.kind == "visualization":
             self._window.preview_image_label.setPixmap(QPixmap())
-            self._window.preview_image_label.setText("Rendering preview ...")
+            self._window.preview_image_label.setText(tr("status.rendering_preview"))
             self._window.preview_image_label.resize(480, 320)
         self.refresh_steps_view()
         self._window.refresh_status_labels()
@@ -291,7 +298,7 @@ class RunController(QObject):
                     f"{pending.summary if pending else ''}\n\nStatus: failed (exit={exit_code})"
                 )
                 self._window.preview_image_label.setPixmap(QPixmap())
-                self._window.preview_image_label.setText("Visualization failed. Check the log for details.")
+                self._window.preview_image_label.setText(tr("run.preview.render_failed"))
                 self._window.preview_image_label.resize(480, 320)
             else:
                 if pending is not None:
@@ -338,9 +345,11 @@ class RunController(QObject):
                 pass
             if success:
                 self._window.project.state.last_error = ""
-                self._window.statusBar().showMessage(f"Visualization completed: {pending.output_bmp_path}", 5000)
+                self._window.statusBar().showMessage(
+                    tr("run.status.visualization_done", path=pending.output_bmp_path), 5000
+                )
             else:
-                self._window.statusBar().showMessage("Visualization failed. Check logs.", 5000)
+                self._window.statusBar().showMessage(tr("run.status.visualization_failed"), 5000)
             self._window.project_store.save(self._window.project)
             self._window.refresh_status_labels()
             self._window._update_action_states()
@@ -356,7 +365,7 @@ class RunController(QObject):
                     str(pending["dem_path"]),
                     str(pending["signature"]),
                 )
-                message = "Data validation and preparation finished."
+                message = tr("setup.status.prepared")
             else:
                 self._window.project.state.status = ProjectStatus.FAILED
                 self._window.project.state.last_error = (
@@ -479,7 +488,7 @@ class RunController(QObject):
                 self._window.steps_tree.setCurrentItem(matching[0])
 
         menu = QMenu(self._window)
-        run_action = menu.addAction("Run Selected Step")
+        run_action = menu.addAction(tr("action.run_selected_step"))
         run_action.setEnabled((not self._window.runner.is_running()) and bool(self._selected_steps()))
         chosen = menu.exec(self._window.steps_tree.viewport().mapToGlobal(pos))
         if chosen == run_action:

@@ -1773,7 +1773,9 @@ def test_download_page_uses_explicit_transparent_form_labels():
     theme = (REPO_ROOT / "src/insar_pilot/ui/styles/components.py").read_text(encoding="utf-8")
 
     assert 'label.setProperty("formLabel", True)' in base
-    assert 'quick_form.addRow(self._form_label("Dataset"), self.platform_combo)' in search
+    # The Dataset row still uses a transparent form label; the visible text is now
+    # routed through the translator (default "en" resolves to the original "Dataset").
+    assert 'quick_form.addRow(self._form_label(tr("download.search.dataset")), self.platform_combo)' in search
     assert 'QLabel[formLabel="true"]' in theme
 
 

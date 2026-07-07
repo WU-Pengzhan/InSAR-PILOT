@@ -30,6 +30,7 @@ from insar_pilot.download.credentials import load_earthdata_credentials
 from insar_pilot.download.map_credentials import load_tianditu_key
 from insar_pilot.download.opentopography_credentials import load_opentopography_key
 from insar_pilot.download.tile_proxy import TiandituTileProxy
+from insar_pilot.i18n import tr
 from insar_pilot.services.preflight import PreflightService
 from insar_pilot.ui.download_worker import (
     CredentialWorker,
@@ -124,15 +125,15 @@ class DownloadController(QObject):
     # ------------------------------------------------------------------
     def _browse_download_output_dir(self) -> None:
         self._window._browse_dir_into(
-            self.data_download_page.output_dir_row.line_edit, "Select Sentinel-1 download workspace"
+            self.data_download_page.output_dir_row.line_edit, tr("download.dialog.select_workspace")
         )
 
     def _browse_download_aoi_file(self) -> None:
         path, _ = QFileDialog.getOpenFileName(
             self._window,
-            "Select AOI KML file",
+            tr("download.dialog.select_aoi_kml"),
             self.data_download_page.aoi_file_row.line_edit.text() or str(Path.home()),
-            "KML files (*.kml);;All files (*)",
+            tr("download.dialog.kml_filter"),
         )
         if path:
             self.data_download_page.aoi_file_row.line_edit.setText(path)
@@ -165,14 +166,14 @@ class DownloadController(QObject):
             self.tianditu_tile_proxy.update_key(key.key)
             self.data_download_page.set_tianditu_key(key.key, source=key.source)
             self.data_download_page.set_tianditu_status(
-                f"Loaded Tianditu key from {key.source}. Checking availability in the background."
+                tr("download.tianditu.loaded_checking", source=key.source)
             )
             self._start_tianditu_key_check(key.key, origin="startup", save_on_success=False)
         else:
             self.tianditu_tile_proxy.update_key("")
             self.data_download_page.set_tianditu_key("")
             self.data_download_page.set_tianditu_status(
-                "Tianditu key is optional. External Imagery is active until Tianditu is configured."
+                tr("download.tianditu.optional")
             )
 
     def _populate_opentopography_key(self) -> None:
@@ -181,13 +182,13 @@ class DownloadController(QObject):
         if key is not None:
             self.data_download_page.set_opentopography_key(key.key, source=key.source)
             self.data_download_page.set_opentopography_status(
-                f"Loaded OpenTopography key from {key.source}. Checking availability in the background."
+                tr("download.opentopo.loaded_checking", source=key.source)
             )
             self._start_opentopography_key_check(key.key, origin="startup", save_on_success=False)
         else:
             self.data_download_page.set_opentopography_key("")
             self.data_download_page.set_opentopography_status(
-                "OpenTopography key is required for DEM download. Validate your key to enable DEM controls."
+                tr("download.dem.key_required")
             )
 
     def _start_tianditu_key_check(self, key: str, *, origin: str, save_on_success: bool) -> None:
@@ -197,7 +198,7 @@ class DownloadController(QObject):
         network = self.data_download_page.network_config()
         if origin == "manual":
             self.data_download_page.set_tianditu_busy(True)
-            self.data_download_page.set_tianditu_status("Testing Tianditu basemap key...")
+            self.data_download_page.set_tianditu_status(tr("download.tianditu.testing"))
             self.data_download_page.append_log("Testing Tianditu basemap key in the background...")
         self._tianditu_thread = QThread(self)
         self._tianditu_worker = TiandituKeyWorker(key, network=network, save_on_success=save_on_success)
@@ -217,7 +218,7 @@ class DownloadController(QObject):
         network = self.data_download_page.network_config()
         if origin == "manual":
             self.data_download_page.set_opentopography_busy(True)
-            self.data_download_page.set_opentopography_status("Testing OpenTopography API key...")
+            self.data_download_page.set_opentopography_status(tr("download.opentopo.testing"))
             self.data_download_page.append_log("Testing OpenTopography DEM key in the background...")
         self._opentopography_thread = QThread(self)
         self._opentopography_worker = OpenTopographyKeyWorker(key, network=network, save_on_success=save_on_success)
@@ -235,13 +236,15 @@ class DownloadController(QObject):
     # ------------------------------------------------------------------
     def search_sentinel_download_scenes(self) -> None:
         if self._download_search_thread is not None:
-            self._window._show_error("Search already running", "Wait for the current ASF search to finish first.")
+            self._window._show_error(
+                tr("download.dialog.search_running.title"), tr("download.dialog.search_running.body")
+            )
             return
         try:
             criteria = self.data_download_page.criteria()
             self._validate_download_search_criteria(criteria)
         except Exception as exc:
-            self._window._show_error("Search setup failed", str(exc))
+            self._window._show_error(tr("download.dialog.search_setup_failed.title"), str(exc))
             self.data_download_page.append_log(f"Search setup failed: {exc}")
             return
 
@@ -364,13 +367,13 @@ class DownloadController(QObject):
     def test_asf_download_credentials(self) -> None:
         if self._credential_thread is not None:
             self._window._show_error(
-                "Connection test already running",
-                "Wait for the current ASF connection test to finish first.",
+                tr("download.dialog.conn_test_running.title"),
+                tr("download.dialog.conn_test_running.body"),
             )
             return
         username, password = self.data_download_page.credential_inputs()
         network = self.data_download_page.network_config()
-        self.data_download_page.set_credential_status("Testing ASF Earthdata connection...")
+        self.data_download_page.set_credential_status(tr("download.credentials.testing"))
         self._download_credentials_ok = False
         self.data_download_page.test_credentials_button.setEnabled(False)
         self.data_download_page.append_log("Testing ASF Earthdata connection in the background...")
@@ -415,8 +418,8 @@ class DownloadController(QObject):
     def test_tianditu_basemap_key(self) -> None:
         if self._tianditu_thread is not None:
             self._window._show_error(
-                "Tianditu key test already running",
-                "Wait for the current basemap key test to finish first.",
+                tr("download.dialog.tianditu_test_running.title"),
+                tr("download.dialog.tianditu_test_running.body"),
             )
             return
         key = self.data_download_page.tianditu_key()
@@ -425,8 +428,8 @@ class DownloadController(QObject):
     def test_opentopography_key(self) -> None:
         if self._opentopography_thread is not None:
             self._window._show_error(
-                "OpenTopography key test already running",
-                "Wait for the current DEM key test to finish first.",
+                tr("download.dialog.opentopo_test_running.title"),
+                tr("download.dialog.opentopo_test_running.body"),
             )
             return
         key = self.data_download_page.opentopography_key()
@@ -452,7 +455,7 @@ class DownloadController(QObject):
             )
             if origin == "startup":
                 self.data_download_page.set_tianditu_status(
-                    "Saved Tianditu key could not be validated. External Imagery is active."
+                    tr("download.tianditu.saved_unvalidated")
                 )
             else:
                 self.data_download_page.set_tianditu_status(result.message)
@@ -504,12 +507,14 @@ class DownloadController(QObject):
         try:
             storage = self._download_storage()
         except Exception as exc:
-            self._window._show_error("Save selected scenes failed", str(exc))
+            self._window._show_error(tr("download.dialog.save_selected_failed.title"), str(exc))
             return
 
         selected = self.data_download_page.selected_scenes()
         if not selected:
-            self._window._show_error("No scenes selected", "Select at least one scene in the search results table.")
+            self._window._show_error(
+                tr("download.dialog.no_scenes.title"), tr("download.dialog.no_scenes_save.body")
+            )
             return
 
         path = storage.save_selected_scenes(selected)
@@ -521,40 +526,43 @@ class DownloadController(QObject):
     def download_selected_sentinel_scenes(self) -> None:
         if self._download_thread is not None:
             self._window._show_error(
-                "Download already running", "Wait for the current download to finish or cancel it first."
+                tr("download.dialog.download_running.title"), tr("download.dialog.download_running.body")
             )
             return
         capability = self.preflight_service.check_aria2_capability()
         self.data_download_page.set_aria2_capability(capability.aria2c_available, capability.aria2c_path)
         if not capability.aria2c_available:
             self._window._show_error(
-                "aria2c missing",
-                "SLC downloads require aria2c for multipart resumable transfers. "
-                "Activate the insar conda environment or install aria2c, then try again.",
+                tr("download.dialog.aria2_missing.title"),
+                tr("download.dialog.aria2_missing.body"),
             )
             return
         if not self._download_credentials_ok:
             self._window._show_error(
-                "ASF credentials not verified",
-                "Test ASF Earthdata credentials successfully before starting downloads.",
+                tr("download.dialog.creds_not_verified.title"),
+                tr("download.dialog.creds_not_verified.body"),
             )
             return
         try:
             storage = self._download_storage()
         except Exception as exc:
-            self._window._show_error("Download setup failed", str(exc))
+            self._window._show_error(tr("download.dialog.download_setup_failed.title"), str(exc))
             return
 
         selected = self.data_download_page.selected_scenes()
         if not selected:
-            self._window._show_error("No scenes selected", "Select at least one scene before downloading.")
+            self._window._show_error(
+                tr("download.dialog.no_scenes.title"), tr("download.dialog.no_scenes_download.body")
+            )
             return
         criteria = self.data_download_page.criteria()
         include_dem = self.data_download_page.should_download_dem()
         dem_source = self.data_download_page.dem_source()
         dem_api_key = self.data_download_page.opentopography_key()
         if include_dem and not dem_api_key.strip():
-            self._window._show_error("DEM key missing", "Validate an OpenTopography key before enabling DEM download.")
+            self._window._show_error(
+                tr("download.dialog.dem_key_missing.title"), tr("download.dialog.dem_key_missing.body")
+            )
             return
 
         storage.save_selected_scenes(selected)
@@ -666,13 +674,15 @@ class DownloadController(QObject):
         try:
             storage = self._download_storage()
         except Exception as exc:
-            self._window._show_error("Download workspace missing", str(exc))
+            self._window._show_error(tr("download.dialog.workspace_missing.title"), str(exc))
             return
         slc_dir = storage.output_dir / "SLC"
         orbit_dir = storage.output_dir / "Orbit"
         dem_plan = storage.load_dem_plan()
         if not slc_dir.is_dir():
-            self._window._show_error("SLC folder missing", f"No SLC folder exists yet: {slc_dir}")
+            self._window._show_error(
+                tr("download.dialog.slc_missing.title"), tr("download.dialog.slc_missing.body", path=slc_dir)
+            )
             return
         self._window.input_path_edit.setText(str(slc_dir))
         if orbit_dir.is_dir():
@@ -700,7 +710,7 @@ class DownloadController(QObject):
         try:
             storage = self._download_storage()
         except Exception as exc:
-            self._window._show_error("Download workspace missing", str(exc))
+            self._window._show_error(tr("download.dialog.workspace_missing.title"), str(exc))
             return
         storage.output_dir.mkdir(parents=True, exist_ok=True)
         QDesktopServices.openUrl(QUrl.fromLocalFile(str(storage.output_dir)))

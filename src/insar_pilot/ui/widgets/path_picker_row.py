@@ -4,19 +4,23 @@ from __future__ import annotations
 
 from PySide6.QtWidgets import QHBoxLayout, QLineEdit, QPushButton, QWidget
 
+from insar_pilot.i18n import tr
+
 
 class PathPickerRow(QWidget):
     """Inline picker row used across data and visualization pages."""
 
     def __init__(
         self,
-        browse_label: str = "Browse",
+        browse_label: str | None = None,
         secondary_label: str | None = None,
         *,
         compact: bool = False,
         parent=None,
     ) -> None:
         super().__init__(parent)
+        if browse_label is None:
+            browse_label = tr("widget.browse")
         control_height = 34 if compact else 40
         row_height = 36 if compact else 42
         layout = QHBoxLayout(self)
