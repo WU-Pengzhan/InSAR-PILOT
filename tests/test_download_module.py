@@ -1200,7 +1200,9 @@ def test_gui_download_worker_imports():
 
 
 def test_download_page_source_no_longer_exposes_advanced_network_ui():
-    source = (REPO_ROOT / "src/insar_pilot/ui/pages/data_download_page.py").read_text(encoding="utf-8")
+    package_dir = REPO_ROOT / "src/insar_pilot/ui/pages/data_download"
+    source = "\n".join(path.read_text(encoding="utf-8") for path in sorted(package_dir.glob("*.py")))
+    source += (REPO_ROOT / "src/insar_pilot/ui/pages/data_download_page.py").read_text(encoding="utf-8")
 
     assert "Advanced Network" not in source
     assert "network_mode_combo" not in source
@@ -1766,11 +1768,12 @@ def test_opentopography_dem_service_downloads_geotiff_and_updates_result(tmp_pat
 
 
 def test_download_page_uses_explicit_transparent_form_labels():
-    source = (REPO_ROOT / "src/insar_pilot/ui/pages/data_download_page.py").read_text(encoding="utf-8")
+    base = (REPO_ROOT / "src/insar_pilot/ui/pages/data_download/base.py").read_text(encoding="utf-8")
+    search = (REPO_ROOT / "src/insar_pilot/ui/pages/data_download/search_section.py").read_text(encoding="utf-8")
     theme = (REPO_ROOT / "src/insar_pilot/ui/styles/components.py").read_text(encoding="utf-8")
 
-    assert 'label.setProperty("formLabel", True)' in source
-    assert 'quick_form.addRow(self._form_label("Dataset"), self.platform_combo)' in source
+    assert 'label.setProperty("formLabel", True)' in base
+    assert 'quick_form.addRow(self._form_label("Dataset"), self.platform_combo)' in search
     assert 'QLabel[formLabel="true"]' in theme
 
 

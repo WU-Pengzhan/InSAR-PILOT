@@ -1,25 +1,35 @@
-"""Real download services for GUI-native Sentinel-1 data preparation."""
+"""SLC download orchestration for GUI-native Sentinel-1 data preparation.
+
+``DownloadService`` owns the sequential download loop (retry/skip/cancel policy)
+and the aria2c subprocess handling. Cohesive sub-concerns live in sibling modules:
+``task_state`` (pure result/telemetry helpers), ``session_auth`` (ASF/Earthdata
+session + cookie flow) and ``orbit_service`` (EOF orbit downloads).
+
+The aria2c invocation deliberately stays here: the test suite monkeypatches
+``insar_pilot.download.download_service.shutil.which`` and
+``insar_pilot.download.download_service.subprocess.Popen``, so ``shutil`` and
+``subprocess`` must remain module-level imports resolved through this module, and
+``_safe_subprocess_excerpt`` is exercised as ``DownloadService._safe_subprocess_excerpt``.
+"""
 
 from __future__ import annotations
 
-import base64
 import contextlib
 import shutil
 import subprocess
 import tempfile
 import time
 from collections.abc import Callable
-from datetime import datetime
 from http.cookiejar import MozillaCookieJar
 from pathlib import Path
-from typing import Any
-from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
 
 import asf_search as asf
 import requests
 
+from insar_pilot.download import session_auth, task_state
 from insar_pilot.download.models import DownloadResult, DownloadTask, SceneRecord
 from insar_pilot.download.network import NetworkConfig
+from insar_pilot.download.orbit_service import OrbitDownloadService
 
 ProgressCallback = Callable[[DownloadTask], None]
 CancelCheck = Callable[[], bool]
@@ -44,7 +54,7 @@ class DownloadService:
         target = Path(output_dir).expanduser()
         tasks: list[DownloadTask] = []
         for index, scene in enumerate(scenes):
-            slc_path = self._slc_path(target, scene)
+            slc_path = task_state.slc_path(target, scene)
             tasks.append(
                 DownloadTask(
                     task_id=f"slc-{index + 1:03d}",
@@ -103,7 +113,7 @@ class DownloadService:
                 result = self._download_slc(task, session, network, progress_callback, cancel_check)
                 slc_status_by_scene[task.scene.scene_id] = result.status
                 result_by_task_id[task.task_id] = result
-                if self._is_retryable_slc_failure(result):
+                if task_state.is_retryable_slc_failure(result):
                     retry_tasks.append(task)
             elif product_type == "ORBIT":
                 slc_status = slc_status_by_scene.get(task.scene.scene_id)
@@ -154,7 +164,7 @@ class DownloadService:
                     result = self._download_slc(task, session, network, progress_callback, cancel_check)
                     result_by_task_id[task.task_id] = result
                     slc_status_by_scene[task.scene.scene_id] = result.status
-                    if self._is_retryable_slc_failure(result):
+                    if task_state.is_retryable_slc_failure(result):
                         next_retry_tasks.append(task)
                 retry_tasks = next_retry_tasks
 
@@ -189,13 +199,6 @@ class DownloadService:
             if task.product_type.upper() != "DEM" and task.task_id in result_by_task_id
         ]
 
-    @classmethod
-    def _slc_path(cls, output_dir: Path, scene: SceneRecord) -> Path:
-        file_name = scene.file_name or f"{scene.scene_id}.zip"
-        if not file_name.lower().endswith(".zip"):
-            file_name = f"{file_name}.zip"
-        return output_dir / "SLC" / file_name
-
     @staticmethod
     def _session(username: str = "", password: str = "", network: NetworkConfig | None = None) -> requests.Session:
         """Create the authenticated SLC download session.
@@ -203,69 +206,13 @@ class DownloadService:
         Kept as a narrow hook for tests and ASF/Earthdata cookie preparation.
         """
 
-        return DownloadService._bulk_session(username, password, network)
+        return session_auth.bulk_session(username, password, network)
 
     def _create_session(self, username: str, password: str, network: NetworkConfig) -> requests.Session:
         try:
             return self._session(username, password, network)
         except TypeError:
             return self._session(username, password)
-
-    @staticmethod
-    def _bulk_session(username: str = "", password: str = "", network: NetworkConfig | None = None) -> requests.Session:
-        """Create a bulk-download style session with reusable ASF cookies."""
-
-        network = network or NetworkConfig()
-        if username.strip() and password:
-            session = asf.ASFSession()
-            mode = network.normalized_mode()
-            if mode == "direct":
-                session.trust_env = False
-            elif mode == "environment":
-                session.trust_env = True
-            else:
-                session.trust_env = False
-                session.proxies.update(network.proxy_dict())
-            session._earthdata_username = username.strip()  # type: ignore[attr-defined]
-            session._earthdata_password = password  # type: ignore[attr-defined]
-            session._asf_cookie_jar = session.cookies  # type: ignore[attr-defined]
-            session.auth_with_creds(username.strip(), password)
-            return session
-
-        session = network.session()
-        cookie_path = Path.home() / ".bulk_download_cookiejar.txt"
-        cookie_jar = MozillaCookieJar(str(cookie_path))
-        if cookie_path.exists():
-            try:
-                cookie_jar.load(ignore_discard=True, ignore_expires=True)
-            except Exception:
-                cookie_jar = MozillaCookieJar(str(cookie_path))
-        session.cookies = cookie_jar
-        session._earthdata_username = username.strip()  # type: ignore[attr-defined]
-        session._earthdata_password = password  # type: ignore[attr-defined]
-        session._asf_cookie_jar = cookie_jar  # type: ignore[attr-defined]
-        if DownloadService._has_asf_cookie(cookie_jar) and DownloadService._cookie_is_valid(session, network):
-            return session
-        if username.strip() and password:
-            DownloadService._obtain_asf_cookie(session, cookie_jar, username.strip(), password, network)
-            return session
-        return session
-
-    @staticmethod
-    def _has_asf_cookie(cookie_jar: MozillaCookieJar) -> bool:
-        return any(cookie.name in {"asf-urs", "urs_user_already_logged", "urs-access-token"} for cookie in cookie_jar)
-
-    @staticmethod
-    def _cookie_is_valid(session: requests.Session, network: NetworkConfig) -> bool:
-        try:
-            response = session.head(
-                "https://urs.earthdata.nasa.gov/profile",
-                timeout=network.timeout_seconds,
-                allow_redirects=True,
-            )
-        except Exception:
-            return False
-        return response.status_code in {200, 307}
 
     @staticmethod
     def _obtain_asf_cookie(
@@ -278,32 +225,7 @@ class DownloadService:
     ) -> None:
         """Authenticate like ASF bulk-download scripts and persist cookies."""
 
-        if not auth_url:
-            auth_url = (
-                "https://urs.earthdata.nasa.gov/oauth/authorize"
-                "?client_id=BO_n7nTIlMljdvU6kRRB3g"
-                "&redirect_uri=https://auth.asf.alaska.edu/login"
-                "&response_type=code&state="
-            )
-        auth_url = DownloadService._auth_url_with_app_type(auth_url)
-        token = base64.b64encode(f"{username}:{password}".encode()).decode("ascii")
-        response = session.get(
-            auth_url,
-            headers={"Authorization": f"Basic {token}"},
-            timeout=network.timeout_seconds,
-            allow_redirects=True,
-        )
-        response.raise_for_status()
-        if not DownloadService._has_asf_cookie(cookie_jar):
-            raise RuntimeError("Earthdata login succeeded but no ASF download cookie was returned.")
-        cookie_jar.save(ignore_discard=True, ignore_expires=True)
-
-    @staticmethod
-    def _auth_url_with_app_type(auth_url: str) -> str:
-        split = urlsplit(auth_url)
-        query = dict(parse_qsl(split.query, keep_blank_values=True))
-        query.setdefault("app_type", "401")
-        return urlunsplit((split.scheme, split.netloc, split.path, urlencode(query), split.fragment))
+        session_auth.obtain_asf_cookie(session, cookie_jar, username, password, network, auth_url=auth_url)
 
     def _download_slc(
         self,
@@ -469,7 +391,7 @@ class DownloadService:
                         local_path=str(part_path),
                         bytes_total=total,
                         bytes_done=done,
-                        speed_bps=self._speed_bps(done, started),
+                        speed_bps=task_state.speed_bps(done, started),
                         eta_seconds=None,
                         backend="aria2",
                         message=f"Download cancelled; partial file kept at {part_path}.",
@@ -480,7 +402,7 @@ class DownloadService:
                 now = time.monotonic()
                 if progress_callback and now - last_emit >= 0.5:
                     done = part_path.stat().st_size if part_path.exists() else 0
-                    speed = self._speed_bps(done, started)
+                    speed = task_state.speed_bps(done, started)
                     progress_callback(
                         task.with_updates(
                             status="running",
@@ -489,7 +411,7 @@ class DownloadService:
                             bytes_total=total,
                             bytes_done=done,
                             speed_bps=speed,
-                            eta_seconds=self._eta_seconds(done, total, speed),
+                            eta_seconds=task_state.eta_seconds(done, total, speed),
                             backend="aria2",
                             message="Downloading SLC with aria2c...",
                         )
@@ -569,24 +491,6 @@ class DownloadService:
                 cleaned = cleaned[:index] + f"{marker} [redacted]"
         return cleaned[:240]
 
-    @staticmethod
-    def _is_retryable_slc_failure(result: DownloadResult) -> bool:
-        if result.product_type.upper() != "SLC" or result.status != "failed":
-            return False
-        message = result.message.lower()
-        return "aria2c is required" not in message and "no asf download url" not in message
-
-    @staticmethod
-    def _speed_bps(bytes_done: int, started: float) -> float:
-        elapsed = max(time.monotonic() - started, 0.001)
-        return float(bytes_done) / elapsed
-
-    @staticmethod
-    def _eta_seconds(bytes_done: int, bytes_total: int, speed_bps: float) -> float | None:
-        if bytes_total <= 0 or speed_bps <= 0 or bytes_done >= bytes_total:
-            return 0.0 if bytes_total > 0 and bytes_done >= bytes_total else None
-        return max((bytes_total - bytes_done) / speed_bps, 0.0)
-
     def _open_slc_response(
         self,
         session: requests.Session,
@@ -652,172 +556,4 @@ class DownloadService:
 
     @staticmethod
     def _result_from_task(task: DownloadTask, *, scene: SceneRecord | None = None) -> DownloadResult:
-        return DownloadResult(
-            task_id=task.task_id,
-            scene=scene or task.scene,
-            product_type=task.product_type,
-            status=task.status,
-            local_path=task.local_path,
-            message=task.message,
-            bytes_total=task.bytes_total,
-            bytes_done=task.bytes_done,
-            speed_bps=task.speed_bps,
-            eta_seconds=task.eta_seconds,
-            backend=task.backend,
-        )
-
-
-class OrbitDownloadService:
-    """Download Sentinel-1 EOF orbit files using sentineleof."""
-
-    def download(
-        self,
-        task: DownloadTask,
-        *,
-        progress_callback: ProgressCallback | None = None,
-        cancel_check: CancelCheck | None = None,
-    ) -> DownloadResult:
-        orbit_dir = Path(task.output_dir).expanduser() / "Orbit"
-        orbit_dir.mkdir(parents=True, exist_ok=True)
-        existing = self._existing_orbit_file(orbit_dir, task.scene)
-        if existing is not None:
-            skipped = task.with_updates(
-                status="skipped",
-                local_path=str(existing),
-                message="Orbit file already exists; skipped.",
-            )
-            if progress_callback:
-                progress_callback(skipped)
-            return DownloadService._result_from_task(skipped)
-
-        if cancel_check and cancel_check():
-            cancelled = task.with_updates(status="cancelled", message="Download cancelled.")
-            if progress_callback:
-                progress_callback(cancelled)
-            return DownloadService._result_from_task(cancelled)
-
-        running = task.with_updates(status="running", local_path=str(orbit_dir), message="Downloading orbit file...")
-        if progress_callback:
-            progress_callback(running)
-
-        before = set(orbit_dir.glob("*.EOF"))
-        try:
-            download_eofs = self._download_eofs_function()
-            sentinel_file = self._sentinel_file_for_task(task)
-            if sentinel_file and Path(sentinel_file).exists():
-                download_eofs(
-                    sentinel_file=sentinel_file,
-                    save_dir=str(orbit_dir),
-                    orbit_type="precise",
-                    force_asf=True,
-                )
-            else:
-                download_eofs(
-                    [self._scene_datetime(task.scene)],
-                    [self._mission(task.scene)],
-                    save_dir=str(orbit_dir),
-                    orbit_type="precise",
-                    force_asf=True,
-                )
-        except Exception as exc:
-            failed = task.with_updates(
-                status="failed", local_path=str(orbit_dir), message=f"Orbit download failed: {exc}"
-            )
-            if progress_callback:
-                progress_callback(failed)
-            return DownloadService._result_from_task(failed)
-
-        orbit_path = self._new_or_existing_orbit(orbit_dir, task.scene, before)
-        if orbit_path is None:
-            failed = task.with_updates(
-                status="failed", local_path=str(orbit_dir), message="Orbit downloader returned no EOF file."
-            )
-            if progress_callback:
-                progress_callback(failed)
-            return DownloadService._result_from_task(failed)
-
-        completed = task.with_updates(
-            status="completed",
-            local_path=str(orbit_path),
-            bytes_total=orbit_path.stat().st_size,
-            bytes_done=orbit_path.stat().st_size,
-            message="Orbit download completed.",
-        )
-        if progress_callback:
-            progress_callback(completed)
-        return DownloadService._result_from_task(completed)
-
-    @staticmethod
-    def _download_eofs_function() -> Callable[..., Any]:
-        try:
-            from eof.download import download_eofs
-        except Exception as exc:
-            raise RuntimeError("sentineleof is required for orbit downloads. Install sentineleof>=0.11.1.") from exc
-        return download_eofs
-
-    @staticmethod
-    def _mission(scene: SceneRecord) -> str:
-        scene_text = (scene.scene_id or scene.file_name or scene.platform).upper()
-        if "S1C" in scene_text or "SENTINEL-1C" in scene.platform.upper():
-            return "S1C"
-        if "S1B" in scene_text or "SENTINEL-1B" in scene.platform.upper():
-            return "S1B"
-        return "S1A"
-
-    @staticmethod
-    def _scene_datetime(scene: SceneRecord) -> datetime:
-        text = scene.acquisition_time.strip().replace("Z", "+00:00")
-        try:
-            return datetime.fromisoformat(text)
-        except ValueError:
-            for token in (scene.scene_id or scene.file_name).split("_"):
-                if len(token) == 15 and token[8] == "T":
-                    return datetime.strptime(token, "%Y%m%dT%H%M%S")
-        raise ValueError(f"Could not determine acquisition time for {scene.scene_id}")
-
-    @staticmethod
-    def _sentinel_file_for_task(task: DownloadTask) -> str:
-        slc_name = task.scene.file_name or f"{task.scene.scene_id}.zip"
-        if not slc_name.lower().endswith(".zip"):
-            slc_name = f"{slc_name}.zip"
-        slc_path = Path(task.output_dir).expanduser() / "SLC" / slc_name
-        return str(slc_path)
-
-    @classmethod
-    def _existing_orbit_file(cls, orbit_dir: Path, scene: SceneRecord) -> Path | None:
-        mission = cls._mission(scene)
-        try:
-            acquisition = cls._scene_datetime(scene)
-        except ValueError:
-            acquisition = None
-        for path in sorted(orbit_dir.glob(f"{mission}_OPER_AUX_*ORB_*.EOF")):
-            if acquisition is None or cls._orbit_name_matches(path.name, acquisition):
-                return path
-        return None
-
-    @classmethod
-    def _new_or_existing_orbit(cls, orbit_dir: Path, scene: SceneRecord, before: set[Path]) -> Path | None:
-        created = sorted(set(orbit_dir.glob("*.EOF")) - before)
-        if created:
-            return created[-1]
-        return cls._existing_orbit_file(orbit_dir, scene)
-
-    @staticmethod
-    def _orbit_name_matches(name: str, acquisition: datetime) -> bool:
-        parts = name.split("_")
-        start_text = ""
-        stop_text = ""
-        for index, part in enumerate(parts):
-            if part.startswith("V") and len(part) >= 16 and index + 1 < len(parts):
-                start_text = part[1:16]
-                stop_text = parts[index + 1][:15]
-                break
-        if not start_text or not stop_text:
-            return False
-        try:
-            start = datetime.strptime(start_text, "%Y%m%dT%H%M%S")
-            stop = datetime.strptime(stop_text, "%Y%m%dT%H%M%S")
-        except ValueError:
-            return False
-        naive_acquisition = acquisition.replace(tzinfo=None)
-        return start <= naive_acquisition <= stop
+        return task_state.result_from_task(task, scene=scene)
