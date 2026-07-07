@@ -2,14 +2,15 @@ import json
 import os
 from pathlib import Path
 
+from insar_pilot.bootstrap import create_default_project
 from insar_pilot.domain.project import (
     APP_METADATA_DIR,
-    DataDownloadConfig,
     LEGACY_APP_METADATA_DIR,
     LEGACY_APP_METADATA_DIRS,
     LEGACY_PROJECT_ROOT_FILE_NAMES,
     PROJECT_FILE_NAME,
     PROJECT_ROOT_FILE_NAME,
+    DataDownloadConfig,
     ProjectDocument,
     ProjectState,
     ProjectStatus,
@@ -20,7 +21,6 @@ from insar_pilot.domain.project import (
     WorkflowConfig,
 )
 from insar_pilot.services.project_store import ProjectLoadError, ProjectStore
-from insar_pilot.bootstrap import create_default_project
 
 
 def test_default_project_uses_current_conda_environment():

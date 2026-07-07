@@ -6,7 +6,6 @@ from dataclasses import dataclass
 
 from insar_pilot.download.models import DownloadResult, DownloadTask
 
-
 TERMINAL_DOWNLOAD_STATUSES = {"completed", "skipped", "failed", "cancelled"}
 
 

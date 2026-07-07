@@ -2,17 +2,16 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
 import json
-from pathlib import Path
 import shutil
 import subprocess
 import tempfile
-from typing import Callable
 import xml.etree.ElementTree as ET
+from collections.abc import Callable
+from dataclasses import dataclass, field
+from pathlib import Path
 
 import shapefile
-
 
 Coord = tuple[float, float]  # (lon, lat)
 

@@ -8,7 +8,6 @@ import subprocess
 import sys
 from pathlib import Path
 
-
 APP_NAME = "InSAR-PILOT"
 
 

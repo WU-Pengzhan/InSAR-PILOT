@@ -61,3 +61,27 @@ where = ["src"]
 "insar_pilot.ui.assets" = ["*.png"]
 "insar_pilot.ui.widgets.assets" = ["*.css", "*.js"]
 "insar_pilot.i18n.locales" = ["*.json"]
+
+[tool.ruff]
+target-version = "py310"
+line-length = 120
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "B", "SIM"]
+
+[tool.ruff.lint.per-file-ignores]
+# footprint_map.py embeds a Leaflet HTML/JS template as a string literal: its body
+# is tab-indented (E101 mixed spaces/tabs) and has long JS lines (E501). Both flag
+# the embedded template, not Python, and cannot be wrapped without changing output.
+"src/insar_pilot/ui/widgets/footprint_map.py" = ["E101", "E501"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+
+[tool.coverage.run]
+source = ["insar_pilot.services", "insar_pilot.domain", "insar_pilot.download"]
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = true

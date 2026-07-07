@@ -3,8 +3,7 @@
 from __future__ import annotations
 
 from PySide6.QtCore import QEvent, QObject, Qt
-from PySide6.QtWidgets import QApplication, QAbstractButton, QAbstractScrollArea, QAbstractSpinBox, QComboBox, QWidget
-
+from PySide6.QtWidgets import QAbstractButton, QAbstractScrollArea, QAbstractSpinBox, QApplication, QComboBox, QWidget
 
 WHEEL_GUARD_PROPERTY = "comboWheelGuardInstalled"
 WHEEL_PASSTHROUGH_PROPERTY = "wheelPassthroughInstalled"
@@ -33,7 +32,7 @@ def install_no_wheel_on_combos(root: QWidget) -> ComboWheelGuard:
     guard = getattr(root, "_combo_wheel_guard", None)
     if not isinstance(guard, ComboWheelGuard):
         guard = ComboWheelGuard(root)
-        setattr(root, "_combo_wheel_guard", guard)
+        root._combo_wheel_guard = guard
 
     for combo in root.findChildren(QComboBox):
         if combo.property(WHEEL_GUARD_PROPERTY):

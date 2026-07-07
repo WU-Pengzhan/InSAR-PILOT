@@ -65,7 +65,10 @@ class TaskProgressPanel(QFrame):
     def apply_state(self, state: DownloadRuntimeState) -> None:
         self.progress_bar.setValue(state.percent)
         if state.active_task_id:
-            headline = f"{state.active_product_type}: {state.active_status} ({state.completed_tasks}/{state.total_tasks})"
+            headline = (
+                f"{state.active_product_type}: {state.active_status} "
+                f"({state.completed_tasks}/{state.total_tasks})"
+            )
             if state.active_message:
                 headline += f"\n{state.active_message}"
             self.status_label.setText(headline)

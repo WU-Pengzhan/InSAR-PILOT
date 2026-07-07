@@ -12,7 +12,6 @@ import requests
 
 from insar_pilot.download.network import NetworkConfig
 
-
 TIANDITU_ENV_VAR = "INSAR_PILOT_TIANDITU_KEY"
 TIANDITU_CONFIG_PATH = Path.home() / ".config" / "insar_pilot" / "tianditu.json"
 

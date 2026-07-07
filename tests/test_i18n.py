@@ -1,5 +1,5 @@
-from insar_pilot.i18n import Translator
 from insar_pilot.app.settings import AppSettings
+from insar_pilot.i18n import Translator
 
 
 def test_app_settings_default_language_is_english(tmp_path):

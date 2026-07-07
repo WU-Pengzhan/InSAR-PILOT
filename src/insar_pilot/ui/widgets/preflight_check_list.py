@@ -26,7 +26,9 @@ class PreflightCheckList(QFrame):
         self._report = report
         self._clear_rows()
         if report.blockers:
-            self.summary_label.setText(f"Preflight found {len(report.blockers)} blocker(s). Resolve them before generation.")
+            self.summary_label.setText(
+                f"Preflight found {len(report.blockers)} blocker(s). Resolve them before generation."
+            )
         elif report.warnings:
             self.summary_label.setText(f"Preflight completed with {len(report.warnings)} warning(s).")
         else:

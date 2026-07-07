@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-from dataclasses import replace
 import time
+from dataclasses import replace
 
 from PySide6.QtCore import QObject, Signal, Slot
 
@@ -242,7 +242,9 @@ class DownloadWorker(QObject):
         if dem_task is None:
             return None
         if self.criteria is None:
-            failed = dem_task.with_updates(status="failed", message="DEM planning is missing the current search criteria.")
+            failed = dem_task.with_updates(
+                status="failed", message="DEM planning is missing the current search criteria."
+            )
             self._handle_task_update(failed)
             return self.dem_service._result_from_task(failed)
         if self._cancel_requested:
@@ -252,7 +254,9 @@ class DownloadWorker(QObject):
 
         local_scenes = self._local_slc_scenes_from_results(results)
         if not local_scenes:
-            failed = dem_task.with_updates(status="failed", message="DEM download requires at least one downloaded SLC.")
+            failed = dem_task.with_updates(
+                status="failed", message="DEM download requires at least one downloaded SLC."
+            )
             self._handle_task_update(failed)
             return self.dem_service._result_from_task(failed)
 

@@ -30,7 +30,7 @@ class NetworkConfig:
         return asdict(self)
 
     @classmethod
-    def from_dict(cls, payload: dict[str, Any]) -> "NetworkConfig":
+    def from_dict(cls, payload: dict[str, Any]) -> NetworkConfig:
         """Build network config from persisted JSON data."""
 
         data = dict(payload)

@@ -3,9 +3,9 @@
 from __future__ import annotations
 
 import json
-from json import JSONDecodeError
 from dataclasses import fields, is_dataclass
 from enum import Enum
+from json import JSONDecodeError
 from pathlib import Path
 from typing import Any
 
@@ -17,8 +17,8 @@ from insar_pilot.domain.project import (
     PROJECT_FILE_NAME,
     PROJECT_ROOT_FILE_NAME,
     DataDownloadConfig,
-    ProjectWorkspace,
     ProjectDocument,
+    ProjectWorkspace,
     WorkflowConfig,
 )
 

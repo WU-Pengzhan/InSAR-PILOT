@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from PySide6.QtWidgets import QPlainTextEdit, QVBoxLayout
+from PySide6.QtWidgets import QPlainTextEdit
 
 from insar_pilot.ui.widgets.collapsible_section import CollapsibleSection
 

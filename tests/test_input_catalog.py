@@ -3,7 +3,6 @@ from zipfile import ZipFile
 
 from insar_pilot.services.input_catalog import InputCatalogService
 
-
 MANIFEST_TEMPLATE = """<?xml version="1.0" encoding="UTF-8"?>
 <xfdu:XFDU xmlns:xfdu="urn:ccsds:schema:xfdu:1" xmlns:safe="http://www.esa.int/safe/sentinel-1.0">
   <metadataSection>

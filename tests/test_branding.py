@@ -8,7 +8,6 @@ from insar_pilot.app.settings import AppSettings
 from insar_pilot.domain.project import APP_METADATA_DIR, PROJECT_ROOT_FILE_NAME
 from insar_pilot.i18n import Translator
 
-
 REPO_ROOT = Path(__file__).resolve().parents[1]
 
 

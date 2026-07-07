@@ -2,11 +2,11 @@
 
 from __future__ import annotations
 
+import json
+import shlex
 from dataclasses import dataclass
 from datetime import datetime
-import json
 from pathlib import Path
-import shlex
 
 from insar_pilot.domain.project import APP_METADATA_DIR
 from insar_pilot.services.command_plan import CommandPlan

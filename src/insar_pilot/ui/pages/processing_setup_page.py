@@ -6,14 +6,13 @@ from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
     QCheckBox,
     QComboBox,
-    QGridLayout,
     QHBoxLayout,
     QLabel,
     QLineEdit,
     QPlainTextEdit,
     QPushButton,
-    QSplitter,
     QSpinBox,
+    QSplitter,
     QVBoxLayout,
     QWidget,
 )
@@ -92,7 +91,11 @@ class ProcessingSetupPage(PageScaffold):
         self.source_card = SummaryCard("AOI Source", "Manual", "AOI can auto-fill the processing bbox.")
         self.bbox_card = SummaryCard("Processing BBox (SNWE)", "Not set", "Final geographic processing boundary.")
         self.iw_card = SummaryCard("IW Swaths", "IW1 IW2 IW3", "At least one IW must be selected.")
-        self.plan_card = SummaryCard("Processing Plan", "Not generated", "Review workflow, coreg, looks, and parallel settings before generation.")
+        self.plan_card = SummaryCard(
+            "Processing Plan",
+            "Not generated",
+            "Review workflow, coreg, looks, and parallel settings before generation.",
+        )
         self.parallel_card = SummaryCard("Parallelism", "num_proc = 1", "Used by generation and run_file batching.")
         self.summary_cards = [
             self.dataset_card,
@@ -171,7 +174,10 @@ class ProcessingSetupPage(PageScaffold):
         self._add_workbench_widget(section)
 
     def _build_geometry_section(self) -> None:
-        section = SectionPanel("AOI / BBox / IW", "Confirm the final SNWE bbox and Sentinel-1 IW swaths passed to the processing runtime.")
+        section = SectionPanel(
+            "AOI / BBox / IW",
+            "Confirm the final SNWE bbox and Sentinel-1 IW swaths passed to the processing runtime.",
+        )
         form = PropertyForm("Geometry Parameters")
         self.aoi_file_row = PathPickerRow(secondary_label="Import AOI")
         self.use_common_overlap_check = QCheckBox("Use common overlap (allow empty bbox)")
@@ -231,7 +237,9 @@ class ProcessingSetupPage(PageScaffold):
         section.content_layout.addWidget(self.verify_alert_label)
         self.verify_notes = QPlainTextEdit()
         self.verify_notes.setReadOnly(True)
-        self.verify_notes.setPlaceholderText("AOI import, IW recommendation, and geometry verification notes will appear here.")
+        self.verify_notes.setPlaceholderText(
+            "AOI import, IW recommendation, and geometry verification notes will appear here."
+        )
         section.content_layout.addWidget(self.verify_notes)
         self._add_workbench_widget(section)
 
@@ -267,7 +275,8 @@ class ProcessingSetupPage(PageScaffold):
         self.reference_hint_label = QLabel("Leave empty to let the workflow choose the reference date.")
         self.reference_hint_label.setWordWrap(True)
         self.num_proc_hint = QLabel(
-            "The GUI uses num_proc as the run_file subcommand concurrency cap. Each step may still contain fewer commands."
+            "The GUI uses num_proc as the run_file subcommand concurrency cap. "
+            "Each step may still contain fewer commands."
         )
         self.num_proc_hint.setWordWrap(True)
         section.content_layout.addWidget(self.reference_hint_label)
@@ -275,7 +284,11 @@ class ProcessingSetupPage(PageScaffold):
         self._add_workbench_widget(section)
 
     def _build_preflight_section(self) -> None:
-        section = SectionPanel("Preflight", "Check paths, permissions, prepared inputs, run_files/configs conflicts, and runtime capability before generation.")
+        section = SectionPanel(
+            "Preflight",
+            "Check paths, permissions, prepared inputs, run_files/configs conflicts, "
+            "and runtime capability before generation.",
+        )
         self.preflight_alert = InlineAlert("Preflight refreshes before command preview or workflow generation.", "info")
         self.preflight_check_list = PreflightCheckList()
         self.preflight_text = self.preflight_check_list
@@ -312,7 +325,9 @@ class ProcessingSetupPage(PageScaffold):
 
         self.runfile_estimate_text = QPlainTextEdit()
         self.runfile_estimate_text.setReadOnly(True)
-        self.runfile_estimate_text.setPlaceholderText("Run-file command counts and parallelism estimates appear after generation.")
+        self.runfile_estimate_text.setPlaceholderText(
+            "Run-file command counts and parallelism estimates appear after generation."
+        )
         self.technical_details_panel.content_layout.addWidget(self.runfile_estimate_text)
         section.content_layout.addWidget(self.technical_details_panel)
         self._add_workbench_widget(section)

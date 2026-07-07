@@ -2,15 +2,15 @@
 
 from __future__ import annotations
 
-from PySide6.QtCore import QEvent, QObject, QTimer, Qt
+from PySide6.QtCore import QEvent, QObject, Qt, QTimer
 from PySide6.QtWidgets import (
     QAbstractItemView,
     QCheckBox,
     QComboBox,
     QFormLayout,
     QFrame,
-    QHeaderView,
     QHBoxLayout,
+    QHeaderView,
     QLabel,
     QLineEdit,
     QPlainTextEdit,
@@ -135,8 +135,12 @@ class DataDownloadPage(QWidget):
         control_layout.addWidget(self.download_step_tree)
 
         self.status_card = SummaryCard("Data Acquisition", "Ready", "Account, search, download, and setup handoff.")
-        self.result_card = SummaryCard("Scene Selection", "0 scenes", "ASF search results and selected scenes appear here.")
-        self.task_card = SummaryCard("Download Tasks", "0 tasks", "Download SLC ZIPs, EOF orbit files, and optional DEM.")
+        self.result_card = SummaryCard(
+            "Scene Selection", "0 scenes", "ASF search results and selected scenes appear here."
+        )
+        self.task_card = SummaryCard(
+            "Download Tasks", "0 tasks", "Download SLC ZIPs, EOF orbit files, and optional DEM."
+        )
         for card in (self.status_card, self.result_card, self.task_card):
             card.setProperty("flatSummary", True)
         self.status_card.hide()
@@ -228,7 +232,8 @@ class DataDownloadPage(QWidget):
         self.test_tianditu_button.setProperty("role", "secondary")
         basemap_section.content_layout.addWidget(self.test_tianditu_button)
         basemap_hint = QLabel(
-            "Tianditu is used by default for mainland-friendly basemaps. External Esri imagery and terrain layers are available only when selected on the map."
+            "Tianditu is used by default for mainland-friendly basemaps. External Esri "
+            "imagery and terrain layers are available only when selected on the map."
         )
         basemap_hint.setProperty("emptyState", True)
         basemap_hint.setWordWrap(True)
@@ -315,7 +320,8 @@ class DataDownloadPage(QWidget):
         self.test_opentopography_button.setProperty("role", "secondary")
         dem_section.content_layout.addWidget(self.test_opentopography_button)
         dem_hint = QLabel(
-            "DEM coverage is planned after SLC download using local burst footprints. COP30 uses EGM2008 heights; AW3D30_E is already ellipsoidal."
+            "DEM coverage is planned after SLC download using local burst footprints. "
+            "COP30 uses EGM2008 heights; AW3D30_E is already ellipsoidal."
         )
         dem_hint.setProperty("emptyState", True)
         dem_hint.setWordWrap(True)
@@ -380,7 +386,9 @@ class DataDownloadPage(QWidget):
         self.scene_detail_text = QPlainTextEdit()
         self.scene_detail_text.setReadOnly(True)
         self.scene_detail_text.setFocusPolicy(Qt.FocusPolicy.WheelFocus)
-        self.scene_detail_text.setPlaceholderText("Select a scene to inspect orbit, polarization, size, status, and local path.")
+        self.scene_detail_text.setPlaceholderText(
+            "Select a scene to inspect orbit, polarization, size, status, and local path."
+        )
         self.scene_detail_text.setMinimumHeight(120)
         self.scene_detail_text.setMaximumHeight(150)
         control_layout.addWidget(self.scene_detail_text)
@@ -559,7 +567,10 @@ class DataDownloadPage(QWidget):
         for widget in widgets:
             layout.removeWidget(widget)
         for widget in widgets:
-            layout.addWidget(widget, 1 if isinstance(widget, QPlainTextEdit) and widget.placeholderText().startswith("ASF search") else 0)
+            layout.addWidget(
+                widget,
+                1 if isinstance(widget, QPlainTextEdit) and widget.placeholderText().startswith("ASF search") else 0,
+            )
 
     def criteria(self) -> SearchCriteria:
         """Return validated search criteria from page controls."""

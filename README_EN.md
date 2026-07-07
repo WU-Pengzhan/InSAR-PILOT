@@ -10,7 +10,7 @@
 
 [中文](README.md) | [Full User Guide](docs/USER_GUIDE_EN.md) | [Troubleshooting](docs/TROUBLESHOOTING.md)
 
-[![ISCE2](https://img.shields.io/badge/Powered%20by-ISCE2-2f6db3)](https://github.com/isce-framework/isce2)
+[![CI](https://github.com/WU-Pengzhan/InSAR-PILOT/actions/workflows/ci.yml/badge.svg)](https://github.com/WU-Pengzhan/InSAR-PILOT/actions/workflows/ci.yml) [![CodeQL](https://github.com/WU-Pengzhan/InSAR-PILOT/actions/workflows/codeql.yml/badge.svg)](https://github.com/WU-Pengzhan/InSAR-PILOT/actions/workflows/codeql.yml) [![License](https://img.shields.io/badge/License-Apache%202.0-blue)](LICENSE) [![Python](https://img.shields.io/badge/Python-3.10%2B-blue)](https://www.python.org) [![ISCE2](https://img.shields.io/badge/Powered%20by-ISCE2-2f6db3)](https://github.com/isce-framework/isce2)
 
 InSAR-PILOT is an open-source desktop workbench for SAR/InSAR processing. It organizes data acquisition, orbit/DEM preparation, parameter setup, workflow execution, and quicklook visualization around a project folder.
 

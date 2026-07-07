@@ -31,7 +31,7 @@ class SearchCriteria:
         return asdict(self)
 
     @classmethod
-    def from_dict(cls, payload: dict[str, Any]) -> "SearchCriteria":
+    def from_dict(cls, payload: dict[str, Any]) -> SearchCriteria:
         """Build criteria from persisted JSON data."""
 
         data = dict(payload)
@@ -70,7 +70,7 @@ class SceneRecord:
         return asdict(self)
 
     @classmethod
-    def from_dict(cls, payload: dict[str, Any]) -> "SceneRecord":
+    def from_dict(cls, payload: dict[str, Any]) -> SceneRecord:
         """Build a scene record from persisted JSON data."""
 
         data = dict(payload)
@@ -83,7 +83,7 @@ class SceneRecord:
         data["footprint_geojson"] = footprint if isinstance(footprint, dict) else {}
         return cls(**data)
 
-    def with_status(self, status: str, local_path: str | Path | None = None) -> "SceneRecord":
+    def with_status(self, status: str, local_path: str | Path | None = None) -> SceneRecord:
         """Return a copy with updated download status and optional local path."""
 
         data = self.to_dict()
@@ -119,7 +119,7 @@ class DownloadTask:
         return data
 
     @classmethod
-    def from_dict(cls, payload: dict[str, Any]) -> "DownloadTask":
+    def from_dict(cls, payload: dict[str, Any]) -> DownloadTask:
         """Build a task from persisted JSON data."""
 
         data = dict(payload)
@@ -133,7 +133,7 @@ class DownloadTask:
         data.setdefault("backend", "python")
         return cls(**data)
 
-    def with_updates(self, **updates: Any) -> "DownloadTask":
+    def with_updates(self, **updates: Any) -> DownloadTask:
         """Return a copy of the task with selected fields changed."""
 
         data = self.to_dict()
@@ -165,7 +165,7 @@ class DownloadResult:
         return data
 
     @classmethod
-    def from_dict(cls, payload: dict[str, Any]) -> "DownloadResult":
+    def from_dict(cls, payload: dict[str, Any]) -> DownloadResult:
         """Build a result from persisted JSON data."""
 
         data = dict(payload)
@@ -198,7 +198,7 @@ class DemCoveragePlan:
         return asdict(self)
 
     @classmethod
-    def from_dict(cls, payload: dict[str, Any]) -> "DemCoveragePlan":
+    def from_dict(cls, payload: dict[str, Any]) -> DemCoveragePlan:
         """Build a plan from persisted JSON data."""
 
         data = dict(payload)

@@ -12,7 +12,6 @@ import requests
 
 from insar_pilot.download.network import NetworkConfig
 
-
 OPENTOPOGRAPHY_ENV_VAR = "INSAR_PILOT_OPENTOPOGRAPHY_KEY"
 OPENTOPOGRAPHY_CONFIG_PATH = Path.home() / ".config" / "insar_pilot" / "opentopography.json"
 OPENTOPOGRAPHY_TEST_URL = "https://portal.opentopography.org/API/globaldem"

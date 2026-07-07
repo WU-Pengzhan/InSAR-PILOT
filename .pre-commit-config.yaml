@@ -1,0 +1,22 @@
+# See https://pre-commit.com for usage. Run `pre-commit install` once to enable.
+# ruff format is intentionally omitted: the existing code differs widely from
+# ruff's formatter defaults, so enforcing it now would mean a large reformat.
+
+# Vendored third-party Leaflet bundle: not ours to reformat.
+exclude: '^src/insar_pilot/ui/widgets/assets/leaflet\.(js|css)$'
+
+repos:
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.15.20
+    hooks:
+      - id: ruff-check
+        args: [--fix]
+
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: trailing-whitespace
+        args: [--markdown-linebreak-ext=md]
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-added-large-files

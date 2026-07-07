@@ -1,18 +1,34 @@
 import os
 import sys
 
-from PySide6.QtGui import QWheelEvent
-from PySide6.QtWidgets import QAbstractButton, QApplication, QCheckBox, QComboBox, QLabel, QLineEdit, QPushButton, QScrollArea, QSpinBox, QVBoxLayout, QWidget
 from PySide6.QtCore import QPoint, QPointF, Qt
+from PySide6.QtGui import QWheelEvent
+from PySide6.QtWidgets import (
+    QAbstractButton,
+    QApplication,
+    QCheckBox,
+    QComboBox,
+    QLabel,
+    QLineEdit,
+    QPushButton,
+    QScrollArea,
+    QSpinBox,
+    QVBoxLayout,
+    QWidget,
+)
 
 from insar_pilot.bootstrap import create_default_project
 from insar_pilot.services.preflight import PreflightCheck, PreflightReport
 from insar_pilot.ui.icons import BrandAssets, IconProvider
-from insar_pilot.ui.pages.project_start_page import ProjectStartPage
 from insar_pilot.ui.pages.processing_setup_page import ProcessingSetupPage
+from insar_pilot.ui.pages.project_start_page import ProjectStartPage
 from insar_pilot.ui.theme import build_light_stylesheet
+from insar_pilot.ui.widgets.combo_wheel_guard import (
+    WHEEL_GUARD_PROPERTY,
+    WHEEL_PASSTHROUGH_PROPERTY,
+    install_no_wheel_on_combos,
+)
 from insar_pilot.ui.widgets.command_preview import CommandPreview
-from insar_pilot.ui.widgets.combo_wheel_guard import WHEEL_GUARD_PROPERTY, WHEEL_PASSTHROUGH_PROPERTY, install_no_wheel_on_combos
 from insar_pilot.ui.widgets.footprint_map import FootprintMapWidget
 from insar_pilot.ui.widgets.parameter_grid import ParameterGrid
 from insar_pilot.ui.widgets.preflight_check_list import PreflightCheckList
@@ -276,7 +292,11 @@ def test_main_window_uses_four_industrial_workflow_pages(monkeypatch):
         assert not hasattr(window, "new_button")
         assert not hasattr(window, "open_button")
         assert not hasattr(window, "save_button")
-        assert all(not button.isEnabled() for button in window.workflow_stepper.findChildren(QPushButton) if button.objectName() == "topWorkflowStepButton")
+        assert all(
+            not button.isEnabled()
+            for button in window.workflow_stepper.findChildren(QPushButton)
+            if button.objectName() == "topWorkflowStepButton"
+        )
         assert window.data_sources_page is window.processing_setup_page
         assert window.aoi_iw_page is window.processing_setup_page
         assert window.processing_page is window.processing_setup_page

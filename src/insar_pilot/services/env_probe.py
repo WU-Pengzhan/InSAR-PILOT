@@ -3,9 +3,9 @@
 from __future__ import annotations
 
 import subprocess
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Callable
 
 from insar_pilot.domain.project import EnvironmentConfig
 from insar_pilot.services.shell import (

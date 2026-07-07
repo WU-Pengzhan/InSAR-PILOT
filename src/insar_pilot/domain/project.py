@@ -45,7 +45,7 @@ class EnvironmentConfig:
     isce_root: str = ""
 
     @classmethod
-    def from_dict(cls, data: dict[str, Any] | None) -> "EnvironmentConfig":
+    def from_dict(cls, data: dict[str, Any] | None) -> EnvironmentConfig:
         return cls(**(data or {}))
 
 
@@ -73,7 +73,7 @@ class WorkflowConfig:
     range_looks: int = 1
 
     @classmethod
-    def from_dict(cls, data: dict[str, Any] | None) -> "WorkflowConfig":
+    def from_dict(cls, data: dict[str, Any] | None) -> WorkflowConfig:
         payload = dict(data or {})
         if "num_connections" in payload:
             payload["num_connections"] = int(payload["num_connections"])
@@ -157,7 +157,7 @@ class VisualizationConfig:
     last_render_signature: str = ""
 
     @classmethod
-    def from_dict(cls, data: dict[str, Any] | None) -> "VisualizationConfig":
+    def from_dict(cls, data: dict[str, Any] | None) -> VisualizationConfig:
         payload = dict(data or {})
         if "range_looks" in payload:
             payload["range_looks"] = int(payload["range_looks"])
@@ -196,7 +196,7 @@ class DataDownloadConfig:
     selected_scene_ids: list[str] = field(default_factory=list)
 
     @classmethod
-    def from_dict(cls, data: dict[str, Any] | None) -> "DataDownloadConfig":
+    def from_dict(cls, data: dict[str, Any] | None) -> DataDownloadConfig:
         payload = dict(data or {})
         for key in ("include_orbits", "download_dem"):
             if key in payload:
@@ -218,7 +218,7 @@ class ProjectWorkspace:
     project_root: str = ""
 
     @classmethod
-    def from_dict(cls, data: dict[str, Any] | None) -> "ProjectWorkspace":
+    def from_dict(cls, data: dict[str, Any] | None) -> ProjectWorkspace:
         payload = dict(data or {})
         allowed = {item.name for item in fields(cls)}
         return cls(**{key: value for key, value in payload.items() if key in allowed})
@@ -264,7 +264,7 @@ class InputEntry:
     ipf_version: str = ""
 
     @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> "InputEntry":
+    def from_dict(cls, data: dict[str, Any]) -> InputEntry:
         return cls(**data)
 
 
@@ -277,7 +277,7 @@ class PreparedInputs:
     notes: list[str] = field(default_factory=list)
 
     @classmethod
-    def from_dict(cls, data: dict[str, Any] | None) -> "PreparedInputs":
+    def from_dict(cls, data: dict[str, Any] | None) -> PreparedInputs:
         payload = data or {}
         entries = [InputEntry.from_dict(item) for item in payload.get("entries", [])]
         return cls(
@@ -297,10 +297,10 @@ class RunStep:
     log_path: str = ""
     exit_code: int | None = None
     last_message: str = ""
-    subcommands: list["RunSubcommand"] = field(default_factory=list)
+    subcommands: list[RunSubcommand] = field(default_factory=list)
 
     @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> "RunStep":
+    def from_dict(cls, data: dict[str, Any]) -> RunStep:
         payload = dict(data)
         payload["status"] = StepStatus(payload.get("status", StepStatus.PENDING.value))
         payload["subcommands"] = [
@@ -318,7 +318,7 @@ class RunSubcommand:
     exit_code: int | None = None
 
     @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> "RunSubcommand":
+    def from_dict(cls, data: dict[str, Any]) -> RunSubcommand:
         payload = dict(data)
         payload["index"] = int(payload.get("index", 0))
         payload["status"] = StepStatus(payload.get("status", StepStatus.PENDING.value))
@@ -338,7 +338,7 @@ class ProjectState:
     last_error: str = ""
 
     @classmethod
-    def from_dict(cls, data: dict[str, Any] | None) -> "ProjectState":
+    def from_dict(cls, data: dict[str, Any] | None) -> ProjectState:
         payload = data or {}
         return cls(
             status=ProjectStatus(payload.get("status", ProjectStatus.DRAFT.value)),
@@ -364,7 +364,7 @@ class ProjectDocument:
     schema_version: int = 1
 
     @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> "ProjectDocument":
+    def from_dict(cls, data: dict[str, Any]) -> ProjectDocument:
         return cls(
             workspace=ProjectWorkspace.from_dict(data.get("workspace")),
             environment=EnvironmentConfig.from_dict(data.get("environment")),

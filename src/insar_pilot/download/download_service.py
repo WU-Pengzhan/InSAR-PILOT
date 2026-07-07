@@ -3,16 +3,17 @@
 from __future__ import annotations
 
 import base64
-from http.cookiejar import MozillaCookieJar
-from collections.abc import Callable
-from datetime import datetime
+import contextlib
 import shutil
 import subprocess
 import tempfile
 import time
+from collections.abc import Callable
+from datetime import datetime
+from http.cookiejar import MozillaCookieJar
 from pathlib import Path
-from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
 from typing import Any
+from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
 
 import asf_search as asf
 import requests
@@ -27,7 +28,7 @@ CancelCheck = Callable[[], bool]
 class DownloadService:
     """Create and run SLC/EOF download tasks."""
 
-    def __init__(self, orbit_service: "OrbitDownloadService | None" = None, *, max_retries: int = 2) -> None:
+    def __init__(self, orbit_service: OrbitDownloadService | None = None, *, max_retries: int = 2) -> None:
         self.orbit_service = orbit_service or OrbitDownloadService()
         self.max_retries = max(0, int(max_retries))
 
@@ -106,7 +107,9 @@ class DownloadService:
                     retry_tasks.append(task)
             elif product_type == "ORBIT":
                 slc_status = slc_status_by_scene.get(task.scene.scene_id)
-                if slc_status == "failed" and task.scene.scene_id in {retry_task.scene.scene_id for retry_task in retry_tasks}:
+                if slc_status == "failed" and task.scene.scene_id in {
+                    retry_task.scene.scene_id for retry_task in retry_tasks
+                }:
                     deferred_orbits.append(task)
                     continue
                 if slc_status and slc_status not in {"completed", "skipped"}:
@@ -118,7 +121,9 @@ class DownloadService:
                         progress_callback(skipped)
                     result = self._result_from_task(skipped)
                 else:
-                    result = self.orbit_service.download(task, progress_callback=progress_callback, cancel_check=cancel_check)
+                    result = self.orbit_service.download(
+                        task, progress_callback=progress_callback, cancel_check=cancel_check
+                    )
             else:
                 result = self._result_from_task(task.with_updates(status="failed", message="Unknown product type."))
             result_by_task_id[task.task_id] = result
@@ -156,7 +161,9 @@ class DownloadService:
         for orbit_task in deferred_orbits:
             slc_status = slc_status_by_scene.get(orbit_task.scene.scene_id, "failed")
             if cancel_check and cancel_check():
-                cancelled = orbit_task.with_updates(status="cancelled", message="Download cancelled before orbit download.")
+                cancelled = orbit_task.with_updates(
+                    status="cancelled", message="Download cancelled before orbit download."
+                )
                 if progress_callback:
                     progress_callback(cancelled)
                 result_by_task_id[orbit_task.task_id] = self._result_from_task(cancelled)
@@ -279,7 +286,7 @@ class DownloadService:
                 "&response_type=code&state="
             )
         auth_url = DownloadService._auth_url_with_app_type(auth_url)
-        token = base64.b64encode(f"{username}:{password}".encode("utf-8")).decode("ascii")
+        token = base64.b64encode(f"{username}:{password}".encode()).decode("ascii")
         response = session.get(
             auth_url,
             headers={"Authorization": f"Basic {token}"},
@@ -387,10 +394,8 @@ class DownloadService:
             response.raise_for_status()
             return int(response.headers.get("content-length", "0") or 0)
         finally:
-            try:
+            with contextlib.suppress(Exception):
                 response.close()
-            except Exception:
-                pass
 
     def _download_slc_with_aria2(
         self,
@@ -539,9 +544,10 @@ class DownloadService:
         cookies = getattr(session, "cookies", None)
         if not cookies:
             return ""
-        temp = tempfile.NamedTemporaryFile("w", encoding="utf-8", delete=False, prefix="isce2_aria2_", suffix=".cookies")
-        temp.close()
-        path = temp.name
+        with tempfile.NamedTemporaryFile(
+            "w", encoding="utf-8", delete=False, prefix="isce2_aria2_", suffix=".cookies"
+        ) as temp:
+            path = temp.name
         try:
             jar = MozillaCookieJar(path)
             for cookie in cookies:
@@ -568,9 +574,7 @@ class DownloadService:
         if result.product_type.upper() != "SLC" or result.status != "failed":
             return False
         message = result.message.lower()
-        if "aria2c is required" in message or "no asf download url" in message:
-            return False
-        return True
+        return "aria2c is required" not in message and "no asf download url" not in message
 
     @staticmethod
     def _speed_bps(bytes_done: int, started: float) -> float:
@@ -601,10 +605,8 @@ class DownloadService:
                 "Enter and test Earthdata credentials before downloading."
             )
 
-        try:
+        with contextlib.suppress(Exception):
             response.close()
-        except Exception:
-            pass
         cookie_jar = getattr(session, "_asf_cookie_jar", None)
         if cookie_jar is None:
             cookie_jar = session.cookies
@@ -718,14 +720,18 @@ class OrbitDownloadService:
                     force_asf=True,
                 )
         except Exception as exc:
-            failed = task.with_updates(status="failed", local_path=str(orbit_dir), message=f"Orbit download failed: {exc}")
+            failed = task.with_updates(
+                status="failed", local_path=str(orbit_dir), message=f"Orbit download failed: {exc}"
+            )
             if progress_callback:
                 progress_callback(failed)
             return DownloadService._result_from_task(failed)
 
         orbit_path = self._new_or_existing_orbit(orbit_dir, task.scene, before)
         if orbit_path is None:
-            failed = task.with_updates(status="failed", local_path=str(orbit_dir), message="Orbit downloader returned no EOF file.")
+            failed = task.with_updates(
+                status="failed", local_path=str(orbit_dir), message="Orbit downloader returned no EOF file."
+            )
             if progress_callback:
                 progress_callback(failed)
             return DownloadService._result_from_task(failed)

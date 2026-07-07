@@ -4,12 +4,11 @@ from __future__ import annotations
 
 import xml.etree.ElementTree as ET
 import zipfile
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Callable
 
 from insar_pilot.domain.project import APP_METADATA_DIR, InputEntry, PreparedInputs, WorkflowConfig
-
 
 SAFE_NAMESPACE = "{http://www.esa.int/safe/sentinel-1.0}"
 

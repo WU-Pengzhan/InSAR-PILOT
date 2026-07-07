@@ -10,7 +10,7 @@ import sys
 from datetime import datetime
 from pathlib import Path
 
-from PySide6.QtCore import Qt, QSize, QThread, QUrl
+from PySide6.QtCore import QSize, Qt, QThread, QUrl
 from PySide6.QtGui import QAction, QCloseEvent, QDesktopServices, QPixmap
 from PySide6.QtWidgets import (
     QApplication,
@@ -25,14 +25,25 @@ from PySide6.QtWidgets import (
     QPlainTextEdit,
     QStackedWidget,
     QToolBar,
+    QTreeWidgetItem,
     QVBoxLayout,
     QWidget,
-    QTreeWidgetItem,
 )
 
 from insar_pilot import __version__
 from insar_pilot.app.settings import AppSettings
 from insar_pilot.bootstrap import create_default_project
+from insar_pilot.domain.project import (
+    APP_METADATA_DIR,
+    EnvironmentConfig,
+    PreparedInputs,
+    ProjectDocument,
+    ProjectStatus,
+    RunStep,
+    RunSubcommand,
+    StepStatus,
+    WorkflowConfig,
+)
 from insar_pilot.download import (
     DownloadService,
     DownloadStorage,
@@ -45,19 +56,8 @@ from insar_pilot.download.map_credentials import load_tianditu_key
 from insar_pilot.download.opentopography_credentials import load_opentopography_key
 from insar_pilot.download.tile_proxy import TiandituTileProxy
 from insar_pilot.i18n import Translator
-from insar_pilot.domain.project import (
-    APP_METADATA_DIR,
-    EnvironmentConfig,
-    PreparedInputs,
-    ProjectDocument,
-    ProjectStatus,
-    RunSubcommand,
-    RunStep,
-    StepStatus,
-    WorkflowConfig,
-)
-from insar_pilot.services.command_plan import CommandPlan
 from insar_pilot.services.aoi_import import AoiImportResult, AoiImportService
+from insar_pilot.services.command_plan import CommandPlan
 from insar_pilot.services.dem_coverage import DemCoverageService
 from insar_pilot.services.dem_preparer import DemPreparationService
 from insar_pilot.services.env_probe import EnvironmentProbe
@@ -80,9 +80,6 @@ from insar_pilot.services.visualization_service import (
     VisualizationRequest,
     VisualizationService,
 )
-from insar_pilot.ui.pages.aoi_iw_page import AoiIwPage
-from insar_pilot.ui.pages.data_download_page import DataDownloadPage
-from insar_pilot.ui.pages.data_sources_page import DataSourcesPage
 from insar_pilot.ui.download_worker import (
     CredentialWorker,
     DownloadWorker,
@@ -90,15 +87,17 @@ from insar_pilot.ui.download_worker import (
     SearchWorker,
     TiandituKeyWorker,
 )
+from insar_pilot.ui.icons import BrandAssets, IconProvider
+from insar_pilot.ui.pages.aoi_iw_page import AoiIwPage
+from insar_pilot.ui.pages.data_download_page import DataDownloadPage
+from insar_pilot.ui.pages.data_sources_page import DataSourcesPage
 from insar_pilot.ui.pages.processing_plan_page import ProcessingPlanPage
-from insar_pilot.ui.pages.project_start_page import ProjectStartPage
 from insar_pilot.ui.pages.processing_setup_page import ProcessingSetupPage
+from insar_pilot.ui.pages.project_start_page import ProjectStartPage
 from insar_pilot.ui.pages.results_page import ResultsPage
 from insar_pilot.ui.pages.run_monitor_page import RunMonitorPage
-from insar_pilot.ui.icons import IconProvider
-from insar_pilot.ui.widgets.geometry_verify_panel import VerifyPlotData
-from insar_pilot.ui.icons import BrandAssets
 from insar_pilot.ui.widgets.combo_wheel_guard import install_no_scroll_button_focus, install_no_wheel_on_combos
+from insar_pilot.ui.widgets.geometry_verify_panel import VerifyPlotData
 from insar_pilot.ui.widgets.log_console import append_text_preserving_scroll
 from insar_pilot.ui.widgets.status_badge import StatusBadge
 from insar_pilot.ui.widgets.summary_card import SummaryCard
@@ -292,7 +291,9 @@ class MainWindow(QMainWindow):
             self.page_stack.addWidget(widget)
             self._page_index_by_key[key] = index
 
-        self.page_stack.setCurrentIndex(0 if not self._has_project_workspace() else self._page_index_by_key["data_download"])
+        self.page_stack.setCurrentIndex(
+            0 if not self._has_project_workspace() else self._page_index_by_key["data_download"]
+        )
         self._sync_nav_selection_state()
         self._apply_page_spacing()
         return container
@@ -321,11 +322,19 @@ class MainWindow(QMainWindow):
             "Ready",
             "Define AOI, dates, and Sentinel-1 SLC filters.",
         )
-        self.summary_sources_card = SummaryCard(self.translator.tr("summary.setup.title"), "Not prepared", "Dataset, orbit, and DEM readiness.")
-        self.summary_aoi_card = SummaryCard("AOI / BBox", "Not set", "AOI file is optional input; bbox is the processing parameter.")
-        self.summary_selection_card = SummaryCard("IW", "IW1 IW2 IW3", "Swath-level control for the processing workflow.")
+        self.summary_sources_card = SummaryCard(
+            self.translator.tr("summary.setup.title"), "Not prepared", "Dataset, orbit, and DEM readiness."
+        )
+        self.summary_aoi_card = SummaryCard(
+            "AOI / BBox", "Not set", "AOI file is optional input; bbox is the processing parameter."
+        )
+        self.summary_selection_card = SummaryCard(
+            "IW", "IW1 IW2 IW3", "Swath-level control for the processing workflow."
+        )
         self.summary_reference_card = SummaryCard("Reference", "Auto", "Manual override optional.")
-        self.summary_processing_card = SummaryCard("Processing", "Not generated", "Workflow, coreg, looks, and concurrency.")
+        self.summary_processing_card = SummaryCard(
+            "Processing", "Not generated", "Workflow, coreg, looks, and concurrency."
+        )
         self.summary_results_card = SummaryCard("Results", "No outputs scanned", "Quicklooks and processing outputs.")
         for card in (
             self.summary_sources_card,
@@ -971,7 +980,8 @@ class MainWindow(QMainWindow):
         if "cmr.earthdata.nasa.gov" in lower:
             return (
                 f"{message} ASF search uses NASA CMR (cmr.earthdata.nasa.gov); "
-                "being able to open search.asf.alaska.edu in a browser does not guarantee this API endpoint is reachable."
+                "being able to open search.asf.alaska.edu in a browser does not "
+                "guarantee this API endpoint is reachable."
             )
         if "timeout" in lower or "timed out" in lower:
             return f"{message} The request timed out; the GUI remains usable while the background worker finishes."
@@ -979,7 +989,10 @@ class MainWindow(QMainWindow):
 
     def test_asf_download_credentials(self) -> None:
         if self._credential_thread is not None:
-            self._show_error("Connection test already running", "Wait for the current ASF connection test to finish first.")
+            self._show_error(
+                "Connection test already running",
+                "Wait for the current ASF connection test to finish first.",
+            )
             return
         username, password = self.data_download_page.credential_inputs()
         network = self.data_download_page.network_config()
@@ -1027,7 +1040,10 @@ class MainWindow(QMainWindow):
 
     def test_tianditu_basemap_key(self) -> None:
         if self._tianditu_thread is not None:
-            self._show_error("Tianditu key test already running", "Wait for the current basemap key test to finish first.")
+            self._show_error(
+                "Tianditu key test already running",
+                "Wait for the current basemap key test to finish first.",
+            )
             return
         key = self.data_download_page.tianditu_key()
         self._start_tianditu_key_check(key, origin="manual", save_on_success=True)
@@ -1134,7 +1150,8 @@ class MainWindow(QMainWindow):
         if not capability.aria2c_available:
             self._show_error(
                 "aria2c missing",
-                "SLC downloads require aria2c for multipart resumable transfers. Activate the insar conda environment or install aria2c, then try again.",
+                "SLC downloads require aria2c for multipart resumable transfers. "
+                "Activate the insar conda environment or install aria2c, then try again.",
             )
             return
         if not self._download_credentials_ok:
@@ -1310,8 +1327,14 @@ class MainWindow(QMainWindow):
         QDesktopServices.openUrl(QUrl.fromLocalFile(str(storage.output_dir)))
 
     def _populate_form_from_project(self) -> None:
-        self._download_page_status = self.project.download.last_status.replace("_", " ").title() if self.project.download.last_status else "Ready"
-        self._download_page_message = self.project.download.last_message or "Define AOI, dates, and Sentinel-1 SLC filters."
+        self._download_page_status = (
+            self.project.download.last_status.replace("_", " ").title()
+            if self.project.download.last_status
+            else "Ready"
+        )
+        self._download_page_message = (
+            self.project.download.last_message or "Define AOI, dates, and Sentinel-1 SLC filters."
+        )
         self.shell_init_edit.setText(self.project.environment.shell_init_path)
         self.conda_env_edit.setText(self.project.environment.conda_env_name)
         self.isce_root_edit.setText(self.project.environment.isce_root)
@@ -1518,9 +1541,7 @@ class MainWindow(QMainWindow):
             return False
         if not Path(prepared.manifest_path).expanduser().exists():
             return False
-        if not Path(state.prepared_dem_path).expanduser().exists():
-            return False
-        return True
+        return Path(state.prepared_dem_path).expanduser().exists()
 
     def _clear_prepared_state(self) -> None:
         self.project.state.prepared_inputs = PreparedInputs()
@@ -1553,7 +1574,9 @@ class MainWindow(QMainWindow):
         lines.extend(f"- {entry.path}" for entry in prepared.entries)
         self.inputs_text.setPlainText("\n".join(lines))
         self.data_sources_page.dataset_card.set_value(f"{len(prepared.entries)} prepared scenes")
-        self.data_sources_page.dataset_card.set_body(Path(prepared.manifest_path).name if prepared.manifest_path else "Manifest ready")
+        self.data_sources_page.dataset_card.set_body(
+            Path(prepared.manifest_path).name if prepared.manifest_path else "Manifest ready"
+        )
 
     def _try_save_project(self) -> None:
         try:
@@ -1872,7 +1895,8 @@ class MainWindow(QMainWindow):
             self.project.state.last_generated_command = command
             if hasattr(self.command_preview_text, "set_metadata"):
                 self.command_preview_text.set_metadata(
-                    f"Work directory: {self.project.resolved_work_dir()} | Log: {self.project.logs_dir() / 'stack_generate.log'}"
+                    f"Work directory: {self.project.resolved_work_dir()} | "
+                    f"Log: {self.project.logs_dir() / 'stack_generate.log'}"
                 )
             self.command_preview_text.setPlainText(command)
             self.project.state.last_error = ""
@@ -2247,7 +2271,11 @@ class MainWindow(QMainWindow):
                     subcommand.status = StepStatus.SUCCESS if rc == 0 else StepStatus.FAILED
 
                 failed_sub = next(
-                    (item for item in sorted(step.subcommands, key=lambda cmd: cmd.index) if item.status == StepStatus.FAILED),
+                    (
+                        item
+                        for item in sorted(step.subcommands, key=lambda cmd: cmd.index)
+                        if item.status == StepStatus.FAILED
+                    ),
                     None,
                 )
                 if stopped:
@@ -2279,7 +2307,9 @@ class MainWindow(QMainWindow):
                     self.project.state.status = ProjectStatus.RUNNING
             elif step is not None and step.status == StepStatus.FAILED:
                 self.project.state.status = ProjectStatus.FAILED
-                self.project.state.last_error = step.last_message or f"{plan.step_name} failed with exit code {exit_code}"
+                self.project.state.last_error = (
+                    step.last_message or f"{plan.step_name} failed with exit code {exit_code}"
+                )
             elif all(item.status == StepStatus.SUCCESS for item in self.project.state.steps):
                 self.project.state.status = ProjectStatus.COMPLETED
             else:
@@ -2304,7 +2334,8 @@ class MainWindow(QMainWindow):
                     if pending.action == "preview":
                         self._display_preview_image(pending.output_bmp_path, pending.summary)
                     self.visual_status_text.setPlainText(
-                        f"{pending.summary}\n\nStatus: success\nOutput: {pending.output_bmp_path}\nLog: {pending.log_path}"
+                        f"{pending.summary}\n\nStatus: success\n"
+                        f"Output: {pending.output_bmp_path}\nLog: {pending.log_path}"
                     )
         else:
             if stopped:
@@ -2558,7 +2589,9 @@ class MainWindow(QMainWindow):
         prepared = self.project.state.prepared_inputs
         if prepared.manifest_path and not Path(prepared.manifest_path).expanduser().exists():
             errors.append(f"Prepared manifest was not found: {prepared.manifest_path}")
-        if self.project.state.prepared_dem_path and not Path(self.project.state.prepared_dem_path).expanduser().exists():
+        if self.project.state.prepared_dem_path and not Path(
+            self.project.state.prepared_dem_path
+        ).expanduser().exists():
             errors.append(f"Prepared DEM was not found: {self.project.state.prepared_dem_path}")
         return errors
 
@@ -2698,7 +2731,9 @@ class MainWindow(QMainWindow):
         self.app_settings.restore_splitter("download_main", self.data_download_page.main_splitter)
         self.data_download_page.normalize_main_splitter_sizes()
         self.app_settings.restore_splitter("download_map_results", self.data_download_page.map_results_splitter)
-        self.app_settings.restore_dock_visibility("project_inspector", self.project_inspector_dock, default_visible=False)
+        self.app_settings.restore_dock_visibility(
+            "project_inspector", self.project_inspector_dock, default_visible=False
+        )
         self.app_settings.restore_dock_visibility("log_console", self.log_dock, default_visible=False)
 
     def _save_layout_settings(self) -> None:
@@ -2823,7 +2858,10 @@ class MainWindow(QMainWindow):
         self.aoi_iw_page.verify_alert_label.clear()
         self.aoi_iw_page.verify_alert_label.hide()
         if self.project.workflow.use_common_overlap:
-            self._show_error("IW recommendation unavailable", "Disable 'Use common overlap' and provide the processing bbox first.")
+            self._show_error(
+                "IW recommendation unavailable",
+                "Disable 'Use common overlap' and provide the processing bbox first.",
+            )
             return
         if not self.project.workflow.bbox_snwe.strip():
             self._show_error("IW recommendation unavailable", "Processing bbox is required for IW recommendation.")
@@ -3046,7 +3084,8 @@ class MainWindow(QMainWindow):
             return
         if hasattr(self.command_preview_text, "set_metadata"):
             self.command_preview_text.set_metadata(
-                f"Work directory: {self.project.resolved_work_dir()} | Log: {self.project.logs_dir() / 'stack_generate.log'}"
+                f"Work directory: {self.project.resolved_work_dir()} | "
+                f"Log: {self.project.logs_dir() / 'stack_generate.log'}"
             )
         self.command_preview_text.setPlainText(command)
         self.statusBar().showMessage("Generated command preview updated.", 3000)
@@ -3137,7 +3176,9 @@ class MainWindow(QMainWindow):
             Path(self.project.workflow.dem_path).name if self.project.workflow.dem_path else "Not set"
         )
         self.data_sources_page.orbit_card.set_body(
-            Path(self.project.workflow.orbit_path).name if self.project.workflow.orbit_path else "Point to local EOF orbit files."
+            Path(self.project.workflow.orbit_path).name
+            if self.project.workflow.orbit_path
+            else "Point to local EOF orbit files."
         )
         self.data_sources_page.dem_card.set_body(
             Path(self.project.state.prepared_dem_path or self.project.workflow.dem_path).name
@@ -3171,13 +3212,16 @@ class MainWindow(QMainWindow):
         self.aoi_iw_page.iw_card.set_value(" ".join(f"IW{item}" for item in swaths.split()))
         self.summary_reference_card.set_value(self.project.workflow.reference_date or "Auto")
         self.summary_reference_card.set_body(
-            "Manual override applied." if self.project.workflow.reference_date else "Master date left to workflow defaults."
+            "Manual override applied."
+            if self.project.workflow.reference_date
+            else "Master date left to workflow defaults."
         )
         self.summary_processing_card.set_value(
             f"{self.project.workflow.workflow} / {self.project.workflow.coregistration}"
         )
         self.summary_processing_card.set_body(
-            f"Looks {self.project.workflow.azimuth_looks}x{self.project.workflow.range_looks}, num_proc={self.project.workflow.num_proc}"
+            f"Looks {self.project.workflow.azimuth_looks}x{self.project.workflow.range_looks}, "
+            f"num_proc={self.project.workflow.num_proc}"
         )
         self.processing_page.plan_card.set_value(
             f"{self.project.workflow.workflow} / {self.project.workflow.coregistration}"
@@ -3202,15 +3246,6 @@ class MainWindow(QMainWindow):
             "Ready" if self._is_prepared_for_current_sources() else "Pending",
             "ready" if self._is_prepared_for_current_sources() else "warning",
         )
-        swath_ok = bool(self.project.workflow.swath_numbers.strip() or self.aoi_iw_page.selected_swaths())
-        if self.project.workflow.use_common_overlap:
-            bbox_ok = True
-        else:
-            try:
-                self.project.workflow.normalized_bbox()
-                bbox_ok = True
-            except ValueError:
-                bbox_ok = False
         has_steps = bool(self.project.state.steps)
         self._set_nav_status("monitor", "Ready" if has_steps else "Pending", "ready" if has_steps else "neutral")
         has_results = self.outputs_tree.topLevelItemCount() > 0
@@ -3273,7 +3308,11 @@ class MainWindow(QMainWindow):
             event.accept()
             return
 
-        if self._download_thread is not None and self._download_thread.isRunning() and self._download_worker is not None:
+        if (
+            self._download_thread is not None
+            and self._download_thread.isRunning()
+            and self._download_worker is not None
+        ):
             self._download_worker.cancel()
         self._shutdown_background_threads_now(active_threads)
         self.tianditu_tile_proxy.stop()

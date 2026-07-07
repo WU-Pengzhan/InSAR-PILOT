@@ -20,7 +20,6 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-
 Coord = tuple[float, float]  # (lon, lat)
 
 

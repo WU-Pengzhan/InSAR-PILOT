@@ -18,6 +18,8 @@ from insar_pilot.download.geometry import (
 from insar_pilot.download.map_credentials import (
     load_tianditu_key,
     save_tianditu_key,
+)
+from insar_pilot.download.map_credentials import (
     test_tianditu_key as check_tianditu_key,
 )
 from insar_pilot.download.models import DemCoveragePlan, DownloadResult, DownloadTask, SceneRecord, SearchCriteria
@@ -25,6 +27,8 @@ from insar_pilot.download.network import NetworkConfig
 from insar_pilot.download.opentopography_credentials import (
     load_opentopography_key,
     save_opentopography_key,
+)
+from insar_pilot.download.opentopography_credentials import (
     test_opentopography_key as check_opentopography_key,
 )
 from insar_pilot.download.project_importer import import_downloads_to_project
@@ -546,7 +550,9 @@ def test_download_service_uses_aria2_to_part_and_renames(tmp_path: Path, monkeyp
         file_name="S1_TEST.zip",
     )
     service = DownloadService()
-    monkeypatch.setattr(service, "_session", lambda username="", password="": _FakeSession(_FakeResponse([b"abc", b"123"])))
+    monkeypatch.setattr(
+        service, "_session", lambda username="", password="": _FakeSession(_FakeResponse([b"abc", b"123"]))
+    )
     aria2_calls = _patch_aria2(monkeypatch, payload=b"abc123")
     updates = []
 
@@ -634,7 +640,9 @@ def test_download_service_reattempts_slc_after_earthdata_redirect(tmp_path: Path
         lambda session, cookie_jar, username, password, network, auth_url="": auth_urls.append(auth_url),
     )
 
-    result = service.download(service.create_tasks([scene], tmp_path, include_orbits=False), username="alice", password="secret")[0]
+    result = service.download(
+        service.create_tasks([scene], tmp_path, include_orbits=False), username="alice", password="secret"
+    )[0]
 
     assert result.status == "completed"
     assert result.backend == "aria2"
@@ -656,7 +664,11 @@ def test_download_service_cancel_keeps_partial_path_visible(tmp_path: Path, monk
         file_name="S1_TEST.zip",
     )
     service = DownloadService()
-    monkeypatch.setattr(service, "_session", lambda username="", password="", network=None: _FakeSession(_FakeResponse([b"abc", b"123"])))
+    monkeypatch.setattr(
+        service,
+        "_session",
+        lambda username="", password="", network=None: _FakeSession(_FakeResponse([b"abc", b"123"])),
+    )
     _patch_cancelable_aria2(monkeypatch, payload=b"abc")
     calls = {"count": 0}
 
@@ -773,7 +785,9 @@ def test_download_service_retries_failed_slc_then_runs_deferred_orbit(tmp_path: 
     monkeypatch.setattr(service, "_session", lambda username="", password="", network=None: session)
     _patch_aria2(monkeypatch, payload=b"ok")
 
-    results = service.download(service.create_tasks([scene], tmp_path, include_orbits=True), progress_callback=updates.append)
+    results = service.download(
+        service.create_tasks([scene], tmp_path, include_orbits=True), progress_callback=updates.append
+    )
 
     assert [result.product_type for result in results] == ["SLC", "ORBIT"]
     assert results[0].status == "completed"
@@ -1560,7 +1574,9 @@ def test_download_page_apply_results_does_not_refresh_map(monkeypatch):
     )
     page.set_scenes([scene])
     monkeypatch.setattr(page.footprint_map, "set_data", lambda *args, **kwargs: (_ for _ in ()).throw(AssertionError()))
-    monkeypatch.setattr(page.footprint_map, "set_highlight", lambda *args, **kwargs: (_ for _ in ()).throw(AssertionError()))
+    monkeypatch.setattr(
+        page.footprint_map, "set_highlight", lambda *args, **kwargs: (_ for _ in ()).throw(AssertionError())
+    )
 
     page.apply_download_results(
         [
@@ -1616,7 +1632,9 @@ def test_download_page_task_update_does_not_refresh_map_or_scene_detail(monkeypa
     page.set_scenes([scene])
     page.scene_detail_text.setPlainText("user is reading this")
     monkeypatch.setattr(page.footprint_map, "set_data", lambda *args, **kwargs: (_ for _ in ()).throw(AssertionError()))
-    monkeypatch.setattr(page.footprint_map, "set_highlight", lambda *args, **kwargs: (_ for _ in ()).throw(AssertionError()))
+    monkeypatch.setattr(
+        page.footprint_map, "set_highlight", lambda *args, **kwargs: (_ for _ in ()).throw(AssertionError())
+    )
     task = DownloadTask(
         task_id="slc-001",
         scene=scene,
@@ -1647,7 +1665,10 @@ def test_dem_coverage_planner_expands_single_burst_and_uses_scene_fallback(tmp_p
         polarization="VV+VH",
         size_mb=1000.0,
         local_path=str(tmp_path / "S1_A.zip"),
-        footprint_geojson={"type": "Polygon", "coordinates": [[[113.0, 22.0], [114.0, 22.0], [114.0, 23.0], [113.0, 22.0]]]},
+        footprint_geojson={
+            "type": "Polygon",
+            "coordinates": [[[113.0, 22.0], [114.0, 22.0], [114.0, 23.0], [113.0, 22.0]]],
+        },
     )
     Path(scene_a.local_path).write_bytes(b"zip")
     scene_b = SceneRecord(
@@ -1659,7 +1680,10 @@ def test_dem_coverage_planner_expands_single_burst_and_uses_scene_fallback(tmp_p
         polarization="VV+VH",
         size_mb=1000.0,
         local_path=str(tmp_path / "missing.zip"),
-        footprint_geojson={"type": "Polygon", "coordinates": [[[114.0, 22.0], [115.0, 22.0], [115.0, 23.0], [114.0, 22.0]]]},
+        footprint_geojson={
+            "type": "Polygon",
+            "coordinates": [[[114.0, 22.0], [115.0, 22.0], [115.0, 23.0], [114.0, 22.0]]],
+        },
     )
 
     result = IwRecommendationResult(
@@ -1699,7 +1723,10 @@ def test_dem_coverage_planner_falls_back_to_scene_footprints_when_burst_parsing_
         polarization="VV+VH",
         size_mb=1000.0,
         local_path=str(tmp_path / "S1_FAIL.zip"),
-        footprint_geojson={"type": "Polygon", "coordinates": [[[113.0, 22.0], [114.0, 22.0], [114.0, 23.0], [113.0, 22.0]]]},
+        footprint_geojson={
+            "type": "Polygon",
+            "coordinates": [[[113.0, 22.0], [114.0, 22.0], [114.0, 23.0], [113.0, 22.0]]],
+        },
     )
     Path(scene.local_path).write_bytes(b"zip")
 

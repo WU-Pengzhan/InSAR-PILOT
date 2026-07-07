@@ -7,7 +7,6 @@ import shlex
 from dataclasses import dataclass
 from pathlib import Path
 
-
 RESULT_MARKER = "__ISCE_SUBCMD_RC__"
 RESULT_PATTERN = re.compile(rf"{RESULT_MARKER}\s+(\d+)\s+(-?\d+)")
 

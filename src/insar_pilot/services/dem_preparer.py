@@ -6,9 +6,9 @@ import json
 import re
 import shlex
 import subprocess
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Callable
 
 from insar_pilot.domain.project import APP_METADATA_DIR, EnvironmentConfig
 from insar_pilot.services.command_plan import CommandPlan

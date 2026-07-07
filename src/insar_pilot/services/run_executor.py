@@ -66,8 +66,9 @@ class ProcessRunner(QObject):
         self._current = plan
         Path(plan.log_path).parent.mkdir(parents=True, exist_ok=True)
         # Keep one clean log per invocation to avoid mixing stale failures with
-        # the current run.
-        self._log_handle = open(plan.log_path, "w", encoding="utf-8")
+        # the current run. Long-lived handle: streamed to across QProcess signals
+        # and closed in the exit slot, so a context manager cannot own it here.
+        self._log_handle = open(plan.log_path, "w", encoding="utf-8")  # noqa: SIM115
         self._log_handle.write(f"$ {plan.command}\n")
         self._log_handle.flush()
 

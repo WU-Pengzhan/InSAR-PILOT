@@ -150,7 +150,12 @@ class PreflightService:
 
     @staticmethod
     def _check(key: str, label: str, ok: bool, ok_detail: str, fail_detail: str) -> PreflightCheck:
-        return PreflightCheck(key=key, label=label, status="ok" if ok else "blocker", detail=ok_detail if ok else fail_detail)
+        return PreflightCheck(
+            key=key,
+            label=label,
+            status="ok" if ok else "blocker",
+            detail=ok_detail if ok else fail_detail,
+        )
 
     @staticmethod
     def _check_path(key: str, label: str, path_text: str, *, must_be_dir: bool = False) -> PreflightCheck:

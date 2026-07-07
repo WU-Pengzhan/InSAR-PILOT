@@ -3,14 +3,14 @@
 from __future__ import annotations
 
 import html
-from importlib import resources
 import json
 import os
 import subprocess
 import sys
+from importlib import resources
 from typing import Any
 
-from PySide6.QtCore import QEvent, QRect, QTimer, Qt
+from PySide6.QtCore import QEvent, QRect, Qt, QTimer
 from PySide6.QtWidgets import QStackedWidget, QVBoxLayout, QWidget
 
 from insar_pilot.download.geometry import (

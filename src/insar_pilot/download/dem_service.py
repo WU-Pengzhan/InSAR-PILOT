@@ -2,15 +2,13 @@
 
 from __future__ import annotations
 
-from pathlib import Path
 import time
-
+from pathlib import Path
 
 from insar_pilot.download.geometry import aoi_geojson_from_inputs, bounds_from_geojson
 from insar_pilot.download.models import DemCoveragePlan, DownloadResult, DownloadTask, SceneRecord, SearchCriteria
 from insar_pilot.download.network import NetworkConfig
 from insar_pilot.services.iw_recommendation import IwRecommendationResult, IwRecommendationService
-
 
 DEM_SOURCE_LABELS = {
     "COP30": "COP30 (Copernicus Global DSM 30m)",
@@ -94,7 +92,9 @@ class DemCoveragePlanner:
                         f"{scene.scene_id}: local SLC path is unavailable; used scene footprint bbox for DEM planning."
                     )
                 else:
-                    warnings.append(f"{scene.scene_id}: local SLC path is unavailable and no scene footprint bbox exists.")
+                    warnings.append(
+                        f"{scene.scene_id}: local SLC path is unavailable and no scene footprint bbox exists."
+                    )
                 continue
             try:
                 result = self.iw_service.recommend(str(local_path), bbox_text)
@@ -119,16 +119,21 @@ class DemCoveragePlanner:
                 if fallback is not None:
                     fallback_boxes.append(fallback)
                     warnings.append(
-                        f"{scene.scene_id}: no AOI-intersecting bursts were selected; used scene footprint bbox for DEM planning."
+                        f"{scene.scene_id}: no AOI-intersecting bursts were selected; "
+                        "used scene footprint bbox for DEM planning."
                     )
                 else:
-                    warnings.append(f"{scene.scene_id}: no AOI-intersecting bursts were selected and no fallback exists.")
+                    warnings.append(
+                        f"{scene.scene_id}: no AOI-intersecting bursts were selected and no fallback exists."
+                    )
 
         all_boxes = burst_boxes + fallback_boxes
         planned_bbox = self._union_bbox(all_boxes if all_boxes else [])
         if planned_bbox is None:
             planned_bbox = bbox
-            warnings.append("DEM planning fell back to the AOI bbox because no scene or burst coverage could be derived.")
+            warnings.append(
+                "DEM planning fell back to the AOI bbox because no scene or burst coverage could be derived."
+            )
         planning_mode = "burst_union" if used_burst_union else "scene_fallback"
         notes.append(f"DEM planning mode: {planning_mode}")
         notes.append(f"Planned DEM bbox (SNWE): {self._snwe_text(planned_bbox)}")

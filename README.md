@@ -10,7 +10,7 @@
 
 [English](README_EN.md) | [完整中文手册](docs/USER_GUIDE.md) | [故障排查](docs/TROUBLESHOOTING.md)
 
-[![ISCE2](https://img.shields.io/badge/Powered%20by-ISCE2-2f6db3)](https://github.com/isce-framework/isce2)
+[![CI](https://github.com/WU-Pengzhan/InSAR-PILOT/actions/workflows/ci.yml/badge.svg)](https://github.com/WU-Pengzhan/InSAR-PILOT/actions/workflows/ci.yml) [![CodeQL](https://github.com/WU-Pengzhan/InSAR-PILOT/actions/workflows/codeql.yml/badge.svg)](https://github.com/WU-Pengzhan/InSAR-PILOT/actions/workflows/codeql.yml) [![License](https://img.shields.io/badge/License-Apache%202.0-blue)](LICENSE) [![Python](https://img.shields.io/badge/Python-3.10%2B-blue)](https://www.python.org) [![ISCE2](https://img.shields.io/badge/Powered%20by-ISCE2-2f6db3)](https://github.com/isce-framework/isce2)
 
 InSAR-PILOT 是一个开源、窗口化的 SAR/InSAR 处理工作台，用项目文件夹组织数据下载、轨道/DEM 准备、参数配置、流程执行和 quicklook 预览。
 

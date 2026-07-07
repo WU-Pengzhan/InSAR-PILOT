@@ -13,7 +13,7 @@ class OutputNode:
     name: str
     path: str
     kind: str
-    children: list["OutputNode"] = field(default_factory=list)
+    children: list[OutputNode] = field(default_factory=list)
 
 
 class OutputDiscoveryService:

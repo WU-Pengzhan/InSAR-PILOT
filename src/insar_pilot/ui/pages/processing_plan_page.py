@@ -31,7 +31,9 @@ class ProcessingPlanPage(QWidget):
 
         cards = QHBoxLayout()
         cards.setSpacing(12)
-        self.plan_card = SummaryCard("Processing Plan", "Not generated", "Review workflow and advanced controls before generation.")
+        self.plan_card = SummaryCard(
+            "Processing Plan", "Not generated", "Review workflow and advanced controls before generation."
+        )
         self.parallel_card = SummaryCard("Parallelism", "num_proc = 1", "Used for stackSentinel and run-file batching.")
         cards.addWidget(self.plan_card, 1)
         cards.addWidget(self.parallel_card, 1)
