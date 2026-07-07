@@ -8,7 +8,7 @@
 
 **Subtitle: Open Desktop Workbench for Guided SAR/InSAR Processing**
 
-[中文](README.md) | [Full User Guide](docs/USER_GUIDE_EN.md) | [Troubleshooting](docs/TROUBLESHOOTING.md)
+[中文](README.md) | [Full User Guide](docs/en/user-guide.md) | [Troubleshooting](docs/troubleshooting.md)
 
 [![CI](https://github.com/WU-Pengzhan/InSAR-PILOT/actions/workflows/ci.yml/badge.svg)](https://github.com/WU-Pengzhan/InSAR-PILOT/actions/workflows/ci.yml) [![CodeQL](https://github.com/WU-Pengzhan/InSAR-PILOT/actions/workflows/codeql.yml/badge.svg)](https://github.com/WU-Pengzhan/InSAR-PILOT/actions/workflows/codeql.yml) [![License](https://img.shields.io/badge/License-Apache%202.0-blue)](LICENSE) [![Python](https://img.shields.io/badge/Python-3.10%2B-blue)](https://www.python.org) [![ISCE2](https://img.shields.io/badge/Powered%20by-ISCE2-2f6db3)](https://github.com/isce-framework/isce2)
 
@@ -26,7 +26,7 @@ The current version focuses on Sentinel-1 and the [ISCE2](https://github.com/isc
 
 ![Processing setup](docs/assets/screenshots/processing-setup.png)
 
-See the [full user guide](docs/USER_GUIDE_EN.md) for more screenshots.
+See the [full user guide](docs/en/user-guide.md) for more screenshots.
 
 ## Features
 
@@ -115,7 +115,7 @@ Exit codes: `0` success, `1` a command failed, `2` usage/config error. Data/DEM/
 - `environment.yml` installs GUI dependencies, ISCE2, GDAL, aria2, sentineleof, asf-search, and runtime utilities; SLC downloads require aria2c for multipart resumable transfers.
 - Optional WebEngine map support: `pip install '.[map]'`.
 
-For Qt, map, DEM, or run-file issues, start with [docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md).
+For Qt, map, DEM, or run-file issues, start with [docs/troubleshooting.md](docs/troubleshooting.md).
 
 ## Tests
 

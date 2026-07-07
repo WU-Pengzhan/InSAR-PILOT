@@ -33,3 +33,6 @@ stack/
 .coverage
 .coverage.*
 htmlcov/
+
+# MkDocs build output
+site/

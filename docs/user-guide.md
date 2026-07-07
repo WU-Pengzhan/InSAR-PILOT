@@ -4,7 +4,7 @@
   <img src="assets/branding/logo.png" width="640" alt="InSAR-PILOT logo">
 </p>
 
-[返回首页](../README.md) | [English Guide](USER_GUIDE_EN.md) | [故障排查](TROUBLESHOOTING.md)
+[返回首页](index.md) | [English Guide](en/user-guide.md) | [故障排查](troubleshooting.md)
 
 ## 1. 软件定位
 

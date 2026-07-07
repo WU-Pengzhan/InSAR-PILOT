@@ -1,10 +1,10 @@
 # InSAR-PILOT User Guide
 
 <p align="center">
-  <img src="assets/branding/logo.png" width="640" alt="InSAR-PILOT logo">
+  <img src="../assets/branding/logo.png" width="640" alt="InSAR-PILOT logo">
 </p>
 
-[Home](../README_EN.md) | [中文手册](USER_GUIDE.md) | [Troubleshooting](TROUBLESHOOTING.md)
+[Home](index.md) | [中文手册](../user-guide.md) | [Troubleshooting](troubleshooting.md)
 
 ## 1. Purpose
 
@@ -18,7 +18,7 @@ v1.0.0 is the first stable release. Validate the runtime, download path, and pro
 
 ## 2. Start Page and Project Workspace
 
-![Start page](assets/screenshots/start-page.png)
+![Start page](../assets/screenshots/start-page.png)
 
 The application starts from a project page. Production work should always use a dedicated project folder so data, logs, state, and outputs stay together.
 
@@ -41,7 +41,7 @@ project_root/
 
 ## 3. Data Acquisition
 
-![Data acquisition](assets/screenshots/data-acquisition.png)
+![Data acquisition](../assets/screenshots/data-acquisition.png)
 
 The Data page prepares Sentinel-1 inputs:
 
@@ -56,7 +56,7 @@ Recommended order: test credentials first, then define search filters. Download 
 
 ## 4. Processing Setup
 
-![Processing setup](assets/screenshots/processing-setup.png)
+![Processing setup](../assets/screenshots/processing-setup.png)
 
 Setup centralizes pre-processing configuration:
 
@@ -72,7 +72,7 @@ Primary screens show operator-level choices. Full paths, commands, and diagnosti
 
 ## 5. Run Executor
 
-![Run executor](assets/screenshots/run-executor.png)
+![Run executor](../assets/screenshots/run-executor.png)
 
 The Run page executes and recovers processing:
 
@@ -85,7 +85,7 @@ Each step and subcommand records status, log path, exit code, and messages. Afte
 
 ## 6. Results Quicklook
 
-![Results quicklook](assets/screenshots/results-quicklook.png)
+![Results quicklook](../assets/screenshots/results-quicklook.png)
 
 Results is limited to output browsing and visualization:
 

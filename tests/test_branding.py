@@ -49,8 +49,8 @@ def test_branding_assets_are_packaged_and_documented():
     expected_links = {
         "README.md": "docs/assets/branding/logo.png",
         "README_EN.md": "docs/assets/branding/logo.png",
-        "docs/USER_GUIDE.md": "assets/branding/logo.png",
-        "docs/USER_GUIDE_EN.md": "assets/branding/logo.png",
+        "docs/user-guide.md": "assets/branding/logo.png",
+        "docs/en/user-guide.md": "assets/branding/logo.png",
     }
     for relative, link in expected_links.items():
         assert link in (REPO_ROOT / relative).read_text(encoding="utf-8")

@@ -8,7 +8,7 @@
 
 **副标题：Open Desktop Workbench for Guided SAR/InSAR Processing**
 
-[English](README_EN.md) | [完整中文手册](docs/USER_GUIDE.md) | [故障排查](docs/TROUBLESHOOTING.md)
+[English](README_EN.md) | [完整中文手册](docs/user-guide.md) | [故障排查](docs/troubleshooting.md)
 
 [![CI](https://github.com/WU-Pengzhan/InSAR-PILOT/actions/workflows/ci.yml/badge.svg)](https://github.com/WU-Pengzhan/InSAR-PILOT/actions/workflows/ci.yml) [![CodeQL](https://github.com/WU-Pengzhan/InSAR-PILOT/actions/workflows/codeql.yml/badge.svg)](https://github.com/WU-Pengzhan/InSAR-PILOT/actions/workflows/codeql.yml) [![License](https://img.shields.io/badge/License-Apache%202.0-blue)](LICENSE) [![Python](https://img.shields.io/badge/Python-3.10%2B-blue)](https://www.python.org) [![ISCE2](https://img.shields.io/badge/Powered%20by-ISCE2-2f6db3)](https://github.com/isce-framework/isce2)
 
@@ -26,7 +26,7 @@ InSAR-PILOT 是一个开源、窗口化的 SAR/InSAR 处理工作台，用项目
 
 ![Processing setup](docs/assets/screenshots/processing-setup.png)
 
-更多页面截图见 [完整中文手册](docs/USER_GUIDE.md)。
+更多页面截图见 [完整中文手册](docs/user-guide.md)。
 
 ## 核心功能
 
@@ -115,7 +115,7 @@ insar-pilot-cli status /data/aoi_stack
 - `environment.yml` 安装 GUI 依赖、ISCE2、GDAL、aria2、sentineleof、asf-search 等运行组件；SLC 下载依赖 aria2c 的分片续传能力。
 - 可选 WebEngine 地图支持：`pip install '.[map]'`。
 
-如果遇到 Qt、地图、DEM 或 run_files 执行问题，请先看 [docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md)。
+如果遇到 Qt、地图、DEM 或 run_files 执行问题，请先看 [docs/troubleshooting.md](docs/troubleshooting.md)。
 
 ## 测试
 

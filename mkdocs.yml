@@ -1,0 +1,76 @@
+site_name: InSAR-PILOT
+site_description: Open desktop workbench for guided SAR/InSAR processing on Ubuntu and WSL.
+site_author: InSAR-PILOT Contributors
+site_url: https://wu-pengzhan.github.io/InSAR-PILOT/
+
+repo_name: WU-Pengzhan/InSAR-PILOT
+repo_url: https://github.com/WU-Pengzhan/InSAR-PILOT
+edit_uri: edit/main/docs/
+
+docs_dir: docs
+
+theme:
+  name: material
+  language: zh
+  logo: assets/branding/logo-mark.png
+  favicon: assets/branding/logo-mark.png
+  palette:
+    - scheme: default
+      primary: indigo
+      accent: blue
+      toggle:
+        icon: material/weather-night
+        name: 切换到深色模式
+    - scheme: slate
+      primary: indigo
+      accent: blue
+      toggle:
+        icon: material/weather-sunny
+        name: 切换到浅色模式
+  features:
+    - navigation.sections
+    - navigation.top
+    - navigation.tracking
+    - content.code.copy
+    - search.suggest
+    - search.highlight
+    - toc.follow
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - md_in_html
+  - toc:
+      permalink: true
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+
+plugins:
+  - search
+
+nav:
+  - 首页: index.md
+  - 用户指南:
+      - 安装: installation.md
+      - 快速开始: quickstart.md
+      - 端到端教程: tutorial.md
+      - 命令行 CLI: cli.md
+      - 完整手册: user-guide.md
+      - 故障排查: troubleshooting.md
+  - 开发者:
+      - 架构说明: architecture.md
+  - English:
+      - Overview: en/index.md
+      - Installation: en/installation.md
+      - Quickstart: en/quickstart.md
+      - CLI: en/cli.md
+      - User Guide: en/user-guide.md
+      - Architecture: en/architecture.md
+      - Troubleshooting: en/troubleshooting.md
