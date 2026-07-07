@@ -5,6 +5,11 @@ from __future__ import annotations
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QFrame, QHBoxLayout, QLabel, QScrollArea, QVBoxLayout, QWidget
 
+from insar_pilot.ui.styles import SPACE
+
+# Micro-spacing for stacked title/subtitle text that is tighter than the base scale.
+_TEXT_GAP = 2
+
 
 class PageHeader(QFrame):
     """Consistent page title area with optional actions."""
@@ -14,11 +19,11 @@ class PageHeader(QFrame):
         self.setObjectName("pageHeader")
         layout = QHBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
-        layout.setSpacing(12)
+        layout.setSpacing(SPACE["md"])
 
         text_col = QVBoxLayout()
         text_col.setContentsMargins(0, 0, 0, 0)
-        text_col.setSpacing(2)
+        text_col.setSpacing(_TEXT_GAP)
         self.title_label = QLabel(title)
         self.title_label.setObjectName("pageHeaderTitle")
         self.subtitle_label = QLabel(subtitle)
@@ -30,7 +35,7 @@ class PageHeader(QFrame):
 
         self.action_layout = QHBoxLayout()
         self.action_layout.setContentsMargins(0, 0, 0, 0)
-        self.action_layout.setSpacing(8)
+        self.action_layout.setSpacing(SPACE["sm"])
         layout.addLayout(self.action_layout)
 
 
@@ -40,8 +45,8 @@ class PageScaffold(QWidget):
     def __init__(self, title: str, subtitle: str = "", parent=None) -> None:
         super().__init__(parent)
         layout = QVBoxLayout(self)
-        layout.setContentsMargins(0, 0, 0, 0)
-        layout.setSpacing(12)
+        layout.setContentsMargins(SPACE["lg"], SPACE["lg"], SPACE["lg"], SPACE["lg"])
+        layout.setSpacing(SPACE["md"])
         self.header = PageHeader(title, subtitle)
         layout.addWidget(self.header)
 
@@ -52,7 +57,7 @@ class PageScaffold(QWidget):
         self.content_widget = QWidget()
         self.content_layout = QVBoxLayout(self.content_widget)
         self.content_layout.setContentsMargins(0, 0, 0, 0)
-        self.content_layout.setSpacing(12)
+        self.content_layout.setSpacing(SPACE["md"])
         self.scroll_area.setWidget(self.content_widget)
         layout.addWidget(self.scroll_area, 1)
 
@@ -64,7 +69,7 @@ class SectionPanel(QFrame):
         super().__init__(parent)
         self.setObjectName("sectionPanel")
         layout = QVBoxLayout(self)
-        layout.setContentsMargins(14, 12, 14, 12)
+        layout.setContentsMargins(SPACE["md"], SPACE["md"], SPACE["md"], SPACE["md"])
         layout.setSpacing(10)
         self.title_label = QLabel(title)
         self.title_label.setObjectName("sectionPanelTitle")
@@ -89,8 +94,8 @@ class ActionBar(QFrame):
         super().__init__(parent)
         self.setObjectName("actionBar")
         self.layout = QHBoxLayout(self)
-        self.layout.setContentsMargins(10, 8, 10, 8)
-        self.layout.setSpacing(8)
+        self.layout.setContentsMargins(SPACE["md"], SPACE["sm"], SPACE["md"], SPACE["sm"])
+        self.layout.setSpacing(SPACE["sm"])
 
 
 class InlineAlert(QFrame):
@@ -100,8 +105,8 @@ class InlineAlert(QFrame):
         super().__init__(parent)
         self.setObjectName("inlineAlert")
         layout = QHBoxLayout(self)
-        layout.setContentsMargins(10, 8, 10, 8)
-        layout.setSpacing(8)
+        layout.setContentsMargins(SPACE["md"], SPACE["sm"], SPACE["md"], SPACE["sm"])
+        layout.setSpacing(SPACE["sm"])
         self.label = QLabel(message)
         self.label.setWordWrap(True)
         layout.addWidget(self.label)
@@ -125,8 +130,8 @@ class EmptyState(QFrame):
         super().__init__(parent)
         self.setObjectName("emptyState")
         layout = QVBoxLayout(self)
-        layout.setContentsMargins(12, 10, 12, 10)
-        layout.setSpacing(4)
+        layout.setContentsMargins(SPACE["md"], 10, SPACE["md"], 10)
+        layout.setSpacing(SPACE["xs"])
         self.title_label = QLabel(title)
         self.title_label.setObjectName("summaryCardValue")
         self.body_label = QLabel(body)
@@ -143,5 +148,5 @@ class StatusStrip(QFrame):
         super().__init__(parent)
         self.setObjectName("statusStrip")
         self.layout = QHBoxLayout(self)
-        self.layout.setContentsMargins(10, 8, 10, 8)
+        self.layout.setContentsMargins(SPACE["md"], SPACE["sm"], SPACE["md"], SPACE["sm"])
         self.layout.setSpacing(10)

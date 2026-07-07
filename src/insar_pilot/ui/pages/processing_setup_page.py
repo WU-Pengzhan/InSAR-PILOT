@@ -240,7 +240,7 @@ class ProcessingSetupPage(PageScaffold):
         self.verify_panel = GeometryVerifyPanel()
         section.content_layout.addWidget(self.verify_panel)
         self.verify_alert_label = QLabel("")
-        self.verify_alert_label.setStyleSheet("color: #b64646; font-weight: 700;")
+        self.verify_alert_label.setObjectName("inlineErrorText")
         self.verify_alert_label.setWordWrap(True)
         self.verify_alert_label.hide()
         section.content_layout.addWidget(self.verify_alert_label)

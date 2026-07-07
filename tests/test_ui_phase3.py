@@ -65,9 +65,9 @@ def test_stylesheet_is_composed_from_phase4_gis_modules():
 
     assert "font-size: 12.5pt" in stylesheet
     assert "font-family:" in stylesheet
-    assert "min-height: 40px" in stylesheet
+    assert "min-height: 32px" in stylesheet
     assert "QPushButton:pressed" in stylesheet
-    assert "padding: 8px 15px 6px 17px" in stylesheet
+    assert "padding: 7px 15px 5px 17px" in stylesheet
     assert "QComboBox::drop-down" in stylesheet
     assert "QComboBox::down-arrow" in stylesheet
     assert "arrow-down-16.png" in stylesheet
@@ -249,6 +249,12 @@ def test_main_window_uses_four_industrial_workflow_pages(monkeypatch):
         def set_language(self, language):
             self.language_value = language
 
+        def theme(self):
+            return "light"
+
+        def set_theme(self, theme):
+            self.theme_value = theme
+
         def restore_splitter(self, name, splitter):
             return False
 
@@ -311,7 +317,8 @@ def test_main_window_uses_four_industrial_workflow_pages(monkeypatch):
         assert all(combo.property(WHEEL_GUARD_PROPERTY) for combo in combos)
         buttons = window.findChildren(QAbstractButton)
         assert buttons
-        assert all(button.focusPolicy() == Qt.FocusPolicy.NoFocus for button in buttons)
+        # Buttons stay keyboard-focusable (tab) but never grab focus on click.
+        assert all(button.focusPolicy() == Qt.FocusPolicy.TabFocus for button in buttons)
         assert all(button.property(WHEEL_PASSTHROUGH_PROPERTY) for button in buttons)
         spin_boxes = window.findChildren(QSpinBox)
         assert spin_boxes

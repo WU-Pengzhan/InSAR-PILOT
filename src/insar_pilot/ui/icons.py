@@ -52,13 +52,22 @@ class IconProvider:
         "preview": QStyle.StandardPixmap.SP_FileDialogInfoView,
         "generate": QStyle.StandardPixmap.SP_CommandLink,
     }
-    _TONE_COLORS = {
-        "default": "#2f5f94",
-        "muted": "#5e6a7d",
-        "success": "#2f6b45",
-        "warning": "#8a6532",
-        "error": "#8a2d2d",
+    # Map icon tones onto active-theme tokens so glyphs stay legible in dark mode.
+    _TONE_TOKENS = {
+        "default": "icon_default",
+        "muted": "icon_muted",
+        "success": "icon_success",
+        "warning": "icon_warning",
+        "error": "icon_error",
     }
+
+    @classmethod
+    def _tone_color(cls, tone: str) -> str:
+        from insar_pilot.ui.styles.tokens import active_tokens
+
+        tokens = active_tokens()
+        token_key = cls._TONE_TOKENS.get(tone, cls._TONE_TOKENS["default"])
+        return tokens[token_key]
 
     @classmethod
     def icon(cls, name: str, tone: str = "default") -> QIcon:
@@ -68,7 +77,7 @@ class IconProvider:
         try:
             import qtawesome as qta  # type: ignore
 
-            return qta.icon(qta_name, color=cls._TONE_COLORS.get(tone, cls._TONE_COLORS["default"]))
+            return qta.icon(qta_name, color=cls._tone_color(tone))
         except Exception:
             app = QApplication.instance()
             if app is None:

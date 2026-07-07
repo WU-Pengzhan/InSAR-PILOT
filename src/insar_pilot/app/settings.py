@@ -25,6 +25,14 @@ class AppSettings:
     def set_language(self, language: str) -> None:
         self._settings.setValue("ui/language", language or "en")
 
+    def theme(self, default: str = "light") -> str:
+        value = str(self._settings.value("ui/theme", default) or default).lower()
+        return value if value in {"light", "dark"} else default
+
+    def set_theme(self, theme: str) -> None:
+        normalized = str(theme or "light").lower()
+        self._settings.setValue("ui/theme", normalized if normalized in {"light", "dark"} else "light")
+
     def recent_projects(self) -> list[dict[str, str]]:
         """Return recently opened project workspaces, newest first."""
 

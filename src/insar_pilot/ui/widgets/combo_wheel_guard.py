@@ -99,11 +99,16 @@ def _nearest_scroll_area(widget: QWidget, amount: int) -> QAbstractScrollArea | 
 
 
 def install_no_scroll_button_focus(root: QWidget) -> None:
-    """Keep button clicks from moving focus and forcing scroll-area jumps."""
+    """Keep button clicks from moving focus and forcing scroll-area jumps.
+
+    ``TabFocus`` (rather than ``NoFocus``) still prevents click-driven focus
+    jumps while keeping every button reachable by keyboard, so the QSS
+    ``:focus`` ring stays usable for keyboard navigation.
+    """
 
     for button in root.findChildren(QAbstractButton):
         if button.property(BUTTON_FOCUS_GUARD_PROPERTY):
             continue
-        button.setFocusPolicy(Qt.FocusPolicy.NoFocus)
+        button.setFocusPolicy(Qt.FocusPolicy.TabFocus)
         button.setCursor(Qt.CursorShape.PointingHandCursor)
         button.setProperty(BUTTON_FOCUS_GUARD_PROPERTY, True)

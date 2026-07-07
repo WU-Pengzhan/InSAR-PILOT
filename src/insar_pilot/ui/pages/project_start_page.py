@@ -19,6 +19,7 @@ from PySide6.QtWidgets import (
 
 from insar_pilot.i18n import tr
 from insar_pilot.ui.icons import BrandAssets, IconProvider
+from insar_pilot.ui.styles import SPACE
 
 
 class ProjectStartPage(QWidget):
@@ -34,8 +35,8 @@ class ProjectStartPage(QWidget):
         self._recent_paths: list[str] = []
 
         layout = QHBoxLayout(self)
-        layout.setContentsMargins(24, 22, 24, 22)
-        layout.setSpacing(18)
+        layout.setContentsMargins(SPACE["xl"], SPACE["xl"], SPACE["xl"], SPACE["xl"])
+        layout.setSpacing(SPACE["lg"])
 
         self.recent_panel = self._build_recent_panel()
         self.side_panel = self._build_side_panel()
@@ -46,8 +47,8 @@ class ProjectStartPage(QWidget):
         panel = QFrame()
         panel.setObjectName("startRecentPanel")
         panel_layout = QVBoxLayout(panel)
-        panel_layout.setContentsMargins(18, 16, 18, 16)
-        panel_layout.setSpacing(12)
+        panel_layout.setContentsMargins(SPACE["lg"], SPACE["lg"], SPACE["lg"], SPACE["lg"])
+        panel_layout.setSpacing(SPACE["md"])
 
         heading = QLabel(tr("start.recent.title"))
         heading.setObjectName("startPanelTitle")
@@ -89,13 +90,13 @@ class ProjectStartPage(QWidget):
         container = QWidget()
         layout = QVBoxLayout(container)
         layout.setContentsMargins(0, 0, 0, 0)
-        layout.setSpacing(14)
+        layout.setSpacing(SPACE["md"])
 
         actions = QFrame()
         actions.setObjectName("startActionPanel")
         action_layout = QVBoxLayout(actions)
-        action_layout.setContentsMargins(18, 16, 18, 16)
-        action_layout.setSpacing(12)
+        action_layout.setContentsMargins(SPACE["lg"], SPACE["lg"], SPACE["lg"], SPACE["lg"])
+        action_layout.setSpacing(SPACE["md"])
         action_title = QLabel(tr("start.workspace.title"))
         action_title.setObjectName("startPanelTitle")
         action_title.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignTop)
@@ -126,13 +127,13 @@ class ProjectStartPage(QWidget):
         info = QFrame()
         info.setObjectName("startInfoPanel")
         info_layout = QVBoxLayout(info)
-        info_layout.setContentsMargins(18, 16, 18, 16)
-        info_layout.setSpacing(8)
+        info_layout.setContentsMargins(SPACE["lg"], SPACE["lg"], SPACE["lg"], SPACE["lg"])
+        info_layout.setSpacing(SPACE["sm"])
         brand_row = QWidget()
         brand_row.setObjectName("startBrandRow")
         brand_layout = QHBoxLayout(brand_row)
-        brand_layout.setContentsMargins(0, 0, 0, 4)
-        brand_layout.setSpacing(12)
+        brand_layout.setContentsMargins(0, 0, 0, SPACE["xs"])
+        brand_layout.setSpacing(SPACE["md"])
         self.logo_label = QLabel()
         self.logo_label.setObjectName("startBrandLogo")
         self.logo_label.setPixmap(BrandAssets.pixmap(size=QSize(58, 58)))
@@ -175,8 +176,8 @@ class ProjectStartPage(QWidget):
         notices = QFrame()
         notices.setObjectName("startNoticePanel")
         notice_layout = QVBoxLayout(notices)
-        notice_layout.setContentsMargins(18, 16, 18, 16)
-        notice_layout.setSpacing(8)
+        notice_layout.setContentsMargins(SPACE["lg"], SPACE["lg"], SPACE["lg"], SPACE["lg"])
+        notice_layout.setSpacing(SPACE["sm"])
         notice_title = QLabel(tr("start.notices.title"))
         notice_title.setObjectName("startPanelTitle")
         notice_title.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignTop)
@@ -234,7 +235,7 @@ class ProjectStartPage(QWidget):
         row.setObjectName("startRecentRow")
         row.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents, True)
         layout = QHBoxLayout(row)
-        layout.setContentsMargins(12, 10, 12, 10)
+        layout.setContentsMargins(SPACE["md"], 10, SPACE["md"], 10)
         layout.setSpacing(12)
 
         icon = QLabel()
@@ -276,7 +277,7 @@ class ProjectStartPage(QWidget):
         row.setObjectName("startEmptyRow")
         row.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents, True)
         layout = QVBoxLayout(row)
-        layout.setContentsMargins(14, 14, 14, 14)
+        layout.setContentsMargins(SPACE["md"], SPACE["md"], SPACE["md"], SPACE["md"])
         layout.setSpacing(4)
         title = QLabel(tr("start.recent.empty_title"))
         title.setObjectName("startRecentName")

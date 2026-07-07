@@ -19,6 +19,8 @@ from insar_pilot.ui.pages.data_download.credentials_section import BasemapSectio
 from insar_pilot.ui.pages.data_download.results_panel import ResultsController
 from insar_pilot.ui.pages.data_download.search_section import SearchSection
 from insar_pilot.ui.pages.data_download.workspace_section import DemSection, WorkspaceSection
+from insar_pilot.ui.styles import SPACE
+from insar_pilot.ui.widgets.page_scaffold import PageHeader
 from insar_pilot.ui.widgets.summary_card import SummaryCard
 from insar_pilot.ui.widgets.wizard_action_bar import WizardActionBar
 from insar_pilot.ui.widgets.workflow_step_tree import WorkflowStep, WorkflowStepTree
@@ -39,8 +41,11 @@ class DataDownloadPage(QWidget):
         self._main_splitter_normalized = False
 
         layout = QVBoxLayout(self)
-        layout.setContentsMargins(0, 0, 0, 0)
-        layout.setSpacing(0)
+        layout.setContentsMargins(SPACE["lg"], SPACE["lg"], SPACE["lg"], SPACE["lg"])
+        layout.setSpacing(SPACE["md"])
+
+        self.header = PageHeader(tr("nav.data_download"), tr("download.subtitle"))
+        layout.addWidget(self.header)
 
         self.main_splitter = QSplitter(Qt.Orientation.Horizontal)
         self.main_splitter.setObjectName("dataMainSplitter")

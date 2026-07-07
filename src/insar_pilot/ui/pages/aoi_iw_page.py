@@ -102,7 +102,7 @@ class AoiIwPage(QWidget):
         layout.addWidget(self.verify_panel, 1)
 
         self.verify_alert_label = QLabel("")
-        self.verify_alert_label.setStyleSheet("color: #b64646; font-weight: 700;")
+        self.verify_alert_label.setObjectName("inlineErrorText")
         self.verify_alert_label.setWordWrap(True)
         self.verify_alert_label.hide()
         layout.addWidget(self.verify_alert_label)

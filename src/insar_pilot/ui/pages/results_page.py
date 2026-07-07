@@ -18,7 +18,9 @@ from PySide6.QtWidgets import (
 )
 
 from insar_pilot.i18n import tr
+from insar_pilot.ui.styles import SPACE
 from insar_pilot.ui.widgets.collapsible_section import CollapsibleSection
+from insar_pilot.ui.widgets.page_scaffold import PageHeader
 from insar_pilot.ui.widgets.parameter_grid import ParameterGrid
 from insar_pilot.ui.widgets.path_picker_row import PathPickerRow
 from insar_pilot.ui.widgets.preview_panel import PreviewPanel
@@ -31,8 +33,11 @@ class ResultsPage(QWidget):
     def __init__(self, parent=None) -> None:
         super().__init__(parent)
         layout = QVBoxLayout(self)
-        layout.setContentsMargins(0, 0, 0, 0)
-        layout.setSpacing(10)
+        layout.setContentsMargins(SPACE["lg"], SPACE["lg"], SPACE["lg"], SPACE["lg"])
+        layout.setSpacing(SPACE["md"])
+
+        self.header = PageHeader(tr("nav.results"), tr("results.subtitle"))
+        layout.addWidget(self.header)
 
         self.output_card = SummaryCard(
             tr("results.card.output.title"), tr("results.card.output.value"), tr("results.card.output.body"), self

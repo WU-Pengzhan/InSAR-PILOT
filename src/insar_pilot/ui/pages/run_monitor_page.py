@@ -5,7 +5,8 @@ from __future__ import annotations
 from PySide6.QtWidgets import QGridLayout, QLabel, QPushButton, QVBoxLayout, QWidget
 
 from insar_pilot.i18n import tr
-from insar_pilot.ui.widgets.page_scaffold import StatusStrip
+from insar_pilot.ui.styles import SPACE
+from insar_pilot.ui.widgets.page_scaffold import PageHeader, StatusStrip
 from insar_pilot.ui.widgets.run_step_monitor import RunStepMonitor
 from insar_pilot.ui.widgets.summary_card import SummaryCard
 from insar_pilot.ui.widgets.wizard_action_bar import WizardActionBar
@@ -17,8 +18,11 @@ class RunMonitorPage(QWidget):
     def __init__(self, parent=None) -> None:
         super().__init__(parent)
         layout = QVBoxLayout(self)
-        layout.setContentsMargins(0, 0, 0, 0)
-        layout.setSpacing(10)
+        layout.setContentsMargins(SPACE["lg"], SPACE["lg"], SPACE["lg"], SPACE["lg"])
+        layout.setSpacing(SPACE["md"])
+
+        self.header = PageHeader(tr("nav.monitor"), tr("monitor.subtitle"))
+        layout.addWidget(self.header)
 
         self.status_strip = StatusStrip()
         self.project_status_label = QLabel(f"{tr('monitor.status_label')}: -")

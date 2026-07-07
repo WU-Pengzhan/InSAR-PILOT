@@ -207,19 +207,34 @@ def main(argv: list[str] | None = None) -> int:
 
     args = list(sys.argv if argv is None else argv)
     prepare_qt_application_attributes()
-    from PySide6.QtGui import QFont
+    from PySide6.QtGui import QColor, QFont, QPalette
     from PySide6.QtWidgets import QApplication
 
+    from insar_pilot.app.settings import AppSettings
     from insar_pilot.bootstrap import create_default_project
     from insar_pilot.ui.icons import BrandAssets
     from insar_pilot.ui.main_window import MainWindow
-    from insar_pilot.ui.theme import build_light_stylesheet
+    from insar_pilot.ui.styles import resolve_tokens, set_active_tokens
+    from insar_pilot.ui.theme import build_stylesheet
 
     app = QApplication(args)
     default_font = QFont(app.font())
     default_font.setPointSize(12)
     app.setFont(default_font)
-    app.setStyleSheet(build_light_stylesheet())
+    # Apply the persisted theme: record the active palette (so painted surfaces
+    # such as icon tones follow it) and style the app from it.
+    theme_mode = AppSettings().theme()
+    tokens = resolve_tokens(theme_mode)
+    set_active_tokens(theme_mode)
+    # Placeholder text color is not settable via QSS (`::placeholder` is
+    # unsupported by Qt), so raise its contrast through the app palette. The
+    # same applies to alternating item-view rows (QPalette.AlternateBase):
+    # without this, Qt's light-grey default stays light on the dark theme.
+    palette = app.palette()
+    palette.setColor(QPalette.ColorRole.PlaceholderText, QColor(tokens["placeholder"]))
+    palette.setColor(QPalette.ColorRole.AlternateBase, QColor(tokens["alternate_row"]))
+    app.setPalette(palette)
+    app.setStyleSheet(build_stylesheet(theme_mode))
     app.setApplicationName(APP_NAME)
     app.setOrganizationName("Open Source")
     app.setWindowIcon(BrandAssets.icon())

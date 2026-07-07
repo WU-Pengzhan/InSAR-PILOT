@@ -1,17 +1,21 @@
 """Status and badge QSS."""
 
-from insar_pilot.ui.styles.tokens import TOKENS
+from insar_pilot.ui.styles.tokens import FONT_SIZES, LIGHT_TOKENS, RADIUS
 
-STATUS_QSS = f"""
+
+def build_status_qss(TOKENS: dict[str, str] = LIGHT_TOKENS) -> str:
+    """Return the status/badge QSS for the given token palette."""
+
+    return f"""
 QLabel[badge="true"] {{
-    border-radius: 2px;
+    border-radius: {RADIUS["sm"]}px;
     padding: 4px 8px;
-    font-size: 11.5pt;
+    font-size: {FONT_SIZES["caption"]}pt;
     font-weight: 700;
 }}
 QLabel[badge="true"][tone="neutral"] {{
-    background: #ebeff5;
-    color: #4a596e;
+    background: {TOKENS["surface_muted"]};
+    color: {TOKENS["text_subtle"]};
 }}
 QLabel[badge="true"][tone="ready"],
 QLabel[badge="true"][tone="success"],
@@ -34,16 +38,23 @@ QLabel[badge="true"][tone="blocker"] {{
     color: {TOKENS["error_text"]};
 }}
 QFrame#inlineAlert[tone="info"] {{
-    background: #e8f2fb;
-    border: 1px solid #b8d2ed;
+    background: {TOKENS["info_bg"]};
+    border: 1px solid {TOKENS["info_border"]};
 }}
 QFrame#inlineAlert[tone="warning"] {{
     background: {TOKENS["warning_bg"]};
-    border: 1px solid #e4c792;
+    border: 1px solid {TOKENS["warning_border"]};
 }}
 QFrame#inlineAlert[tone="blocker"],
 QFrame#inlineAlert[tone="error"] {{
     background: {TOKENS["error_bg"]};
-    border: 1px solid #e0b0b0;
+    border: 1px solid {TOKENS["error_border"]};
+}}
+QLabel#inlineErrorText {{
+    color: {TOKENS["error_text"]};
+    font-weight: 700;
 }}
 """
+
+
+STATUS_QSS = build_status_qss()

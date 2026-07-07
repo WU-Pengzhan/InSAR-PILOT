@@ -69,6 +69,7 @@ from insar_pilot.ui.pages.processing_setup_page import ProcessingSetupPage
 from insar_pilot.ui.pages.project_start_page import ProjectStartPage
 from insar_pilot.ui.pages.results_page import ResultsPage
 from insar_pilot.ui.pages.run_monitor_page import RunMonitorPage
+from insar_pilot.ui.styles import SPACE
 from insar_pilot.ui.widgets.combo_wheel_guard import install_no_scroll_button_focus, install_no_wheel_on_combos
 from insar_pilot.ui.widgets.log_console import append_text_preserving_scroll
 from insar_pilot.ui.widgets.status_badge import StatusBadge
@@ -173,8 +174,9 @@ class MainWindow(QMainWindow):
     def _build_ui(self) -> None:
         central = QWidget(self)
         root = QVBoxLayout(central)
-        root.setContentsMargins(8, 8, 8, 8)
-        root.setSpacing(6)
+        # Full-bleed header band; each page owns its SPACE["lg"] margins.
+        root.setContentsMargins(0, 0, 0, 0)
+        root.setSpacing(0)
         root.addWidget(self._build_project_header())
         root.addWidget(self._build_page_stack(), 1)
         self.setCentralWidget(central)
@@ -188,7 +190,7 @@ class MainWindow(QMainWindow):
         widget = QWidget()
         widget.setObjectName("projectHeader")
         layout = QHBoxLayout(widget)
-        layout.setContentsMargins(8, 5, 8, 5)
+        layout.setContentsMargins(SPACE["lg"], SPACE["xs"], SPACE["lg"], SPACE["xs"])
         layout.setSpacing(10)
 
         title_col = QVBoxLayout()
@@ -386,6 +388,7 @@ class MainWindow(QMainWindow):
         self.view_menu = self.menuBar().addMenu(tr("menu.view"))
         self.view_menu.addAction(self.action_project_inspector)
         self.view_menu.addAction(self.action_toggle_console)
+        self._build_theme_menu(self.view_menu)
         self._build_language_menu(self.view_menu)
 
         data_menu = self.menuBar().addMenu(tr("menu.data"))
@@ -412,6 +415,33 @@ class MainWindow(QMainWindow):
 
         help_menu = self.menuBar().addMenu(tr("menu.help"))
         help_menu.addAction(self.action_about)
+
+    def _build_theme_menu(self, parent_menu: QMenu) -> None:
+        parent_menu.addSeparator()
+        theme_menu = parent_menu.addMenu(self.translator.tr("menu.theme"))
+        self.theme_action_group = QActionGroup(self)
+        self.theme_action_group.setExclusive(True)
+        current_theme = self.app_settings.theme()
+        for code, label_key in (("light", "menu.theme.light"), ("dark", "menu.theme.dark")):
+            action = QAction(self.translator.tr(label_key), self)
+            action.setCheckable(True)
+            action.setChecked(code == current_theme)
+            action.setData(code)
+            self.theme_action_group.addAction(action)
+            theme_menu.addAction(action)
+        self.theme_action_group.triggered.connect(self._change_theme)
+
+    def _change_theme(self, action: QAction) -> None:
+        code = str(action.data() or "light")
+        if code == self.app_settings.theme():
+            return
+        self.app_settings.set_theme(code)
+        self.app_settings.sync()
+        QMessageBox.information(
+            self,
+            self.translator.tr("dialog.theme.restart.title"),
+            self.translator.tr("dialog.theme.restart.body"),
+        )
 
     def _build_language_menu(self, parent_menu: QMenu) -> None:
         parent_menu.addSeparator()
@@ -663,8 +693,8 @@ class MainWindow(QMainWindow):
         ):
             layout = page.layout()
             if layout is not None:
-                layout.setContentsMargins(10, 8, 10, 8)
-                layout.setSpacing(max(layout.spacing(), 8))
+                layout.setContentsMargins(SPACE["lg"], SPACE["lg"], SPACE["lg"], SPACE["lg"])
+                layout.setSpacing(max(layout.spacing(), SPACE["md"]))
 
     def _handle_stepper_changed(self, row: int) -> None:
         if row < 0:
