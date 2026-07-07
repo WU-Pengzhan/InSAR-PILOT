@@ -63,4 +63,4 @@ jobs:
         env:
           QT_QPA_PLATFORM: offscreen
           PYTHONPATH: src
-        run: uv run pytest -q
+        run: uv run pytest -q --cov

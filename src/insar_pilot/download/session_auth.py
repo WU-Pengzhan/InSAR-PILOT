@@ -103,7 +103,12 @@ def obtain_asf_cookie(
     response.raise_for_status()
     if not has_asf_cookie(cookie_jar):
         raise RuntimeError("Earthdata login succeeded but no ASF download cookie was returned.")
-    cookie_jar.save(ignore_discard=True, ignore_expires=True)
+    # The reauth fallback in download_service may hand us a plain RequestsCookieJar
+    # (session.cookies) instead of a file-backed MozillaCookieJar. Only persist when
+    # the jar supports it; the cookies are already applied to the live session either way.
+    save = getattr(cookie_jar, "save", None)
+    if callable(save):
+        save(ignore_discard=True, ignore_expires=True)
 
 
 def auth_url_with_app_type(auth_url: str) -> str:
