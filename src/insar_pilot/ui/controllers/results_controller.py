@@ -15,7 +15,6 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 from PySide6.QtCore import QObject
-from PySide6.QtGui import QPixmap
 from PySide6.QtWidgets import QFileDialog, QMessageBox, QTreeWidgetItem
 
 from insar_pilot.domain.project import APP_METADATA_DIR
@@ -250,11 +249,11 @@ class ResultsController(QObject):
         self._window.visual_status_text.setPlainText(
             f"{result.summary}\n\nLog: {result.log_path}\n\nStatus: running ..."
         )
-        self._window.preview_meta_text.setPlainText(
+        preview_panel = self._window.results_page.preview_panel
+        preview_panel.set_metadata(
             f"{result.summary}\n\nOutput: {result.output_bmp_path}\nLog: {result.log_path}"
         )
-        self._window.preview_image_label.setText(tr("status.rendering_preview"))
-        self._window.preview_image_label.setPixmap(QPixmap())
+        preview_panel.clear_image(tr("status.rendering_preview"))
         self._window.runner.run_queue([result.plan])
         self._window._update_action_states()
         self._window._set_current_page("results")
@@ -298,30 +297,26 @@ class ResultsController(QObject):
 
     def _display_preview_image(self, image_path: str, summary: str) -> None:
         path = Path(image_path).expanduser()
-        if not path.exists():
-            self._window.preview_image_label.setPixmap(QPixmap())
-            self._window.preview_image_label.setText(tr("results.preview.not_found", path=path))
-            self._window.preview_image_label.resize(480, 320)
-            self._window.preview_meta_text.setPlainText(summary)
-            return
-
-        pixmap = QPixmap(str(path))
-        if pixmap.isNull():
-            self._window.preview_image_label.setPixmap(QPixmap())
-            self._window.preview_image_label.setText(tr("results.preview.load_failed", path=path))
-            self._window.preview_image_label.resize(480, 320)
-        else:
-            self._window.preview_image_label.setText("")
-            self._window.preview_image_label.setPixmap(pixmap)
-            self._window.preview_image_label.resize(pixmap.size())
-
+        preview_panel = self._window.results_page.preview_panel
         details = summary.strip()
         if details:
             details += "\n\n"
-        if not pixmap.isNull():
-            details += f"Preview image: {path}\nImage size: {pixmap.width()} x {pixmap.height()}"
-        else:
-            details += f"Preview image: {path}"
-        self._window.preview_meta_text.setPlainText(details)
+        try:
+            info = preview_panel.load_image(path)
+        except FileNotFoundError as exc:
+            preview_panel.clear_image(tr("results.preview.not_found", path=path))
+            preview_panel.set_metadata(f"{details}Preview image: {path}\nError: {exc}")
+            return
+        except ValueError as exc:
+            preview_panel.clear_image(tr("results.preview.load_failed", path=path))
+            preview_panel.set_metadata(f"{details}Preview image: {path}\nError: {exc}")
+            return
+
+        details += (
+            f"Preview image: {info.path}\n"
+            f"Image size: {info.original_width} x {info.original_height}\n"
+            f"Displayed size: {info.display_width} x {info.display_height}"
+        )
+        preview_panel.set_metadata(details)
         self._window.results_page.preview_card.set_value(tr("card.value.ready"))
         self._window.results_page.preview_card.set_body(Path(image_path).name)

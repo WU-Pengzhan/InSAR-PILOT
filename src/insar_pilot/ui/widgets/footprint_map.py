@@ -86,7 +86,7 @@ class FootprintMapWidget(QWidget):
         layout.addWidget(self.stack)
 
         self.web_view = None
-        self.geometry_panel = GeometryVerifyPanel()
+        self.geometry_panel = GeometryVerifyPanel(show_controls=False)
         self.stack.addWidget(self.geometry_panel)
         self.stack.setCurrentWidget(self.geometry_panel)
 

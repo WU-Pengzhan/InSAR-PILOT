@@ -11,6 +11,27 @@ from pathlib import Path
 APP_NAME = "InSAR-PILOT"
 
 
+def conda_runtime_error() -> str:
+    """Return an error when the active conda prefix differs from this Python."""
+
+    conda_prefix_text = os.environ.get("CONDA_PREFIX", "").strip()
+    python_prefix = Path(sys.prefix).expanduser().resolve()
+    if not conda_prefix_text:
+        return (
+            f"{APP_NAME} must be launched from the conda environment where it is installed.\n"
+            f"Application Python: {python_prefix}\n"
+            "Activate that environment, then run insar-pilot again."
+        )
+
+    conda_prefix = Path(conda_prefix_text).expanduser().resolve()
+    if conda_prefix != python_prefix:
+        return (
+            f"{APP_NAME} is installed in {python_prefix}, but the active conda environment is "
+            f"{conda_prefix}.\nActivate the installation environment, then run insar-pilot again."
+        )
+    return ""
+
+
 def running_on_wsl() -> bool:
     """Return True when launched inside WSL/WSLg."""
 
@@ -74,10 +95,15 @@ def prepare_qt_runtime() -> None:
         os.environ["QT_QPA_PLATFORM_PLUGIN_PATH"] = str(platform_dir)
 
     webengine_process_paths = [
+        qt6_root / "QtWebEngineProcess",
         qt6_root / "libexec" / "QtWebEngineProcess",
         prefix / "libexec" / "QtWebEngineProcess",
     ]
-    webengine_resource_paths = [qt6_root / "resources", prefix / "resources"]
+    webengine_resource_paths = [
+        prefix / "share" / "qt6" / "resources",
+        qt6_root / "resources",
+        prefix / "resources",
+    ]
     webengine_locale_paths = [prefix / "share" / "qt6" / "translations" / "qtwebengine_locales"]
     if pyside_qt_root is not None:
         webengine_process_paths.insert(0, pyside_qt_root / "libexec" / "QtWebEngineProcess")
@@ -98,6 +124,9 @@ def prepare_qt_runtime() -> None:
 def prepare_desktop_environment() -> None:
     """Set conservative defaults that work on WSLg and native Ubuntu desktops."""
 
+    # Respect the desktop's per-monitor scale instead of forcing an integer
+    # device ratio. The 12 pt UI baseline maps cleanly at common 100/125/150%
+    # scale factors while preserving usable proportions across mixed displays.
     os.environ.setdefault("QT_SCALE_FACTOR_ROUNDING_POLICY", "PassThrough")
     os.environ.setdefault("QT_LOGGING_RULES", "qt.qpa.plugin=false")
     if running_on_wsl() and not os.environ.get("XDG_RUNTIME_DIR"):
@@ -202,25 +231,29 @@ def prepare_qt_application_attributes() -> None:
 def main(argv: list[str] | None = None) -> int:
     """Launch the desktop application."""
 
+    runtime_error = conda_runtime_error()
+    if runtime_error:
+        print(runtime_error, file=sys.stderr)
+        return 3
+
     if not apply_runtime_environment():
         return 2
 
     args = list(sys.argv if argv is None else argv)
     prepare_qt_application_attributes()
-    from PySide6.QtGui import QColor, QFont, QPalette
+    from PySide6.QtGui import QColor, QPalette
     from PySide6.QtWidgets import QApplication
 
     from insar_pilot.app.settings import AppSettings
     from insar_pilot.bootstrap import create_default_project
+    from insar_pilot.ui.fonts import build_ui_font
     from insar_pilot.ui.icons import BrandAssets
     from insar_pilot.ui.main_window import MainWindow
     from insar_pilot.ui.styles import resolve_tokens, set_active_tokens
     from insar_pilot.ui.theme import build_stylesheet
 
     app = QApplication(args)
-    default_font = QFont(app.font())
-    default_font.setPointSize(12)
-    app.setFont(default_font)
+    app.setFont(build_ui_font(app.font()))
     # Apply the persisted theme: record the active palette (so painted surfaces
     # such as icon tones follow it) and style the app from it.
     theme_mode = AppSettings().theme()

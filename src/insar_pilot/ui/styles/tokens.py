@@ -16,21 +16,21 @@ from __future__ import annotations
 # --- Light palette (default) -----------------------------------------------
 LIGHT_TOKENS: dict[str, str] = {
     # --- Surfaces ---
-    "background": "#eceff3",
+    "background": "#f3f5f7",
     "surface": "#ffffff",
-    "surface_alt": "#f4f6f8",  # action bars, panel header strips, grid label cells
-    "surface_muted": "#e9edf2",  # header sections, grid titles, progress groove, neutral chips
+    "surface_alt": "#f8f9fa",  # continuous toolbar and section-header surfaces
+    "surface_muted": "#eef1f4",  # table headers, progress grooves, neutral chips
     # Alternating table/tree rows (QPalette.AlternateBase). Matches the Qt
     # Fusion light default exactly so light appearance stays unchanged.
     "alternate_row": "#f7f7f7",
     # --- Borders ---
-    "border": "#bfc7d1",
-    "border_strong": "#9ca9b8",
+    "border": "#c9d0d8",
+    "border_strong": "#aab5c1",
     # --- Text (three-tier hierarchy) ---
     "text": "#1f2329",  # titles, values, control labels
-    "text_subtle": "#4a5665",  # field/section labels (secondary structural text)
-    "text_muted": "#586270",  # descriptive / hint / subtitle body text
-    "placeholder": "#7e8896",  # QLineEdit placeholder (>=3.5:1 on surface)
+    "text_subtle": "#344255",  # field/section labels (secondary structural text)
+    "text_muted": "#4f5c6d",  # descriptive / hint / subtitle body text
+    "placeholder": "#737d89",  # QLineEdit placeholder (>=3.5:1 on surface)
     # --- Accent / focus ---
     "accent": "#1f5b99",
     "accent_hover": "#1a4f87",
@@ -190,9 +190,9 @@ RADIUS = {"sm": 2, "md": 4, "lg": 6}
 # Font point-size scale. Map existing sizes onto these rungs; do not invent new
 # visual sizes.
 FONT_SIZES = {
-    "caption": 10.5,
+    "caption": 10,
     "body": 12,
-    "body_lg": 12.5,
+    "body_lg": 12,
     "h3": 13,
     "h2": 15,
     "h1": 18,

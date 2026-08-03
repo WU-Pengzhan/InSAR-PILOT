@@ -118,9 +118,9 @@ The GUI does not modify ISCE2 algorithms, fake outputs, or hide run files as a b
 Install:
 
 ```bash
-conda env create -f environment.yml
+conda env create -n insar -f environment.yml
 conda activate insar
-pip install .
+python -m pip install .
 insar-pilot
 ```
 

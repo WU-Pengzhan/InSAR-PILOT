@@ -40,6 +40,7 @@ class ProcessingSetupPage(PageScaffold):
             tr("setup.subtitle"),
             parent,
         )
+        self.header.hide()
         self._build_workbench_shell()
         self._build_summary_cards()
         self._build_environment_and_sources()

@@ -45,23 +45,47 @@ InSAR-PILOT 是一个开源、窗口化的 SAR/InSAR 处理工作台，用项目
 
 ## 安装与启动
 
-推荐使用 conda 环境：
+### 前置条件
+
+- Ubuntu Desktop 22.04+，或 Windows 11 中已安装的 Ubuntu WSL2/WSLg。
+- 已安装并初始化 Conda（Miniconda、Anaconda 或 Miniforge 均可）。
+- Git，以及能够访问 `conda-forge` 和 GitHub 的网络。
+
+### 创建运行环境
+
+环境名称由用户自行选择。下列命令使用 `insar` 作为示例：
 
 ```bash
 git clone https://github.com/WU-Pengzhan/InSAR-PILOT.git
 cd InSAR-PILOT
 
-conda env create -f environment.yml
+conda env create -n insar -f environment.yml
 conda activate insar
 
-pip install .
+python -m pip install .
+```
+
+InSAR-PILOT 只使用启动它的 Conda 环境，不会根据项目文件切换环境。每次启动前，请先激活安装软件时使用的同一环境：
+
+```bash
+conda activate insar
 insar-pilot
 ```
 
-开发模式：
+安装后可先执行以下检查：
 
 ```bash
-pip install -e .[dev]
+python -c "import isce, isceobj, eof, snaphu, insar_pilot; print('Python modules: OK')"
+test -f "$CONDA_PREFIX/share/isce2/topsStack/stackSentinel.py"
+command -v gdal_translate
+command -v aria2c
+insar-pilot-cli --help
+```
+
+开发模式使用可编辑安装：
+
+```bash
+python -m pip install -e '.[dev]'
 insar-pilot
 ```
 
@@ -115,10 +139,9 @@ insar-pilot-cli status /data/aoi_stack
 ## 平台与运行环境
 
 - Ubuntu Desktop 或 WSL2/WSLg。
-- Python 3.10-3.12。
-- conda 环境默认名：`insar`。
-- `environment.yml` 安装 GUI 依赖、ISCE2、GDAL、aria2、sentineleof、asf-search 等运行组件；SLC 下载依赖 aria2c 的分片续传能力。
-- 可选 WebEngine 地图支持：`pip install '.[map]'`。
+- 完整处理环境当前固定使用 Python 3.10，以匹配 ISCE2/GDAL 运行时。
+- 文档示例使用 `insar` 作为环境名；用户可以自行选择其他名称。
+- `environment.yml` 安装 GUI、QtWebEngine 地图、ISCE2、GDAL、aria2、sentineleof、asf-search 等运行组件；SLC 下载依赖 aria2c 的分片续传能力。
 
 如果遇到 Qt、地图、DEM 或 run_files 执行问题，请先看 [docs/troubleshooting.md](docs/troubleshooting.md)。
 

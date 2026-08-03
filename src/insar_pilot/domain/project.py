@@ -40,8 +40,8 @@ class ProjectStatus(str, Enum):
 
 @dataclass
 class EnvironmentConfig:
-    shell_init_path: str = "~/.bashrc"
-    conda_env_name: str = "insar"
+    shell_init_path: str = ""
+    conda_env_name: str = ""
     isce_root: str = ""
 
     @classmethod

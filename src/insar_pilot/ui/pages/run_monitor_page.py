@@ -23,6 +23,7 @@ class RunMonitorPage(QWidget):
 
         self.header = PageHeader(tr("nav.monitor"), tr("monitor.subtitle"))
         layout.addWidget(self.header)
+        self.header.hide()
 
         self.status_strip = StatusStrip()
         self.project_status_label = QLabel(f"{tr('monitor.status_label')}: -")

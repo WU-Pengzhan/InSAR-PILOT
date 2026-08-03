@@ -18,7 +18,7 @@ class TopWorkflowStepper(QFrame):
         self._group = QButtonGroup(self)
         self._group.setExclusive(True)
         self._group.idClicked.connect(self.currentChanged.emit)
-        self.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
+        self.setSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Fixed)
 
         self.layout = QHBoxLayout(self)
         self.layout.setContentsMargins(3, 3, 3, 3)

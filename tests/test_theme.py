@@ -45,6 +45,8 @@ def test_both_stylesheets_build_non_empty_and_differ():
     assert light != dark
     # Same structural rules in both themes -> same set of selectors/lengths.
     assert len(light.splitlines()) == len(dark.splitlines())
+    assert "QFrame#dataMapWorkspace" in light
+    assert "border: 1px solid" in light
 
 
 def test_stylesheets_only_use_colors_from_their_palette():

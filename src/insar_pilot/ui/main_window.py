@@ -7,7 +7,7 @@ import sys
 from pathlib import Path
 
 from PySide6.QtCore import QSize, Qt, QThread
-from PySide6.QtGui import QAction, QActionGroup, QCloseEvent, QPixmap
+from PySide6.QtGui import QAction, QActionGroup, QCloseEvent
 from PySide6.QtWidgets import (
     QApplication,
     QDockWidget,
@@ -18,7 +18,7 @@ from PySide6.QtWidgets import (
     QMainWindow,
     QMenu,
     QMessageBox,
-    QPlainTextEdit,
+    QSizePolicy,
     QStackedWidget,
     QToolBar,
     QVBoxLayout,
@@ -61,17 +61,14 @@ from insar_pilot.ui.controllers.results_controller import ResultsController
 from insar_pilot.ui.controllers.run_controller import RunController
 from insar_pilot.ui.controllers.setup_controller import SetupController
 from insar_pilot.ui.icons import BrandAssets, IconProvider
-from insar_pilot.ui.pages.aoi_iw_page import AoiIwPage
 from insar_pilot.ui.pages.data_download_page import DataDownloadPage
-from insar_pilot.ui.pages.data_sources_page import DataSourcesPage
-from insar_pilot.ui.pages.processing_plan_page import ProcessingPlanPage
 from insar_pilot.ui.pages.processing_setup_page import ProcessingSetupPage
 from insar_pilot.ui.pages.project_start_page import ProjectStartPage
 from insar_pilot.ui.pages.results_page import ResultsPage
 from insar_pilot.ui.pages.run_monitor_page import RunMonitorPage
 from insar_pilot.ui.styles import SPACE
 from insar_pilot.ui.widgets.combo_wheel_guard import install_no_scroll_button_focus, install_no_wheel_on_combos
-from insar_pilot.ui.widgets.log_console import append_text_preserving_scroll
+from insar_pilot.ui.widgets.log_console import LogConsole
 from insar_pilot.ui.widgets.status_badge import StatusBadge
 from insar_pilot.ui.widgets.summary_card import SummaryCard
 from insar_pilot.ui.widgets.top_workflow_stepper import TopWorkflowStepper
@@ -172,57 +169,49 @@ class MainWindow(QMainWindow):
             app.aboutToQuit.connect(self.tianditu_tile_proxy.stop)
 
     def _build_ui(self) -> None:
-        central = QWidget(self)
-        root = QVBoxLayout(central)
-        # Full-bleed header band; each page owns its SPACE["lg"] margins.
-        root.setContentsMargins(0, 0, 0, 0)
-        root.setSpacing(0)
-        root.addWidget(self._build_project_header())
-        root.addWidget(self._build_page_stack(), 1)
-        self.setCentralWidget(central)
-
         self._build_project_inspector_dock()
         self._build_log_console()
         self._build_menu_bar()
         self._build_main_toolbar()
 
-    def _build_project_header(self) -> QWidget:
-        widget = QWidget()
-        widget.setObjectName("projectHeader")
-        layout = QHBoxLayout(widget)
-        layout.setContentsMargins(SPACE["lg"], SPACE["xs"], SPACE["lg"], SPACE["xs"])
-        layout.setSpacing(10)
+        central = QWidget(self)
+        root = QVBoxLayout(central)
+        root.setContentsMargins(0, 0, 0, 0)
+        root.setSpacing(0)
+        root.addWidget(self._build_page_stack(), 1)
+        self.setCentralWidget(central)
 
-        title_col = QVBoxLayout()
-        title_col.setContentsMargins(0, 0, 0, 0)
-        title_col.setSpacing(0)
-        title = QLabel(self.translator.tr("app.title"))
-        title.setObjectName("headerTitle")
-        subtitle = QLabel(self.translator.tr("app.subtitle"))
-        subtitle.setObjectName("headerSubTitle")
-        title_col.addWidget(title)
-        title_col.addWidget(subtitle)
-        layout.addLayout(title_col, 1)
+    def _build_toolbar_context(self) -> QWidget:
+        widget = QWidget()
+        widget.setObjectName("toolbarContext")
+        layout = QHBoxLayout(widget)
+        layout.setContentsMargins(SPACE["xs"], 0, SPACE["xs"], 0)
+        layout.setSpacing(SPACE["sm"])
+
         layout.addWidget(self._build_workflow_stepper(), 0, Qt.AlignmentFlag.AlignVCenter)
 
         project_meta = QFrame()
         project_meta.setObjectName("projectHeaderMeta")
-        project_col = QVBoxLayout()
+        project_col = QHBoxLayout()
         project_col.setContentsMargins(10, 4, 10, 4)
-        project_col.setSpacing(2)
+        project_col.setSpacing(10)
         self.header_project_label = QLabel(
             f"{self.translator.tr('header.project')}: {self.translator.tr('header.new_session')}"
         )
         self.header_current_step_label = QLabel(f"{self.translator.tr('header.current_step')}: -")
+        self.header_project_label.setMaximumWidth(220)
+        self.header_current_step_label.setMaximumWidth(140)
         project_col.addWidget(self.header_project_label)
         project_col.addWidget(self.header_current_step_label)
         project_meta.setLayout(project_col)
+        project_meta.setMaximumWidth(370)
         layout.addWidget(project_meta, 0, Qt.AlignmentFlag.AlignVCenter)
 
         self.header_status_badge = StatusBadge("draft", "neutral")
         self.header_env_badge = StatusBadge(self.translator.tr("status.env.unchecked"), "warning")
         layout.addWidget(self.header_status_badge)
         layout.addWidget(self.header_env_badge)
+        self.toolbar_context = widget
         return widget
 
     def _build_workflow_stepper(self) -> TopWorkflowStepper:
@@ -259,9 +248,6 @@ class MainWindow(QMainWindow):
         )
         self.data_download_page = DataDownloadPage()
         self.processing_setup_page = ProcessingSetupPage()
-        self.legacy_data_sources_page = DataSourcesPage()
-        self.legacy_aoi_iw_page = AoiIwPage()
-        self.legacy_processing_page = ProcessingPlanPage()
         self.data_sources_page = self.processing_setup_page
         self.aoi_iw_page = self.processing_setup_page
         self.processing_page = self.processing_setup_page
@@ -344,8 +330,7 @@ class MainWindow(QMainWindow):
         return widget
 
     def _build_log_console(self) -> None:
-        self.log_view = QPlainTextEdit()
-        self.log_view.setReadOnly(True)
+        self.log_view = LogConsole(parent=self)
         self.log_view.setPlaceholderText(self.translator.tr("console.placeholder"))
         self.log_dock = QDockWidget(self.translator.tr("console.title"), self)
         self.log_dock.setWidget(self.log_view)
@@ -488,6 +473,11 @@ class MainWindow(QMainWindow):
         toolbar.addAction(self.action_stop)
         toolbar.addSeparator()
         toolbar.addAction(self.action_refresh_outputs)
+        toolbar.addSeparator()
+        spacer = QWidget(toolbar)
+        spacer.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred)
+        toolbar.addWidget(spacer)
+        toolbar.addWidget(self._build_toolbar_context())
         self.addToolBar(Qt.ToolBarArea.TopToolBarArea, toolbar)
         self.main_toolbar = toolbar
 
@@ -551,9 +541,6 @@ class MainWindow(QMainWindow):
         self.command_detail_text = self.run_monitor_page.command_detail_text
 
         self.outputs_tree = self.results_page.outputs_tree
-        self.preview_image_label = self.results_page.preview_panel.image_label
-        self.preview_scroll = self.results_page.preview_panel.scroll_area
-        self.preview_meta_text = self.results_page.preview_panel.meta_text
         self.visual_mode_combo = self.results_page.visual_mode_combo
         self.visual_primary_path_edit = self.results_page.visual_primary_row.line_edit
         self.visual_secondary_path_edit = self.results_page.visual_secondary_row.line_edit
@@ -684,7 +671,7 @@ class MainWindow(QMainWindow):
         self.runner.runner_state_changed.connect(self.run_controller._handle_runner_state_changed)
 
     def _apply_page_spacing(self) -> None:
-        """Apply consistent page-level breathing room around central content."""
+        """Keep work pages compact while preserving a clear outer boundary."""
         for page in (
             self.data_download_page,
             self.processing_setup_page,
@@ -693,8 +680,8 @@ class MainWindow(QMainWindow):
         ):
             layout = page.layout()
             if layout is not None:
-                layout.setContentsMargins(SPACE["lg"], SPACE["lg"], SPACE["lg"], SPACE["lg"])
-                layout.setSpacing(max(layout.spacing(), SPACE["md"]))
+                layout.setContentsMargins(SPACE["lg"], SPACE["sm"], SPACE["lg"], SPACE["sm"])
+                layout.setSpacing(SPACE["sm"])
 
     def _handle_stepper_changed(self, row: int) -> None:
         if row < 0:
@@ -738,6 +725,12 @@ class MainWindow(QMainWindow):
         return self.project.workspace.configured or bool(self.project.workflow.work_dir.strip())
 
     def _populate_form_from_project(self) -> None:
+        try:
+            activity_log_path = self.project.logs_dir() / "data-acquisition.log"
+        except ValueError:
+            activity_log_path = None
+        self.data_download_page.set_activity_log_path(activity_log_path)
+
         self.download_controller.set_page_state(
             self.project.download.last_status.replace("_", " ").title()
             if self.project.download.last_status
@@ -823,10 +816,8 @@ class MainWindow(QMainWindow):
                 self.project.visualization.last_render_summary,
             )
         else:
-            self.preview_image_label.setPixmap(QPixmap())
-            self.preview_image_label.setText(self.translator.tr("results.preview.none"))
-            self.preview_image_label.resize(480, 320)
-            self.preview_meta_text.setPlainText("")
+            self.results_page.preview_panel.clear_image()
+            self.results_page.preview_panel.set_metadata("")
 
         self.validation_text.setPlainText(self.project.state.last_validation)
         self.command_preview_text.setPlainText(self.project.state.last_generated_command)
@@ -1008,8 +999,12 @@ class MainWindow(QMainWindow):
             project_name = self.project.workspace.root_path().name
         else:
             project_name = tr("header.select_project")
-        self.header_project_label.setText(f"{tr('header.project')}: {project_name}")
-        self.header_current_step_label.setText(f"{tr('header.current_step')}: {current_step}")
+        project_text = f"{tr('header.project')}: {project_name}"
+        step_text = f"{tr('header.current_step')}: {current_step}"
+        self.header_project_label.setText(project_text)
+        self.header_project_label.setToolTip(project_text)
+        self.header_current_step_label.setText(step_text)
+        self.header_current_step_label.setToolTip(step_text)
         self.header_status_badge.set_status(status_text, self._tone_for_status(status_text))
         self.run_monitor_page.status_card.set_value(status_text)
         self.run_monitor_page.status_card.set_badge(status_text, self._tone_for_status(status_text))
@@ -1027,7 +1022,7 @@ class MainWindow(QMainWindow):
         self.header_env_badge.set_status(env_text, env_tone)
 
     def append_log(self, text: str) -> None:
-        append_text_preserving_scroll(self.log_view, text)
+        self.log_view.append_text_preserving_scroll(text)
 
     def save_project(self) -> None:
         if not self._has_project_workspace():
@@ -1060,6 +1055,8 @@ class MainWindow(QMainWindow):
     def _load_project_from_path(self, path: str | Path) -> None:
         try:
             self.project = self.project_store.load(path)
+            # Projects store workflow state, but cannot select a Python runtime.
+            self.project.environment = create_default_project().environment
             self.runner.set_environment(self.project.environment)
             self.workflow_service.synchronize_project_steps(self.project)
             recovered = self._recover_loaded_state()
@@ -1347,13 +1344,17 @@ class MainWindow(QMainWindow):
 
         self._save_layout_settings()
         active_threads = self.download_controller.active_background_threads()
-        if not active_threads:
+        short_tasks_stopped = self.download_controller.shutdown_short_tasks(300)
+        if not active_threads and short_tasks_stopped:
             self.tianditu_tile_proxy.stop()
             event.accept()
             return
 
         self.download_controller.cancel_active_download()
-        self._shutdown_background_threads_now(active_threads)
+        if active_threads:
+            self._shutdown_background_threads_now(active_threads)
+        if not short_tasks_stopped:
+            os._exit(0)
         self.tianditu_tile_proxy.stop()
         event.accept()
 

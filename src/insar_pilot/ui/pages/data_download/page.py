@@ -46,6 +46,7 @@ class DataDownloadPage(QWidget):
 
         self.header = PageHeader(tr("nav.data_download"), tr("download.subtitle"))
         layout.addWidget(self.header)
+        self.header.hide()
 
         self.main_splitter = QSplitter(Qt.Orientation.Horizontal)
         self.main_splitter.setObjectName("dataMainSplitter")
@@ -160,11 +161,8 @@ class DataDownloadPage(QWidget):
         map_workspace = QFrame()
         map_workspace.setObjectName("dataMapWorkspace")
         map_workspace_layout = QVBoxLayout(map_workspace)
-        map_workspace_layout.setContentsMargins(12, 8, 10, 8)
+        map_workspace_layout.setContentsMargins(8, 8, 8, 8)
         map_workspace_layout.setSpacing(8)
-        map_label = QLabel(tr("download.footprint_map_label"))
-        map_label.setObjectName("summaryCardTitle")
-        map_workspace_layout.addWidget(map_label)
         self.map_results_splitter = QSplitter(Qt.Orientation.Vertical)
         self.map_results_splitter.setObjectName("dataMapResultsSplitter")
         self.map_results_splitter.setChildrenCollapsible(False)
@@ -251,6 +249,7 @@ class DataDownloadPage(QWidget):
             "footprint_map", "results_table", "scene_detail_text", "log_text", "set_download_tasks",
             "set_scenes", "set_preferred_selected_scene_ids", "selected_scenes", "apply_download_results",
             "apply_task_update", "clear_results", "append_log", "set_dem_plan", "clear_dem_plan",
+            "set_activity_log_path",
             "set_tianditu_proxy_url", "set_tianditu_available", "set_preferred_basemap", "set_tianditu_basemap_state",
         )
 

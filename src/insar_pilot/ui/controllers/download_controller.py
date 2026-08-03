@@ -1,11 +1,10 @@
 """Data-download workflow controller extracted from MainWindow.
 
-Owns the five background QThread+worker pipelines (SLC download, ASF search,
-Earthdata credential test, Tianditu key test, OpenTopography key test) and the
-data-download page slots/handlers. Behavior is identical to the code that
-previously lived on ``MainWindow``; the controller keeps a reference to the
-window for a handful of shell-level callbacks (error dialogs, summary refresh,
-and the cross-domain "use workspace as data sources" bridge).
+Owns dedicated QThread pipelines for SLC download and ASF search, plus an
+application-owned callable pool for bounded credential and API-key checks.
+The controller keeps a reference to the window for a handful of shell-level
+callbacks (error dialogs, summary refresh, and the cross-domain "use workspace
+as data sources" bridge).
 """
 
 from __future__ import annotations
@@ -34,13 +33,14 @@ from insar_pilot.download.tile_proxy import TiandituTileProxy
 from insar_pilot.i18n import tr
 from insar_pilot.services.preflight import PreflightService
 from insar_pilot.ui.download_worker import (
-    CredentialWorker,
     DownloadWorker,
-    OpenTopographyKeyWorker,
     SearchWorker,
-    TiandituKeyWorker,
+    run_credential_check,
+    run_opentopography_key_check,
+    run_tianditu_key_check,
 )
 from insar_pilot.ui.pages.data_download_page import DataDownloadPage
+from insar_pilot.ui.task_pool import BackgroundTaskPool, TaskHandle
 
 if TYPE_CHECKING:
     from insar_pilot.ui.main_window import MainWindow
@@ -105,13 +105,11 @@ class DownloadController(QObject):
         self._download_worker: DownloadWorker | None = None
         self._download_search_thread: QThread | None = None
         self._download_search_worker: SearchWorker | None = None
-        self._credential_thread: QThread | None = None
-        self._credential_worker: CredentialWorker | None = None
-        self._tianditu_thread: QThread | None = None
-        self._tianditu_worker: TiandituKeyWorker | None = None
+        self._short_task_pool = BackgroundTaskPool(self, max_thread_count=3)
+        self._credential_task: TaskHandle | None = None
+        self._tianditu_task: TaskHandle | None = None
         self._tianditu_check_origin = "idle"
-        self._opentopography_thread: QThread | None = None
-        self._opentopography_worker: OpenTopographyKeyWorker | None = None
+        self._opentopography_task: TaskHandle | None = None
         self._opentopography_check_origin = "idle"
         self._active_search_output_dir = ""
         self._download_tasks: list[DownloadTask] = []
@@ -139,11 +137,17 @@ class DownloadController(QObject):
         candidates = [
             ("download", self._download_thread),
             ("search", self._download_search_thread),
-            ("Earthdata test", self._credential_thread),
-            ("Tianditu key test", self._tianditu_thread),
-            ("OpenTopography key test", self._opentopography_thread),
         ]
         return [(name, thread) for name, thread in candidates if thread is not None and thread.isRunning()]
+
+    @property
+    def active_short_task_count(self) -> int:
+        return self._short_task_pool.active_task_count
+
+    def shutdown_short_tasks(self, wait_ms: int = 300) -> bool:
+        """Cancel short checks and wait only for this controller's private pool."""
+
+        return self._short_task_pool.shutdown(wait_ms)
 
     def cancel_active_download(self) -> None:
         if (
@@ -225,7 +229,7 @@ class DownloadController(QObject):
             )
 
     def _start_tianditu_key_check(self, key: str, *, origin: str, save_on_success: bool) -> None:
-        if self._tianditu_thread is not None:
+        if self._tianditu_task is not None:
             return
         self._tianditu_check_origin = origin
         network = self.data_download_page.network_config()
@@ -233,19 +237,20 @@ class DownloadController(QObject):
             self.data_download_page.set_tianditu_busy(True)
             self.data_download_page.set_tianditu_status(tr("download.tianditu.testing"))
             self.data_download_page.append_log("Testing Tianditu basemap key in the background...")
-        self._tianditu_thread = QThread(self)
-        self._tianditu_worker = TiandituKeyWorker(key, network=network, save_on_success=save_on_success)
-        self._tianditu_worker.moveToThread(self._tianditu_thread)
-        self._tianditu_thread.started.connect(self._tianditu_worker.run)
-        self._tianditu_worker.finished.connect(self._handle_tianditu_key_test_finished)
-        self._tianditu_worker.finished.connect(self._tianditu_thread.quit)
-        self._tianditu_thread.finished.connect(self._tianditu_worker.deleteLater)
-        self._tianditu_thread.finished.connect(self._tianditu_thread.deleteLater)
-        self._tianditu_thread.finished.connect(self._clear_tianditu_worker_refs)
-        self._tianditu_thread.start()
+        self._tianditu_task = self._short_task_pool.submit(
+            lambda: run_tianditu_key_check(
+                key,
+                network=network,
+                save_on_success=save_on_success,
+            ),
+            name="Tianditu key test",
+            on_success=self._handle_tianditu_task_succeeded,
+            on_failure=self._handle_tianditu_task_failed,
+            on_finished=self._clear_tianditu_task_ref,
+        )
 
     def _start_opentopography_key_check(self, key: str, *, origin: str, save_on_success: bool) -> None:
-        if self._opentopography_thread is not None:
+        if self._opentopography_task is not None:
             return
         self._opentopography_check_origin = origin
         network = self.data_download_page.network_config()
@@ -253,16 +258,17 @@ class DownloadController(QObject):
             self.data_download_page.set_opentopography_busy(True)
             self.data_download_page.set_opentopography_status(tr("download.opentopo.testing"))
             self.data_download_page.append_log("Testing OpenTopography DEM key in the background...")
-        self._opentopography_thread = QThread(self)
-        self._opentopography_worker = OpenTopographyKeyWorker(key, network=network, save_on_success=save_on_success)
-        self._opentopography_worker.moveToThread(self._opentopography_thread)
-        self._opentopography_thread.started.connect(self._opentopography_worker.run)
-        self._opentopography_worker.finished.connect(self._handle_opentopography_key_test_finished)
-        self._opentopography_worker.finished.connect(self._opentopography_thread.quit)
-        self._opentopography_thread.finished.connect(self._opentopography_worker.deleteLater)
-        self._opentopography_thread.finished.connect(self._opentopography_thread.deleteLater)
-        self._opentopography_thread.finished.connect(self._clear_opentopography_worker_refs)
-        self._opentopography_thread.start()
+        self._opentopography_task = self._short_task_pool.submit(
+            lambda: run_opentopography_key_check(
+                key,
+                network=network,
+                save_on_success=save_on_success,
+            ),
+            name="OpenTopography key test",
+            on_success=self._handle_opentopography_task_succeeded,
+            on_failure=self._handle_opentopography_task_failed,
+            on_finished=self._clear_opentopography_task_ref,
+        )
 
     # ------------------------------------------------------------------
     # Search
@@ -398,7 +404,7 @@ class DownloadController(QObject):
         return message
 
     def test_asf_download_credentials(self) -> None:
-        if self._credential_thread is not None:
+        if self._credential_task is not None:
             self._window._show_error(
                 tr("download.dialog.conn_test_running.title"),
                 tr("download.dialog.conn_test_running.body"),
@@ -410,21 +416,33 @@ class DownloadController(QObject):
         self._download_credentials_ok = False
         self.data_download_page.test_credentials_button.setEnabled(False)
         self.data_download_page.append_log("Testing ASF Earthdata connection in the background...")
-        self._credential_thread = QThread(self)
-        self._credential_worker = CredentialWorker(
-            username,
-            password,
-            save_netrc=self.data_download_page.should_save_netrc(),
-            network=network,
+        save_netrc = self.data_download_page.should_save_netrc()
+        self._credential_task = self._short_task_pool.submit(
+            lambda: run_credential_check(
+                username,
+                password,
+                save_netrc=save_netrc,
+                network=network,
+            ),
+            name="Earthdata credential test",
+            on_success=self._handle_credential_task_succeeded,
+            on_failure=self._handle_credential_task_failed,
+            on_finished=self._clear_credential_task_ref,
         )
-        self._credential_worker.moveToThread(self._credential_thread)
-        self._credential_thread.started.connect(self._credential_worker.run)
-        self._credential_worker.finished.connect(self._handle_credential_test_finished)
-        self._credential_worker.finished.connect(self._credential_thread.quit)
-        self._credential_thread.finished.connect(self._credential_worker.deleteLater)
-        self._credential_thread.finished.connect(self._credential_thread.deleteLater)
-        self._credential_thread.finished.connect(self._clear_credential_worker_refs)
-        self._credential_thread.start()
+
+    def _handle_credential_task_succeeded(self, payload: object) -> None:
+        result, saved_path, endpoint_checks = payload
+        self._handle_credential_test_finished(result, saved_path, endpoint_checks)
+
+    def _handle_credential_task_failed(self, message: str) -> None:
+        detail = f"Earthdata credential test failed unexpectedly: {message}"
+        self.data_download_page.test_credentials_button.setEnabled(True)
+        self.data_download_page.set_credential_status(detail)
+        self.data_download_page.append_log(detail)
+        self._download_credentials_ok = False
+        self._download_page_status = "Credential failed"
+        self._download_page_message = detail
+        self._window._sync_summary_sidebar()
 
     def _handle_credential_test_finished(self, result, saved_path: str, endpoint_checks) -> None:
         self.data_download_page.test_credentials_button.setEnabled(True)
@@ -444,12 +462,11 @@ class DownloadController(QObject):
         self._download_page_message = result.message
         self._window._sync_summary_sidebar()
 
-    def _clear_credential_worker_refs(self) -> None:
-        self._credential_thread = None
-        self._credential_worker = None
+    def _clear_credential_task_ref(self) -> None:
+        self._credential_task = None
 
     def test_tianditu_basemap_key(self) -> None:
-        if self._tianditu_thread is not None:
+        if self._tianditu_task is not None:
             self._window._show_error(
                 tr("download.dialog.tianditu_test_running.title"),
                 tr("download.dialog.tianditu_test_running.body"),
@@ -459,7 +476,7 @@ class DownloadController(QObject):
         self._start_tianditu_key_check(key, origin="manual", save_on_success=True)
 
     def test_opentopography_key(self) -> None:
-        if self._opentopography_thread is not None:
+        if self._opentopography_task is not None:
             self._window._show_error(
                 tr("download.dialog.opentopo_test_running.title"),
                 tr("download.dialog.opentopo_test_running.body"),
@@ -500,9 +517,24 @@ class DownloadController(QObject):
                 )
             self.data_download_page.append_log(result.message)
 
-    def _clear_tianditu_worker_refs(self) -> None:
-        self._tianditu_thread = None
-        self._tianditu_worker = None
+    def _handle_tianditu_task_succeeded(self, payload: object) -> None:
+        result, saved_path = payload
+        self._handle_tianditu_key_test_finished(result, saved_path)
+
+    def _handle_tianditu_task_failed(self, message: str) -> None:
+        detail = f"Tianditu key test failed unexpectedly: {message}"
+        origin = self._tianditu_check_origin
+        if origin == "manual":
+            self.data_download_page.set_tianditu_busy(False)
+            self.data_download_page.append_log(detail)
+        self.data_download_page.set_tianditu_basemap_state(
+            available=False,
+            preferred_basemap="External Imagery",
+        )
+        self.data_download_page.set_tianditu_status(detail)
+
+    def _clear_tianditu_task_ref(self) -> None:
+        self._tianditu_task = None
         self._tianditu_check_origin = "idle"
 
     def _handle_opentopography_key_test_finished(self, result, saved_path: str) -> None:
@@ -521,9 +553,21 @@ class DownloadController(QObject):
                 )
             self.data_download_page.append_log(result.message)
 
-    def _clear_opentopography_worker_refs(self) -> None:
-        self._opentopography_thread = None
-        self._opentopography_worker = None
+    def _handle_opentopography_task_succeeded(self, payload: object) -> None:
+        result, saved_path = payload
+        self._handle_opentopography_key_test_finished(result, saved_path)
+
+    def _handle_opentopography_task_failed(self, message: str) -> None:
+        detail = f"OpenTopography key test failed unexpectedly: {message}"
+        origin = self._opentopography_check_origin
+        if origin == "manual":
+            self.data_download_page.set_opentopography_busy(False)
+            self.data_download_page.append_log(detail)
+        self.data_download_page.set_opentopography_available(False)
+        self.data_download_page.set_opentopography_status(detail)
+
+    def _clear_opentopography_task_ref(self) -> None:
+        self._opentopography_task = None
         self._opentopography_check_origin = "idle"
 
     # ------------------------------------------------------------------

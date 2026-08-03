@@ -19,9 +19,11 @@ from PySide6.QtWidgets import (
 
 from insar_pilot.bootstrap import create_default_project
 from insar_pilot.services.preflight import PreflightCheck, PreflightReport
+from insar_pilot.ui.fonts import build_ui_font, resolve_ui_font_family
 from insar_pilot.ui.icons import BrandAssets, IconProvider
 from insar_pilot.ui.pages.processing_setup_page import ProcessingSetupPage
 from insar_pilot.ui.pages.project_start_page import ProjectStartPage
+from insar_pilot.ui.task_pool import BackgroundTaskPool
 from insar_pilot.ui.theme import build_light_stylesheet
 from insar_pilot.ui.widgets.combo_wheel_guard import (
     WHEEL_GUARD_PROPERTY,
@@ -30,6 +32,7 @@ from insar_pilot.ui.widgets.combo_wheel_guard import (
 )
 from insar_pilot.ui.widgets.command_preview import CommandPreview
 from insar_pilot.ui.widgets.footprint_map import FootprintMapWidget
+from insar_pilot.ui.widgets.log_console import LogConsole
 from insar_pilot.ui.widgets.parameter_grid import ParameterGrid
 from insar_pilot.ui.widgets.preflight_check_list import PreflightCheckList
 from insar_pilot.ui.widgets.property_form import PropertyForm
@@ -63,8 +66,10 @@ def test_brand_assets_return_non_empty_qt_images():
 def test_stylesheet_is_composed_from_phase4_gis_modules():
     stylesheet = build_light_stylesheet()
 
-    assert "font-size: 12.5pt" in stylesheet
+    assert "font-size: 12pt" in stylesheet
     assert "font-family:" in stylesheet
+    assert "Noto Sans CJK SC" in stylesheet
+    assert "font-weight: 450" in stylesheet
     assert "min-height: 32px" in stylesheet
     assert "QPushButton:pressed" in stylesheet
     assert "padding: 7px 15px 5px 17px" in stylesheet
@@ -82,6 +87,16 @@ def test_stylesheet_is_composed_from_phase4_gis_modules():
     assert "QFrame#topWorkflowStepper" in stylesheet
     assert "QTreeWidget#workflowStepTree" in stylesheet
     assert "QLabel[formLabel=\"true\"]" in stylesheet
+
+
+def test_ui_font_prefers_a_unified_chinese_latin_family():
+    _qt_app()
+    assert resolve_ui_font_family(["DejaVu Sans", "Noto Sans CJK SC"]) == "Noto Sans CJK SC"
+    assert resolve_ui_font_family(["Ubuntu", "DejaVu Sans"]) == "Ubuntu"
+
+    font = build_ui_font(point_size=12)
+
+    assert font.pointSizeF() == 12
 
 
 def test_preflight_check_list_renders_blockers_and_warnings():
@@ -283,8 +298,26 @@ def test_main_window_uses_four_industrial_workflow_pages(monkeypatch):
             if button.objectName() == "topWorkflowStepButton"
         ]
         assert step_labels == ["Data", "Setup", "Run", "Results"]
-        assert window.workflow_stepper.parent().objectName() == "projectHeader"
+        assert window.workflow_stepper.parent().objectName() == "toolbarContext"
+        assert window.toolbar_context.parentWidget() is window.main_toolbar
+        assert not window.findChild(QWidget, "projectHeader")
+        assert window.header_project_label.maximumWidth() == 220
+        assert window.header_current_step_label.maximumWidth() == 140
+        assert window.data_download_page.header.isHidden()
+        assert window.processing_setup_page.header.isHidden()
+        assert window.run_monitor_page.header.isHidden()
+        assert window.results_page.header.isHidden()
         assert window.page_stack.count() == 5
+        assert not hasattr(window, "legacy_data_sources_page")
+        assert not hasattr(window, "legacy_aoi_iw_page")
+        assert not hasattr(window, "legacy_processing_page")
+        assert isinstance(window.log_view, LogConsole)
+        assert window.log_view.document().maximumBlockCount() == LogConsole.DEFAULT_MAX_BLOCKS
+        assert isinstance(window.data_download_page.log_text, LogConsole)
+        assert isinstance(window.download_controller._short_task_pool, BackgroundTaskPool)
+        assert not hasattr(window.download_controller, "_credential_thread")
+        assert not hasattr(window.download_controller, "_tianditu_thread")
+        assert not hasattr(window.download_controller, "_opentopography_thread")
         assert window.page_stack.currentWidget() is window.project_start_page
         assert window.minimumWidth() >= 1366
         assert not hasattr(window, "body_splitter")

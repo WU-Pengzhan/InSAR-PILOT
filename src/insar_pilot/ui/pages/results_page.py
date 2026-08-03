@@ -38,6 +38,7 @@ class ResultsPage(QWidget):
 
         self.header = PageHeader(tr("nav.results"), tr("results.subtitle"))
         layout.addWidget(self.header)
+        self.header.hide()
 
         self.output_card = SummaryCard(
             tr("results.card.output.title"), tr("results.card.output.value"), tr("results.card.output.body"), self

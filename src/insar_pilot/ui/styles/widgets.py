@@ -41,7 +41,7 @@ QFrame#workflowNavItem[selected="true"] {{
 QLabel#workflowNavItemTitle {{
     color: {TOKENS["text"]};
     font-size: {FONT_SIZES["body"]}pt;
-    font-weight: 600;
+    font-weight: 500;
     background: transparent;
 }}
 QFrame#workflowNavItem[selected="true"] QLabel#workflowNavItemTitle {{
@@ -52,7 +52,7 @@ QFrame#workflowNavItem QLabel[badge="true"] {{
 }}
 QListWidget#workflowNav QLabel {{
     font-size: {FONT_SIZES["body"]}pt;
-    font-weight: 600;
+    font-weight: 500;
     color: {TOKENS["text"]};
 }}
 QDockWidget {{
@@ -63,32 +63,33 @@ QDockWidget::title {{
     padding: 8px;
     border-bottom: 1px solid {TOKENS["border"]};
 }}
-QWidget#projectHeader {{
-    background: {TOKENS["surface_alt"]};
-    border-bottom: 1px solid {TOKENS["border"]};
+QWidget#toolbarContext {{
+    background: transparent;
+    border: none;
 }}
 QFrame#projectHeaderMeta {{
-    background: {TOKENS["surface"]};
-    border: 1px solid {TOKENS["border"]};
-    border-radius: {RADIUS["sm"]}px;
+    background: transparent;
+    border: none;
+    border-left: 1px solid {TOKENS["border"]};
+    border-radius: 0;
 }}
 QFrame#projectHeaderMeta QLabel {{
     color: {TOKENS["text_subtle"]};
 }}
 QFrame#topWorkflowStepper {{
-    background: {TOKENS["surface_alt"]};
-    border: 1px solid {TOKENS["border"]};
-    border-radius: {RADIUS["sm"]}px;
+    background: transparent;
+    border: none;
+    border-radius: 0;
 }}
 QPushButton#topWorkflowStepButton {{
-    background: {TOKENS["surface"]};
+    background: transparent;
     border: 1px solid transparent;
     border-radius: {RADIUS["sm"]}px;
     color: {TOKENS["text"]};
-    font-weight: 700;
-    min-width: 92px;
+    font-weight: 600;
+    min-width: 72px;
     min-height: 32px;
-    padding: 4px 10px;
+    padding: 4px 8px;
 }}
 QPushButton#topWorkflowStepButton:hover {{
     background: {TOKENS["hover_bg"]};
@@ -96,12 +97,13 @@ QPushButton#topWorkflowStepButton:hover {{
 }}
 QPushButton#topWorkflowStepButton:checked {{
     background: {TOKENS["checked_bg"]};
-    border-color: {TOKENS["checked_border"]};
+    border-color: transparent;
+    border-bottom: 2px solid {TOKENS["accent"]};
     color: {TOKENS["accent_pressed"]};
 }}
 QPushButton#topWorkflowStepButton:pressed {{
     background: {TOKENS["pressed_bg"]};
-    padding: 5px 9px 3px 11px;
+    padding: 5px 7px 3px 9px;
 }}
 QPushButton#topWorkflowStepButton:focus {{
     border-color: {TOKENS["focus"]};
@@ -111,18 +113,18 @@ QPushButton#topWorkflowStepButton:disabled {{
     background: {TOKENS["disabled_bg"]};
     border-color: transparent;
 }}
-QPushButton#topWorkflowStepButton[stepState="ready"],
-QPushButton#topWorkflowStepButton[stepState="success"] {{
+QPushButton#topWorkflowStepButton[stepState="ready"]:checked,
+QPushButton#topWorkflowStepButton[stepState="success"]:checked {{
     border-bottom: 3px solid {TOKENS["success_text"]};
 }}
-QPushButton#topWorkflowStepButton[stepState="warning"] {{
+QPushButton#topWorkflowStepButton[stepState="warning"]:checked {{
     border-bottom: 3px solid {TOKENS["warning_text"]};
 }}
-QPushButton#topWorkflowStepButton[stepState="failed"] {{
+QPushButton#topWorkflowStepButton[stepState="failed"]:checked {{
     border-bottom: 3px solid {TOKENS["error_text"]};
 }}
 QWidget#projectStartPage {{
-    background: {TOKENS["surface_alt"]};
+    background: {TOKENS["surface"]};
 }}
 QFrame#startRecentPanel,
 QFrame#startActionPanel,
@@ -134,7 +136,7 @@ QFrame#startNoticePanel {{
 }}
 QLabel#startPanelTitle {{
     font-size: {FONT_SIZES["h2"]}pt;
-    font-weight: 700;
+    font-weight: 600;
     color: {TOKENS["text"]};
 }}
 QLabel#startPanelHint,
@@ -146,7 +148,7 @@ QLabel#startEmptyText {{
 }}
 QLabel#startInfoText {{
     color: {TOKENS["text"]};
-    font-weight: 700;
+    font-weight: 600;
 }}
 QWidget#startBrandRow {{
     background: transparent;
@@ -160,7 +162,7 @@ QLabel#startBrandLogo {{
 QLabel#startBrandName {{
     color: {TOKENS["accent_pressed"]};
     font-size: {FONT_SIZES["h1"]}pt;
-    font-weight: 800;
+    font-weight: 600;
 }}
 QLabel#startBrandSubtitle {{
     color: {TOKENS["text_muted"]};
@@ -203,14 +205,14 @@ QLabel#startRecentIcon {{
 QLabel#startRecentName {{
     color: {TOKENS["text"]};
     font-size: {FONT_SIZES["h3"]}pt;
-    font-weight: 700;
+    font-weight: 600;
 }}
 QLabel#startRecentPath {{
     color: {TOKENS["text_muted"]};
 }}
 QLabel#startRecentStatus {{
     color: {TOKENS["success_text"]};
-    font-weight: 600;
+    font-weight: 500;
 }}
 QLabel#startRecentStatus[missing="true"] {{
     color: {TOKENS["error_text"]};
@@ -221,7 +223,7 @@ QFrame#dataMapWorkspace {{
     background: {TOKENS["surface"]};
 }}
 QFrame#dataMapWorkspace {{
-    border-left: 2px solid {TOKENS["border_strong"]};
+    border: 1px solid {TOKENS["border_strong"]};
 }}
 QWidget#dataControlPanel QLabel,
 QWidget#dataMapWorkspace QLabel,
@@ -259,11 +261,11 @@ QFrame#collapsibleSection {{
     border-radius: {RADIUS["sm"]}px;
 }}
 QFrame#collapsibleSection QToolButton {{
-    background: {TOKENS["surface_alt"]};
+    background: transparent;
     border: none;
     border-bottom: 1px solid {TOKENS["border"]};
     padding: 8px 10px;
-    font-weight: 700;
+    font-weight: 600;
     text-align: left;
 }}
 QFrame#collapsibleSection QToolButton:hover {{
@@ -293,26 +295,12 @@ QFrame#collapsibleSection[density="compact"] QPushButton {{
 QCheckBox#iw1Check,
 QCheckBox#iw2Check,
 QCheckBox#iw3Check {{
-    border: 1px solid {TOKENS["border"]};
-    border-radius: {RADIUS["lg"]}px;
+    background: transparent;
+    border: none;
+    border-radius: 0;
     padding: 4px 8px;
     spacing: 6px;
-    font-weight: 600;
-}}
-QCheckBox#iw1Check {{
-    background: {TOKENS["info_bg"]};
-    color: {TOKENS["info_text"]};
-    border-color: {TOKENS["info_border"]};
-}}
-QCheckBox#iw2Check {{
-    background: {TOKENS["success_bg"]};
-    color: {TOKENS["success_text"]};
-    border-color: {TOKENS["success_border"]};
-}}
-QCheckBox#iw3Check {{
-    background: {TOKENS["warning_bg"]};
-    color: {TOKENS["warning_text"]};
-    border-color: {TOKENS["warning_border"]};
+    font-weight: 500;
 }}
 QCheckBox#iw1Check::indicator,
 QCheckBox#iw2Check::indicator,

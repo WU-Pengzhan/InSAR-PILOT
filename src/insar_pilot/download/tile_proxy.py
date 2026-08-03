@@ -20,9 +20,9 @@ class TiandituTileProxy:
     allowed_layers: ClassVar[set[str]] = {"img", "cia", "ter", "cta", "esri_img", "esri_topo"}
 
     def __init__(self, network: NetworkConfig | None = None) -> None:
-        self.network = network or NetworkConfig(mode="direct")
+        self.network = network or NetworkConfig(mode="environment")
         self.session = self.network.session()
-        self.session.headers.update({"User-Agent": "ISCE2-GUI Tianditu Proxy/1.0"})
+        self.session.headers.update({"User-Agent": "InSAR-PILOT Tile Proxy/1.0"})
         self._key = ""
         self._server: ThreadingHTTPServer | None = None
         self._thread: threading.Thread | None = None

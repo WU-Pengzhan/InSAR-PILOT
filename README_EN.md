@@ -45,23 +45,47 @@ See the [full user guide](docs/en/user-guide.md) for more screenshots.
 
 ## Install and Launch
 
-Recommended conda workflow:
+### Prerequisites
+
+- Ubuntu Desktop 22.04+, or Ubuntu under WSL2/WSLg on Windows 11.
+- An initialized Conda installation (Miniconda, Anaconda, or Miniforge).
+- Git and network access to `conda-forge` and GitHub.
+
+### Create the runtime environment
+
+You choose the environment name. The commands below use `insar` only as an example:
 
 ```bash
 git clone https://github.com/WU-Pengzhan/InSAR-PILOT.git
 cd InSAR-PILOT
 
-conda env create -f environment.yml
+conda env create -n insar -f environment.yml
 conda activate insar
 
-pip install .
+python -m pip install .
+```
+
+InSAR-PILOT only uses the Conda environment that launches it and never switches environments from project metadata. Activate the same environment before every launch:
+
+```bash
+conda activate insar
 insar-pilot
 ```
 
-Developer mode:
+Run these checks after installation:
 
 ```bash
-pip install -e .[dev]
+python -c "import isce, isceobj, eof, snaphu, insar_pilot; print('Python modules: OK')"
+test -f "$CONDA_PREFIX/share/isce2/topsStack/stackSentinel.py"
+command -v gdal_translate
+command -v aria2c
+insar-pilot-cli --help
+```
+
+For an editable development installation:
+
+```bash
+python -m pip install -e '.[dev]'
 insar-pilot
 ```
 
@@ -115,10 +139,9 @@ Exit codes: `0` success, `1` a command failed, `2` usage/config error. Data/DEM/
 ## Platform and Runtime
 
 - Ubuntu Desktop or WSL2/WSLg.
-- Python 3.10-3.12.
-- Default conda environment name: `insar`.
-- `environment.yml` installs GUI dependencies, ISCE2, GDAL, aria2, sentineleof, asf-search, and runtime utilities; SLC downloads require aria2c for multipart resumable transfers.
-- Optional WebEngine map support: `pip install '.[map]'`.
+- The complete processing environment currently pins Python 3.10 for the ISCE2/GDAL runtime.
+- The examples use `insar` as the environment name; you may choose another name.
+- `environment.yml` installs the GUI, QtWebEngine map, ISCE2, GDAL, aria2, sentineleof, asf-search, and runtime utilities; SLC downloads require aria2c for multipart resumable transfers.
 
 For Qt, map, DEM, or run-file issues, start with [docs/troubleshooting.md](docs/troubleshooting.md).
 

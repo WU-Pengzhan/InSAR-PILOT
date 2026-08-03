@@ -2,7 +2,7 @@ import os
 from pathlib import Path
 
 from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QApplication
+from PySide6.QtWidgets import QApplication, QLabel
 from requests.cookies import RequestsCookieJar, create_cookie
 
 from insar_pilot.download import DownloadService, DownloadStorage, OrbitDownloadService, SearchService, create_dem_task
@@ -1380,6 +1380,7 @@ def test_download_page_layout_defaults_expand_controls_and_use_external_basemap_
     app.processEvents()
     page.normalize_main_splitter_sizes(force=True)
 
+    assert page.header.isHidden()
     assert page.control_scroll.minimumWidth() == 500
     assert page.control_scroll.maximumWidth() == 760
     assert page.main_splitter.objectName() == "dataMainSplitter"
@@ -1389,6 +1390,14 @@ def test_download_page_layout_defaults_expand_controls_and_use_external_basemap_
     assert page.map_results_splitter.count() == 2
     assert page.map_results_splitter.objectName() == "dataMapResultsSplitter"
     assert page.map_results_splitter.handleWidth() == 8
+    assert page.map_results_splitter.parentWidget().objectName() == "dataMapWorkspace"
+    assert not any(
+        label.text() == "Footprint Map"
+        for label in page.findChildren(QLabel)
+    )
+    assert page.footprint_map.geometry_panel.zoom_in_button.isHidden()
+    assert page.footprint_map.geometry_panel.zoom_out_button.isHidden()
+    assert page.footprint_map.geometry_panel.fit_button.isHidden()
     assert page.download_step_tree.topLevelItemCount() == 5
     assert page.download_step_tree.verticalScrollBarPolicy() == Qt.ScrollBarPolicy.ScrollBarAlwaysOff
     assert page.download_wizard_bar.run_button.text() == "Download"
@@ -1614,6 +1623,20 @@ def test_download_page_log_append_preserves_manual_scroll_position():
     app.processEvents()
 
     assert scrollbar.value() == previous
+
+
+def test_download_page_activity_log_is_mirrored_to_disk(tmp_path: Path):
+    from insar_pilot.ui.pages.data_download_page import DataDownloadPage
+
+    _qt_app()
+    page = DataDownloadPage()
+    log_path = tmp_path / "logs" / "data-acquisition.log"
+    page.set_activity_log_path(log_path)
+
+    page.append_log("search started")
+    page.append_log("search completed")
+
+    assert log_path.read_text(encoding="utf-8") == "search started\nsearch completed\n"
 
 
 def test_download_page_task_update_does_not_refresh_map_or_scene_detail(monkeypatch):

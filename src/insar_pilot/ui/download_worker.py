@@ -22,6 +22,63 @@ from insar_pilot.download.models import SearchCriteria
 from insar_pilot.download.opentopography_credentials import save_opentopography_key, test_opentopography_key
 
 
+def run_credential_check(
+    username: str,
+    password: str,
+    *,
+    save_netrc: bool = False,
+    network: NetworkConfig | None = None,
+):
+    """Return the complete Earthdata check payload without Qt thread affinity."""
+
+    network = network or NetworkConfig()
+    saved_path = ""
+    endpoint_checks = test_network_endpoints(network)
+    result = test_earthdata_connection(username, password, network=network)
+    if result.ok and save_netrc:
+        try:
+            saved_path = str(save_earthdata_netrc(username, password))
+        except Exception as exc:
+            saved_path = f"Saving ~/.netrc failed: {exc}"
+    return result, saved_path, endpoint_checks
+
+
+def run_tianditu_key_check(
+    key: str,
+    *,
+    network: NetworkConfig | None = None,
+    save_on_success: bool = True,
+):
+    """Return a Tianditu validation payload suitable for a callable pool."""
+
+    saved_path = ""
+    result = test_tianditu_key(key, network=network or NetworkConfig())
+    if result.ok and save_on_success:
+        try:
+            saved_path = str(save_tianditu_key(key))
+        except Exception as exc:
+            saved_path = f"Saving Tianditu key failed: {exc}"
+    return result, saved_path
+
+
+def run_opentopography_key_check(
+    key: str,
+    *,
+    network: NetworkConfig | None = None,
+    save_on_success: bool = True,
+):
+    """Return an OpenTopography validation payload for a callable pool."""
+
+    saved_path = ""
+    result = test_opentopography_key(key, network=network or NetworkConfig())
+    if result.ok and save_on_success:
+        try:
+            saved_path = str(save_opentopography_key(key))
+        except Exception as exc:
+            saved_path = f"Saving OpenTopography key failed: {exc}"
+    return result, saved_path
+
+
 class SearchWorker(QObject):
     """Run ASF scene search off the GUI thread."""
 
@@ -55,102 +112,6 @@ class SearchWorker(QObject):
             self.finished.emit(scenes, saved_path)
         except Exception as exc:
             self.failed.emit(str(exc))
-
-
-class CredentialWorker(QObject):
-    """Run Earthdata credential checks off the GUI thread."""
-
-    finished = Signal(object, str, object)
-
-    def __init__(
-        self,
-        username: str,
-        password: str,
-        *,
-        save_netrc: bool = False,
-        network: NetworkConfig | None = None,
-    ) -> None:
-        super().__init__()
-        self.username = username
-        self.password = password
-        self.save_netrc = save_netrc
-        self.network = network or NetworkConfig()
-
-    @Slot()
-    def run(self) -> None:
-        """Check credentials and optionally save them to netrc."""
-
-        saved_path = ""
-        endpoint_checks = test_network_endpoints(self.network)
-        result = test_earthdata_connection(self.username, self.password, network=self.network)
-        if result.ok and self.save_netrc:
-            try:
-                saved_path = str(save_earthdata_netrc(self.username, self.password))
-            except Exception as exc:
-                saved_path = f"Saving ~/.netrc failed: {exc}"
-        self.finished.emit(result, saved_path, endpoint_checks)
-
-
-class TiandituKeyWorker(QObject):
-    """Validate and save a Tianditu key off the GUI thread."""
-
-    finished = Signal(object, str)
-
-    def __init__(
-        self,
-        key: str,
-        *,
-        network: NetworkConfig | None = None,
-        save_on_success: bool = True,
-    ) -> None:
-        super().__init__()
-        self.key = key
-        self.network = network or NetworkConfig()
-        self.save_on_success = save_on_success
-
-    @Slot()
-    def run(self) -> None:
-        """Check the key and save it only after a successful tile request."""
-
-        saved_path = ""
-        result = test_tianditu_key(self.key, network=self.network)
-        if result.ok and self.save_on_success:
-            try:
-                saved_path = str(save_tianditu_key(self.key))
-            except Exception as exc:
-                saved_path = f"Saving Tianditu key failed: {exc}"
-        self.finished.emit(result, saved_path)
-
-
-class OpenTopographyKeyWorker(QObject):
-    """Validate and save an OpenTopography key off the GUI thread."""
-
-    finished = Signal(object, str)
-
-    def __init__(
-        self,
-        key: str,
-        *,
-        network: NetworkConfig | None = None,
-        save_on_success: bool = True,
-    ) -> None:
-        super().__init__()
-        self.key = key
-        self.network = network or NetworkConfig()
-        self.save_on_success = save_on_success
-
-    @Slot()
-    def run(self) -> None:
-        """Check the key and save it only after a successful DEM API request."""
-
-        saved_path = ""
-        result = test_opentopography_key(self.key, network=self.network)
-        if result.ok and self.save_on_success:
-            try:
-                saved_path = str(save_opentopography_key(self.key))
-            except Exception as exc:
-                saved_path = f"Saving OpenTopography key failed: {exc}"
-        self.finished.emit(result, saved_path)
 
 
 class DownloadWorker(QObject):

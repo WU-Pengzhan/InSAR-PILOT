@@ -11,6 +11,7 @@ from insar_pilot.domain.project import (
     PROJECT_FILE_NAME,
     PROJECT_ROOT_FILE_NAME,
     DataDownloadConfig,
+    EnvironmentConfig,
     ProjectDocument,
     ProjectState,
     ProjectStatus,
@@ -25,6 +26,10 @@ from insar_pilot.services.project_store import ProjectLoadError, ProjectStore
 
 def test_default_project_uses_current_conda_environment():
     assert create_default_project().environment.conda_env_name == os.environ.get("CONDA_DEFAULT_ENV", "")
+
+
+def test_environment_config_has_no_named_default():
+    assert EnvironmentConfig().conda_env_name == ""
 
 
 def test_project_store_creates_root_workspace_layout(tmp_path: Path):

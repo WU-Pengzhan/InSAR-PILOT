@@ -40,15 +40,12 @@ class VerifyPlotData:
 class GeometryVerifyPanel(QWidget):
     """Interactive verify plot with zoom and fit controls."""
 
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent=None, *, show_controls: bool = True) -> None:
         super().__init__(parent)
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
-        layout.setSpacing(8)
+        layout.setSpacing(8 if show_controls else 0)
 
-        toolbar = QHBoxLayout()
-        toolbar.setContentsMargins(0, 0, 0, 0)
-        toolbar.setSpacing(6)
         self.status_label = QLabel("")
         self.zoom_in_button = QPushButton(tr("widget.geometry.zoom_in"))
         self.zoom_out_button = QPushButton(tr("widget.geometry.zoom_out"))
@@ -56,11 +53,20 @@ class GeometryVerifyPanel(QWidget):
         self.zoom_in_button.setProperty("role", "secondary")
         self.zoom_out_button.setProperty("role", "secondary")
         self.fit_button.setProperty("role", "secondary")
-        toolbar.addWidget(self.status_label, 1)
-        toolbar.addWidget(self.zoom_in_button)
-        toolbar.addWidget(self.zoom_out_button)
-        toolbar.addWidget(self.fit_button)
-        layout.addLayout(toolbar)
+        if show_controls:
+            toolbar = QHBoxLayout()
+            toolbar.setContentsMargins(0, 0, 0, 0)
+            toolbar.setSpacing(6)
+            toolbar.addWidget(self.status_label, 1)
+            toolbar.addWidget(self.zoom_in_button)
+            toolbar.addWidget(self.zoom_out_button)
+            toolbar.addWidget(self.fit_button)
+            layout.addLayout(toolbar)
+        else:
+            self.status_label.hide()
+            self.zoom_in_button.hide()
+            self.zoom_out_button.hide()
+            self.fit_button.hide()
 
         self.scene = QGraphicsScene(self)
         self.view = QGraphicsView(self.scene)

@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QFrame, QToolButton, QVBoxLayout, QWidget
+from PySide6.QtWidgets import QFrame, QSizePolicy, QToolButton, QVBoxLayout, QWidget
 
 
 class CollapsibleSection(QFrame):
@@ -19,6 +19,7 @@ class CollapsibleSection(QFrame):
 
         self.toggle_button = QToolButton()
         self.toggle_button.setText(title)
+        self.toggle_button.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
         self.toggle_button.setCheckable(True)
         self.toggle_button.setChecked(expanded)
         self.toggle_button.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon)

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import os
 import shutil
+import sys
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -81,15 +82,21 @@ class PreflightService:
         prepared_inputs = prepared or project.state.prepared_inputs
         checks: list[PreflightCheck] = []
         workflow = project.workflow
-        environment = project.environment
-
+        conda_prefix = os.environ.get("CONDA_PREFIX", "").strip()
+        launch_environment_ok = bool(conda_prefix) and Path(conda_prefix).expanduser().resolve() == Path(
+            sys.prefix
+        ).resolve()
         checks.append(
             self._check(
                 "conda_env",
-                "Conda environment",
-                bool(environment.conda_env_name.strip()),
-                f"Generation will run through: conda activate {environment.conda_env_name.strip() or '<missing>'}.",
-                "Set the conda environment name. The packaged WSL2 environment default is 'insar'.",
+                "Launch environment",
+                launch_environment_ok,
+                (
+                    f"Commands inherit the active environment at {conda_prefix}."
+                    if launch_environment_ok
+                    else f"The active conda prefix does not match the application Python at {sys.prefix}."
+                ),
+                "Activate the conda environment where InSAR-PILOT is installed, then restart the application.",
             )
         )
         checks.append(

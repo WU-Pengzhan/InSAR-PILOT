@@ -8,15 +8,19 @@ def build_base_qss(TOKENS: dict[str, str] = LIGHT_TOKENS) -> str:
 
     return f"""
 QWidget {{
-    background: {TOKENS["background"]};
+    background: {TOKENS["surface"]};
     color: {TOKENS["text"]};
-    font-family: "Segoe UI", "Microsoft YaHei UI", "Noto Sans", "Ubuntu", "Arial", sans-serif;
+    font-family: "Noto Sans CJK SC", "Microsoft YaHei UI", "Source Han Sans SC", "Segoe UI", "Ubuntu", sans-serif;
     font-size: {FONT_SIZES["body_lg"]}pt;
+    font-weight: 450;
 }}
 QLabel {{
     background: transparent;
 }}
-QMainWindow, QMenuBar, QMenu, QToolBar, QStatusBar, QFrame, QScrollArea, QPlainTextEdit,
+QMainWindow {{
+    background: {TOKENS["background"]};
+}}
+QMenuBar, QMenu, QStatusBar, QFrame, QScrollArea, QPlainTextEdit,
 QTreeWidget, QTableWidget, QListWidget, QLineEdit, QComboBox, QSpinBox, QDoubleSpinBox {{
     background: {TOKENS["surface"]};
     color: {TOKENS["text"]};
@@ -104,13 +108,13 @@ QToolBar {{
     padding: 3px;
 }}
 QPushButton {{
-    background: {TOKENS["surface_alt"]};
+    background: {TOKENS["surface"]};
     color: {TOKENS["text"]};
     border: 1px solid {TOKENS["border_strong"]};
     border-radius: {RADIUS["sm"]}px;
     padding: 6px 16px;
     min-height: 32px;
-    font-weight: 600;
+    font-weight: 500;
 }}
 QPushButton:hover {{
     background: {TOKENS["hover_bg"]};
@@ -133,7 +137,7 @@ QPushButton[role="primary"] {{
     background: {TOKENS["accent"]};
     color: {TOKENS["on_accent"]};
     border: 1px solid {TOKENS["accent_pressed"]};
-    font-weight: 600;
+    font-weight: 500;
 }}
 QPushButton[role="primary"]:hover {{
     background: {TOKENS["accent_hover"]};
@@ -169,7 +173,7 @@ QPushButton[role="danger"] {{
     background: {TOKENS["danger_bg"]};
     color: {TOKENS["error_text"]};
     border: 1px solid {TOKENS["error_border"]};
-    font-weight: 600;
+    font-weight: 500;
 }}
 QPushButton[role="danger"]:hover {{
     background: {TOKENS["error_bg"]};
@@ -233,7 +237,7 @@ QHeaderView::section {{
     border-right: 1px solid {TOKENS["border"]};
     border-bottom: 1px solid {TOKENS["border"]};
     padding: 8px 10px;
-    font-weight: 600;
+    font-weight: 500;
 }}
 QTableWidget::item,
 QTreeWidget::item,

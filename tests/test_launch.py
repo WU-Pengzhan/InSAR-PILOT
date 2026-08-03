@@ -6,6 +6,25 @@ from pathlib import Path
 import insar_pilot.launch as launch
 
 
+def test_conda_runtime_accepts_matching_python_prefix(tmp_path, monkeypatch):
+    monkeypatch.setattr(launch.sys, "prefix", str(tmp_path))
+    monkeypatch.setenv("CONDA_PREFIX", str(tmp_path))
+
+    assert launch.conda_runtime_error() == ""
+
+
+def test_conda_runtime_rejects_missing_or_different_environment(tmp_path, monkeypatch):
+    installed_prefix = tmp_path / "installed"
+    active_prefix = tmp_path / "active"
+    monkeypatch.setattr(launch.sys, "prefix", str(installed_prefix))
+    monkeypatch.delenv("CONDA_PREFIX", raising=False)
+
+    assert "must be launched from the conda environment" in launch.conda_runtime_error()
+
+    monkeypatch.setenv("CONDA_PREFIX", str(active_prefix))
+    assert "but the active conda environment is" in launch.conda_runtime_error()
+
+
 def test_qt_platform_candidates_prefer_xcb_on_wsl(monkeypatch):
     monkeypatch.setenv("WSL_DISTRO_NAME", "Ubuntu")
     monkeypatch.setenv("DISPLAY", ":0")
@@ -45,6 +64,14 @@ def test_prepare_qt_application_attributes_is_callable():
     launch.prepare_qt_application_attributes()
 
 
+def test_desktop_environment_preserves_per_monitor_scaling(monkeypatch):
+    monkeypatch.delenv("QT_SCALE_FACTOR_ROUNDING_POLICY", raising=False)
+
+    launch.prepare_desktop_environment()
+
+    assert os.environ["QT_SCALE_FACTOR_ROUNDING_POLICY"] == "PassThrough"
+
+
 def test_prepare_qt_runtime_supports_pyside_and_conda_qt_layouts(tmp_path, monkeypatch):
     prefix = tmp_path / "env"
     pyside = prefix / "lib" / "python3.10" / "site-packages" / "PySide6"
@@ -75,3 +102,32 @@ def test_prepare_qt_runtime_supports_pyside_and_conda_qt_layouts(tmp_path, monke
     assert str(prefix / "lib" / "qt6" / "plugins") in plugin_paths
     assert Path(os.environ["QT_QPA_PLATFORM_PLUGIN_PATH"]) == pyside_plugins / "platforms"
     assert Path(os.environ["QTWEBENGINEPROCESS_PATH"]) == webengine
+
+
+def test_prepare_qt_runtime_finds_conda_webengine_process_and_resources(tmp_path, monkeypatch):
+    prefix = tmp_path / "env"
+    pyside = prefix / "lib" / "python3.10" / "site-packages" / "PySide6"
+    webengine = prefix / "lib" / "qt6" / "QtWebEngineProcess"
+    resources = prefix / "share" / "qt6" / "resources"
+    locales = prefix / "share" / "qt6" / "translations" / "qtwebengine_locales"
+    for path in (pyside, webengine.parent, resources, locales):
+        path.mkdir(parents=True, exist_ok=True)
+    webengine.write_text("", encoding="utf-8")
+
+    class _Spec:
+        submodule_search_locations = [str(pyside)]
+
+    monkeypatch.setattr(launch.sys, "prefix", str(prefix))
+    monkeypatch.setattr(launch.importlib.util, "find_spec", lambda name: _Spec() if name == "PySide6" else None)
+    for key in (
+        "QTWEBENGINEPROCESS_PATH",
+        "QTWEBENGINE_RESOURCES_PATH",
+        "QTWEBENGINE_LOCALES_PATH",
+    ):
+        monkeypatch.delenv(key, raising=False)
+
+    launch.prepare_qt_runtime()
+
+    assert Path(os.environ["QTWEBENGINEPROCESS_PATH"]) == webengine
+    assert Path(os.environ["QTWEBENGINE_RESOURCES_PATH"]) == resources
+    assert Path(os.environ["QTWEBENGINE_LOCALES_PATH"]) == locales

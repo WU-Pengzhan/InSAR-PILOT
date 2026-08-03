@@ -15,7 +15,6 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 from PySide6.QtCore import QObject, Qt
-from PySide6.QtGui import QPixmap
 from PySide6.QtWidgets import QMenu, QMessageBox, QTreeWidgetItem
 
 from insar_pilot.domain.project import ProjectStatus, RunStep, RunSubcommand, StepStatus
@@ -202,9 +201,7 @@ class RunController(QObject):
                         subcommand.status = StepStatus.RUNNING
                         subcommand.exit_code = None
         elif plan.kind == "visualization":
-            self._window.preview_image_label.setPixmap(QPixmap())
-            self._window.preview_image_label.setText(tr("status.rendering_preview"))
-            self._window.preview_image_label.resize(480, 320)
+            self._window.results_page.preview_panel.clear_image(tr("status.rendering_preview"))
         self.refresh_steps_view()
         self._window.refresh_status_labels()
         self._window._sync_summary_sidebar()
@@ -297,9 +294,7 @@ class RunController(QObject):
                 self._window.visual_status_text.setPlainText(
                     f"{pending.summary if pending else ''}\n\nStatus: failed (exit={exit_code})"
                 )
-                self._window.preview_image_label.setPixmap(QPixmap())
-                self._window.preview_image_label.setText(tr("run.preview.render_failed"))
-                self._window.preview_image_label.resize(480, 320)
+                self._window.results_page.preview_panel.clear_image(tr("run.preview.render_failed"))
             else:
                 if pending is not None:
                     if pending.action == "preview":

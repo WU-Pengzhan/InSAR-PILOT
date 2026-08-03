@@ -1,4 +1,5 @@
 import subprocess
+import sys
 
 from insar_pilot.domain.project import EnvironmentConfig
 from insar_pilot.services.env_probe import EnvironmentProbe
@@ -14,6 +15,7 @@ def test_environment_probe_uses_detected_isce_src_when_configured_root_is_not_pr
     (isce_src / "applications").mkdir(parents=True)
     (isce_src / "components").mkdir(parents=True)
     monkeypatch.setenv("ISCE_SRC", str(isce_src))
+    monkeypatch.setenv("CONDA_PREFIX", sys.prefix)
 
     def runner(argv, capture_output=True, text=True):
         command = argv[-1]
@@ -29,6 +31,6 @@ def test_environment_probe_uses_detected_isce_src_when_configured_root_is_not_pr
     runtime = next(check for check in report.checks if check.name == "Runtime root")
 
     assert runtime.ok is True
-    assert "Configured root" in runtime.detail
+    assert "source layout" in runtime.detail
     assert str(isce_src / "contrib" / "stack" / "topsStack" / "stackSentinel.py") in runtime.detail
     assert report.ok is True

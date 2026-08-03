@@ -12,6 +12,7 @@ to the code that previously lived directly on the page.
 from __future__ import annotations
 
 from collections.abc import Callable
+from pathlib import Path
 
 from PySide6.QtCore import QObject, Qt
 from PySide6.QtWidgets import (
@@ -28,7 +29,7 @@ from insar_pilot.download.models import DemCoveragePlan, DownloadResult, Downloa
 from insar_pilot.i18n import tr
 from insar_pilot.ui.pages.data_download.scroll_filter import NestedScrollFilter
 from insar_pilot.ui.widgets.footprint_map import FootprintMapWidget
-from insar_pilot.ui.widgets.log_console import append_text_preserving_scroll
+from insar_pilot.ui.widgets.log_console import LogConsole
 
 
 class ResultsController(QObject):
@@ -86,6 +87,7 @@ class ResultsController(QObject):
         self._planned_download_tasks: list[DownloadTask] = []
         self._download_task_updates: dict[str, DownloadTask] = {}
         self._log_scroll_filters: list[NestedScrollFilter] = []
+        self._activity_log_path: Path | None = None
         self._preferred_selected_scene_ids: set[str] = set()
 
         self.footprint_map = FootprintMapWidget()
@@ -111,8 +113,7 @@ class ResultsController(QObject):
         self.scene_detail_text.setMinimumHeight(120)
         self.scene_detail_text.setMaximumHeight(150)
 
-        self.log_text = QPlainTextEdit()
-        self.log_text.setReadOnly(True)
+        self.log_text = LogConsole()
         self.log_text.setFocusPolicy(Qt.FocusPolicy.WheelFocus)
         self.log_text.setPlaceholderText(tr("download.log.placeholder"))
         self.log_text.setMinimumHeight(160)
@@ -366,7 +367,19 @@ class ResultsController(QObject):
     def append_log(self, message: str) -> None:
         """Append one status line to the page log."""
 
-        append_text_preserving_scroll(self.log_text, f"{message}\n")
+        self.log_text.append_text_preserving_scroll(f"{message}\n")
+        if self._activity_log_path is not None:
+            try:
+                self._activity_log_path.parent.mkdir(parents=True, exist_ok=True)
+                with self._activity_log_path.open("a", encoding="utf-8") as handle:
+                    handle.write(f"{message}\n")
+            except OSError:
+                pass
+
+    def set_activity_log_path(self, path: str | Path | None) -> None:
+        """Set the append-only file that mirrors the bounded activity console."""
+
+        self._activity_log_path = Path(path).expanduser() if path else None
 
     def _update_selection_summary(self) -> None:
         """Update the selected-scene affordance and summary card."""

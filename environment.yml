@@ -1,26 +1,35 @@
-name: insar
 channels:
   - conda-forge
-  - defaults
+  - nodefaults
 dependencies:
-  - python>=3.10,<3.13
+  - python=3.10
   - pip
-  - numpy
-  - gdal
+  - isce2=2.6.5
+  - numpy<2
+  - scipy
+  - shapely>=2
+  - matplotlib
+  - gdal>=3.10,<3.11
+  - snaphu
   - asf_search>=12.0
   - aria2
   - sentineleof>=0.11.1
-  - pyside6>=6.6
+  - pyside6>=6.6,<7
+  - qt6-webengine>=6.6,<7
+  - font-ttf-noto-cjk
   - pyshp>=2.3
   - qtawesome>=1.4,<2
   - requests>=2.31
   - pytest>=7.4
   - ruff
-  - build
 
 # Notes:
-# 1) This environment installs GUI/runtime essentials + ISCE2.
-# 2) Install optional QtWebEngine map support with:
-#    pip install '.[map]'
-# 3) After creating/activating this env, install the app from repository root:
+# 1) This environment installs the complete Sentinel-1 processing runtime:
+#    InSAR-PILOT dependencies, ISCE2 TOPS stack, GDAL, snaphu, and download tools.
+# 2) The ISCE2 conda activation hook exposes ISCE_HOME/ISCE_STACK. InSAR-PILOT
+#    also resolves the conda-style TOPS stack under $CONDA_PREFIX/share/isce2.
+# 3) QtWebEngine is included so the Data page basemap works after environment creation.
+# 4) Choose the environment name at creation time, for example:
+#    conda env create -n insar -f environment.yml
+# 5) After creating/activating the environment, install the app from repository root:
 #    pip install .

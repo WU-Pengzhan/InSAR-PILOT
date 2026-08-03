@@ -17,6 +17,24 @@ def _conda_stack_dir(root: Path) -> Path:
     return root / "share" / "isce2" / "topsStack"
 
 
+def _conda_applications_dir(root: Path) -> Path | None:
+    """Locate command-line applications shipped inside the conda ISCE2 package."""
+
+    site_packages = root / "lib"
+    candidates = sorted(site_packages.glob("python*/site-packages/isce/applications"))
+    path = next((path for path in candidates if path.is_dir()), None)
+    return path.resolve() if path is not None else None
+
+
+def _conda_snaphu_dir(root: Path) -> Path | None:
+    """Locate the native snaphu executable bundled by the conda Python package."""
+
+    site_packages = root / "lib"
+    candidates = sorted(site_packages.glob("python*/site-packages/snaphu/snaphu"))
+    executable = next((path for path in candidates if path.is_file()), None)
+    return executable.resolve().parent if executable is not None else None
+
+
 def is_source_isce_layout(root: Path) -> bool:
     return _source_stack_dir(root).exists() and (root / "applications").exists() and (root / "components").exists()
 
@@ -48,7 +66,7 @@ def resolve_isce_runtime_root(configured_root: str = "") -> Path | None:
 
 
 class ShellCommandBuilder:
-    """Build bash commands with conda activation and explicit ISCE2 exports."""
+    """Build commands that inherit the environment used to launch the app."""
 
     def __init__(self, environment: EnvironmentConfig) -> None:
         self.environment = environment
@@ -58,30 +76,19 @@ class ShellCommandBuilder:
         return shlex.quote(value)
 
     def activation_snippet(self) -> str:
-        shell_init = self.environment.shell_init_path.strip()
-        conda_env = self.environment.conda_env_name.strip()
-        isce_root = resolve_isce_runtime_root(self.environment.isce_root)
-        conda_loader = (
-            'for candidate in "$HOME/miniconda3/etc/profile.d/conda.sh" '
-            '"$HOME/mambaforge/etc/profile.d/conda.sh" '
-            '"$HOME/anaconda3/etc/profile.d/conda.sh"; do '
-            'if [ -f "$candidate" ]; then . "$candidate"; break; fi; '
-            "done"
-        )
+        # Project metadata must never switch the Python runtime. Discovery is
+        # limited to the environment inherited by the application process.
+        isce_root = resolve_isce_runtime_root("")
 
         commands: list[str] = []
-        if shell_init:
-            commands.append(f". {self.quote(str(Path(shell_init).expanduser()))}")
-        if conda_env:
-            commands.append(conda_loader)
-            commands.append(f"conda activate {self.quote(conda_env)}")
-
         if isce_root is not None:
             source_stack_dir = _source_stack_dir(isce_root)
             source_apps_dir = isce_root / "applications"
             source_components_dir = isce_root / "components"
             source_stack_parent = isce_root / "contrib" / "stack"
             conda_stack_dir = _conda_stack_dir(isce_root)
+            conda_apps_dir = _conda_applications_dir(isce_root)
+            conda_snaphu_dir = _conda_snaphu_dir(isce_root)
             conda_bin_dir = isce_root / "bin"
 
             # Source-tree ISCE2 layout.
@@ -100,10 +107,18 @@ class ShellCommandBuilder:
                 )
             # Conda-style layout (optional explicit root): rely mainly on conda env scripts.
             elif is_conda_isce_layout(isce_root):
+                path_entries = [conda_bin_dir]
+                if conda_apps_dir is not None:
+                    path_entries.append(conda_apps_dir)
+                if conda_snaphu_dir is not None:
+                    path_entries.append(conda_snaphu_dir)
+                path_entries.append(conda_stack_dir)
+                conda_stack_parent = conda_stack_dir.parent
                 commands.extend(
                     [
                         f"export ISCE_ROOT={self.quote(str(isce_root))}",
-                        f"export PATH={self.quote(f'{conda_bin_dir}:{conda_stack_dir}')}:$PATH",
+                        f"export PATH={self.quote(':'.join(str(path) for path in path_entries))}:$PATH",
+                        f"export PYTHONPATH={self.quote(str(conda_stack_parent))}:${{PYTHONPATH:-}}",
                     ]
                 )
 
@@ -114,7 +129,7 @@ class ShellCommandBuilder:
         if cwd is not None:
             parts.append(f"cd {self.quote(str(cwd))}")
         parts.append(command)
-        return ["bash", "-lc", " && ".join(part for part in parts if part)]
+        return ["bash", "-c", " && ".join(part for part in parts if part)]
 
     @classmethod
     def wrap_without_activation(cls, command: str, cwd: Path | None = None) -> list[str]:
@@ -122,4 +137,4 @@ class ShellCommandBuilder:
         if cwd is not None:
             parts.append(f"cd {cls.quote(str(cwd))}")
         parts.append(command)
-        return ["bash", "-lc", " && ".join(parts)]
+        return ["bash", "-c", " && ".join(parts)]

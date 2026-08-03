@@ -9,7 +9,7 @@ def build_component_qss(TOKENS: dict[str, str] = LIGHT_TOKENS) -> str:
     return f"""
 QLabel#headerTitle {{
     font-size: {FONT_SIZES["h2"]}pt;
-    font-weight: 700;
+    font-weight: 600;
     color: {TOKENS["text"]};
 }}
 QLabel#headerSubTitle {{
@@ -42,14 +42,15 @@ QFrame#pageHeader {{
     border: none;
 }}
 QFrame#actionBar {{
-    background: {TOKENS["surface_alt"]};
-    border: 1px solid {TOKENS["border"]};
-    border-radius: {RADIUS["sm"]}px;
+    background: transparent;
+    border: none;
+    border-top: 1px solid {TOKENS["border"]};
+    border-radius: 0;
 }}
 QLabel#pageHeaderTitle {{
     color: {TOKENS["text"]};
     font-size: {FONT_SIZES["h2"]}pt;
-    font-weight: 700;
+    font-weight: 600;
 }}
 QLabel#pageHeaderSubtitle {{
     color: {TOKENS["text_muted"]};
@@ -58,12 +59,12 @@ QLabel#sectionPanelTitle,
 QLabel#summaryCardTitle {{
     color: {TOKENS["text_subtle"]};
     font-size: {FONT_SIZES["body_lg"]}pt;
-    font-weight: 600;
+    font-weight: 500;
 }}
 QLabel#summaryCardValue {{
     color: {TOKENS["text"]};
     font-size: {FONT_SIZES["h3"]}pt;
-    font-weight: 700;
+    font-weight: 600;
 }}
 QLabel#summaryCardBody {{
     color: {TOKENS["text_muted"]};
@@ -71,6 +72,8 @@ QLabel#summaryCardBody {{
 QLabel[formLabel="true"] {{
     background: transparent;
     color: {TOKENS["text_subtle"]};
+    font-size: {FONT_SIZES["body_lg"]}pt;
+    font-weight: 500;
     padding: 0;
     margin: 0;
 }}
@@ -83,9 +86,10 @@ QFrame#emptyState {{
     padding: 4px 2px;
 }}
 QFrame#statusStrip {{
-    background: {TOKENS["surface"]};
-    border: 1px solid {TOKENS["border"]};
-    border-radius: {RADIUS["sm"]}px;
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid {TOKENS["border"]};
+    border-radius: 0;
 }}
 QFrame#preflightCheckItem {{
     background: {TOKENS["surface"]};
@@ -107,7 +111,7 @@ QLabel#parameterGridTitle {{
     border-bottom: 1px solid {TOKENS["border"]};
     color: {TOKENS["text"]};
     font-size: {FONT_SIZES["body_lg"]}pt;
-    font-weight: 700;
+    font-weight: 600;
     padding: 5px 8px;
     min-height: 30px;
 }}
@@ -145,12 +149,14 @@ QFrame#propertyForm {{
 QLabel#propertyFormTitle {{
     color: {TOKENS["text"]};
     font-size: {FONT_SIZES["body_lg"]}pt;
-    font-weight: 700;
+    font-weight: 600;
     padding-bottom: 4px;
 }}
 QLabel#propertyFormLabel {{
     background: transparent;
     color: {TOKENS["text_subtle"]};
+    font-size: {FONT_SIZES["body_lg"]}pt;
+    font-weight: 500;
     padding: 0 8px 0 0;
 }}
 QFrame#propertyForm QLineEdit,
@@ -173,7 +179,7 @@ QLabel#runtimeSummaryLabel {{
     padding: 2px 0 6px 0;
 }}
 QFrame#wizardActionBar {{
-    background: {TOKENS["surface_alt"]};
+    background: transparent;
     border-top: 1px solid {TOKENS["border"]};
 }}
 QTreeWidget#workflowStepTree {{

@@ -118,9 +118,9 @@ GUI 不修改 ISCE2 算法，不伪装处理结果，也不把 run_files 隐藏�
 安装：
 
 ```bash
-conda env create -f environment.yml
+conda env create -n insar -f environment.yml
 conda activate insar
-pip install .
+python -m pip install .
 insar-pilot
 ```
 

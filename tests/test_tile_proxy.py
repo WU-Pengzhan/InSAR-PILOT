@@ -10,6 +10,13 @@ from insar_pilot.download.network import NetworkConfig
 from insar_pilot.download.tile_proxy import TiandituTileProxy
 
 
+def test_tile_proxy_defaults_to_environment_network_settings():
+    proxy = TiandituTileProxy()
+
+    assert proxy.network.normalized_mode() == "environment"
+    assert proxy.session.trust_env is True
+
+
 class _FakeTileResponse:
     def __init__(self, *, status_code=200, content=b"\x89PNG", content_type="image/png") -> None:
         self.status_code = status_code

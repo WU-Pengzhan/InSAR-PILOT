@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
+import os
 import subprocess
+import sys
 from collections.abc import Callable
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -56,25 +58,22 @@ class EnvironmentProbe:
         builder = ShellCommandBuilder(environment)
         report = EnvironmentReport()
 
-        shell_init_text = environment.shell_init_path.strip()
-        shell_init = Path(shell_init_text).expanduser() if shell_init_text else None
+        conda_prefix_text = os.environ.get("CONDA_PREFIX", "").strip()
+        conda_prefix = Path(conda_prefix_text).expanduser().resolve() if conda_prefix_text else None
+        python_prefix = Path(sys.prefix).expanduser().resolve()
         report.checks.append(
             ValidationCheck(
-                name="Shell init",
-                ok=shell_init is None or shell_init.exists(),
+                name="Launch environment",
+                ok=conda_prefix == python_prefix,
                 detail=(
-                    "No shell init configured; the app will rely on explicit conda and runtime exports."
-                    if shell_init is None
-                    else f"{shell_init} exists"
-                    if shell_init.exists()
-                    else f"{shell_init} was not found"
+                    f"Inherited active conda environment at {conda_prefix}."
+                    if conda_prefix == python_prefix
+                    else f"Active conda prefix {conda_prefix or '<missing>'} does not match Python {python_prefix}."
                 ),
             )
         )
 
-        isce_root_text = environment.isce_root.strip()
-        configured_root = Path(isce_root_text).expanduser() if isce_root_text else None
-        isce_root = resolve_isce_runtime_root(isce_root_text)
+        isce_root = resolve_isce_runtime_root("")
         if isce_root is not None and is_source_isce_layout(isce_root):
             stack_script = isce_root / "contrib" / "stack" / "topsStack" / "stackSentinel.py"
             layout_detail = f"source layout: {stack_script}"
@@ -85,26 +84,12 @@ class EnvironmentProbe:
             stack_script = None
             layout_detail = ""
 
-        if isce_root is not None and configured_root is not None and isce_root.resolve() != configured_root.resolve():
-            isce_root_ok = True
-            isce_root_detail = (
-                f"Configured root {configured_root} is not a processing layout; "
-                f"using detected {layout_detail}."
-            )
-        elif isce_root is not None:
+        if isce_root is not None:
             isce_root_ok = True
             isce_root_detail = f"Found {layout_detail}."
-        elif configured_root is None:
+        else:
             isce_root_ok = True
             isce_root_detail = "No runtime root configured; relying on PATH/PYTHONPATH from the launch environment."
-        else:
-            source_stack_script = configured_root / "contrib" / "stack" / "topsStack" / "stackSentinel.py"
-            conda_stack_script = configured_root / "share" / "isce2" / "topsStack" / "stackSentinel.py"
-            isce_root_ok = False
-            isce_root_detail = (
-                f"Missing stackSentinel.py under source ({source_stack_script}) "
-                f"or conda layout ({conda_stack_script})."
-            )
 
         report.checks.append(
             ValidationCheck(
@@ -117,7 +102,7 @@ class EnvironmentProbe:
         shell_checks = [
             (
                 "Python processing modules",
-                "python -c 'import importlib.util, sys; "
+                "python -c 'import importlib.util, isce, sys; "
                 'missing=[name for name in ("isce", "isceobj") if importlib.util.find_spec(name) is None]; '
                 'print("available" if not missing else "missing: "+", ".join(missing)); '
                 "sys.exit(1 if missing else 0)'",

@@ -2,11 +2,12 @@ from insar_pilot.domain.project import EnvironmentConfig
 from insar_pilot.services.shell import ShellCommandBuilder, resolve_isce_runtime_root
 
 
-def test_activation_snippet_contains_expected_exports(tmp_path):
+def test_activation_snippet_contains_expected_exports(tmp_path, monkeypatch):
     isce_root = tmp_path / "isce2"
     (isce_root / "contrib" / "stack" / "topsStack").mkdir(parents=True)
     (isce_root / "applications").mkdir(parents=True)
     (isce_root / "components").mkdir(parents=True)
+    monkeypatch.setenv("ISCE_SRC", str(isce_root))
 
     builder = ShellCommandBuilder(
         EnvironmentConfig(
@@ -18,14 +19,16 @@ def test_activation_snippet_contains_expected_exports(tmp_path):
 
     snippet = builder.activation_snippet()
 
-    assert ". " in snippet
-    assert "conda activate insar" in snippet
+    assert "conda activate" not in snippet
+    assert ".bashrc" not in snippet
     assert f"export ISCE_ROOT={isce_root}" in snippet
     assert f"{isce_root}/applications" in snippet
     assert f"{isce_root}/components" in snippet
 
 
-def test_activation_snippet_does_not_auto_detect_isce_when_root_empty():
+def test_activation_snippet_does_not_auto_detect_isce_when_root_empty(monkeypatch):
+    for name in ("ISCE_SRC", "ISCE_ROOT", "ISCE_HOME", "CONDA_PREFIX"):
+        monkeypatch.delenv(name, raising=False)
     builder = ShellCommandBuilder(
         EnvironmentConfig(
             shell_init_path="~/.bashrc",
@@ -34,8 +37,7 @@ def test_activation_snippet_does_not_auto_detect_isce_when_root_empty():
         )
     )
     snippet = builder.activation_snippet()
-    assert "conda activate insar" in snippet
-    assert "CONDA_PREFIX" not in snippet
+    assert "conda activate" not in snippet
     assert "stackSentinel.py" not in snippet
 
 
@@ -59,11 +61,40 @@ def test_activation_snippet_falls_back_to_isce_src_when_configured_root_is_conda
     assert f"{isce_src}/contrib/stack/topsStack" in snippet
 
 
+def test_activation_snippet_exposes_conda_isce_applications(tmp_path, monkeypatch):
+    conda_prefix = tmp_path / "conda" / "envs" / "insar"
+    stack_dir = conda_prefix / "share" / "isce2" / "topsStack"
+    applications_dir = (
+        conda_prefix / "lib" / "python3.10" / "site-packages" / "isce" / "applications"
+    )
+    snaphu_dir = conda_prefix / "lib" / "python3.10" / "site-packages" / "snaphu"
+    stack_dir.mkdir(parents=True)
+    applications_dir.mkdir(parents=True)
+    snaphu_dir.mkdir(parents=True)
+    (snaphu_dir / "snaphu").write_text("", encoding="utf-8")
+    for name in ("ISCE_SRC", "ISCE_ROOT", "ISCE_HOME"):
+        monkeypatch.delenv(name, raising=False)
+    monkeypatch.setenv("CONDA_PREFIX", str(conda_prefix))
+
+    builder = ShellCommandBuilder(
+        EnvironmentConfig(shell_init_path="", conda_env_name="insar", isce_root=str(conda_prefix))
+    )
+    snippet = builder.activation_snippet()
+
+    assert f"export ISCE_ROOT={conda_prefix}" in snippet
+    assert str(conda_prefix / "bin") in snippet
+    assert str(applications_dir) in snippet
+    assert str(snaphu_dir) in snippet
+    assert str(stack_dir) in snippet
+    assert f"export PYTHONPATH={stack_dir.parent}" in snippet
+    assert "conda activate" not in snippet
+
+
 def test_wrap_preserves_command():
     builder = ShellCommandBuilder(EnvironmentConfig())
     argv = builder.wrap("stackSentinel.py -h", cwd=None)
     assert argv[0] == "bash"
-    assert argv[1] == "-lc"
+    assert argv[1] == "-c"
     assert "stackSentinel.py -h" in argv[2]
 
 

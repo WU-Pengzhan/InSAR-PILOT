@@ -1,6 +1,6 @@
 # 安装
 
-InSAR-PILOT 面向 **Ubuntu Desktop** 与 **WSL2/WSLg**，支持 Python 3.10–3.12。运行真正的处理需要 ISCE2/GDAL/aria2 等组件，这些**无法通过 pip/uv 安装**，必须使用 conda 环境。
+InSAR-PILOT 面向 **Ubuntu Desktop** 与 **WSL2/WSLg**。Python 包支持 3.10–3.12；完整处理环境当前固定使用 Python 3.10，以匹配 ISCE2/GDAL。运行真正的处理需要 ISCE2/GDAL/aria2 等组件，这些**无法仅通过 pip/uv 安装**，必须使用 conda 环境。
 
 ## 类比与要点
 
@@ -15,23 +15,17 @@ InSAR-PILOT 面向 **Ubuntu Desktop** 与 **WSL2/WSLg**，支持 Python 3.10–3
 git clone https://github.com/WU-Pengzhan/InSAR-PILOT.git
 cd InSAR-PILOT
 
-conda env create -f environment.yml   # 默认环境名 insar
+conda env create -n insar -f environment.yml   # insar 仅为示例名称
 conda activate insar
 
-pip install .
+python -m pip install .
 insar-pilot
 ```
 
-`environment.yml` 会安装 GUI 依赖、ISCE2、GDAL、aria2、sentineleof、asf-search 等运行组件。SLC 下载依赖 `aria2c` 的分片续传能力。
-
-可选 WebEngine 地图支持：
-
-```bash
-pip install '.[map]'
-```
+`environment.yml` 会安装 GUI、QtWebEngine 地图、ISCE2、GDAL、aria2、sentineleof、asf-search 等运行组件。SLC 下载依赖 `aria2c` 的分片续传能力。
 
 !!! note "环境即运行时"
-    InSAR-PILOT 从**启动它的进程**探测运行时（ISCE2/GDAL/snaphu/stack 工具）。务必先 `conda activate insar` 再启动 `insar-pilot`，否则 Setup 页面的环境校验会失败。
+    InSAR-PILOT 从**启动它的进程**探测运行时（ISCE2/GDAL/snaphu/stack 工具）。请先激活安装 InSAR-PILOT 的环境再启动；这里的 `insar` 只是文档示例名称。项目文件不会切换 Conda 环境。
 
 ## 开发环境安装（uv，无需 ISCE2）
 

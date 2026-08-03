@@ -1,6 +1,6 @@
 # Installation
 
-InSAR-PILOT targets **Ubuntu Desktop** and **WSL2/WSLg** with Python 3.10–3.12. Running real processing needs ISCE2/GDAL/aria2, which **cannot be installed via pip/uv** — you must use a conda environment.
+InSAR-PILOT targets **Ubuntu Desktop** and **WSL2/WSLg**. The Python package supports 3.10–3.12; the complete processing environment currently pins Python 3.10 for ISCE2/GDAL compatibility. Real processing needs ISCE2/GDAL/aria2 and cannot be installed with pip/uv alone, so it requires a conda environment.
 
 ## Two scenarios
 
@@ -13,23 +13,17 @@ InSAR-PILOT targets **Ubuntu Desktop** and **WSL2/WSLg** with Python 3.10–3.12
 git clone https://github.com/WU-Pengzhan/InSAR-PILOT.git
 cd InSAR-PILOT
 
-conda env create -f environment.yml   # default env name: insar
+conda env create -n insar -f environment.yml   # "insar" is only an example name
 conda activate insar
 
-pip install .
+python -m pip install .
 insar-pilot
 ```
 
-`environment.yml` installs the GUI dependencies, ISCE2, GDAL, aria2, sentineleof, asf-search, and runtime utilities. SLC downloads require `aria2c` for multipart resumable transfers.
-
-Optional WebEngine map support:
-
-```bash
-pip install '.[map]'
-```
+`environment.yml` installs the GUI, QtWebEngine map, ISCE2, GDAL, aria2, sentineleof, asf-search, and runtime utilities. SLC downloads require `aria2c` for multipart resumable transfers.
 
 !!! note "The launching process is the runtime"
-    InSAR-PILOT detects the runtime (ISCE2/GDAL/snaphu/stack tools) from the **process that launches it**. Always `conda activate insar` before `insar-pilot`, or the Setup page's environment validation will fail.
+    InSAR-PILOT detects the runtime (ISCE2/GDAL/snaphu/stack tools) from the **process that launches it**. Activate the environment where InSAR-PILOT is installed before starting it; `insar` is only the example name used here. Project files never switch Conda environments.
 
 ## Development install (uv, no ISCE2)
 

@@ -11,7 +11,7 @@ QLabel[badge="true"] {{
     border-radius: {RADIUS["sm"]}px;
     padding: 4px 8px;
     font-size: {FONT_SIZES["caption"]}pt;
-    font-weight: 700;
+    font-weight: 600;
 }}
 QLabel[badge="true"][tone="neutral"] {{
     background: {TOKENS["surface_muted"]};
@@ -52,7 +52,7 @@ QFrame#inlineAlert[tone="error"] {{
 }}
 QLabel#inlineErrorText {{
     color: {TOKENS["error_text"]};
-    font-weight: 700;
+    font-weight: 600;
 }}
 """
 
