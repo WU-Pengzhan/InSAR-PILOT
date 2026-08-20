@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "insar-pilot"
-version = "1.1.0"
+version = "1.2.0"
 description = "Open desktop workbench for guided SAR/InSAR processing on Ubuntu and WSL."
 readme = "README.md"
 requires-python = ">=3.10"
@@ -105,7 +105,12 @@ mypy_path = "src"
 
 # The Qt-free layers are held to a stricter standard: every def must be typed.
 [[tool.mypy.overrides]]
-module = ["insar_pilot.domain.*", "insar_pilot.services.*", "insar_pilot.download.*", "insar_pilot.cli.*"]
+module = [
+  "insar_pilot.domain.*",
+  "insar_pilot.services.*",
+  "insar_pilot.download.*",
+  "insar_pilot.cli.*",
+]
 disallow_untyped_defs = true
 
 # run_executor is QObject/QProcess-coupled by necessity; PySide6 ships stubs, so
@@ -114,6 +119,13 @@ disallow_untyped_defs = true
 [[tool.mypy.overrides]]
 module = ["insar_pilot.services.run_executor"]
 disallow_untyped_defs = false
+warn_unused_ignores = false
+
+# The conda-forge PySide6 package does not expose a py.typed marker. Keep its
+# imports usable while retaining strict checks for our own service code.
+[[tool.mypy.overrides]]
+module = ["PySide6.*"]
+ignore_missing_imports = true
 
 # pyshp (imported as `shapefile`) ships no type stubs.
 [[tool.mypy.overrides]]

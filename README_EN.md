@@ -14,9 +14,9 @@
 
 InSAR-PILOT is an open-source desktop workbench for SAR/InSAR processing. It organizes data acquisition, orbit/DEM preparation, parameter setup, workflow execution, and quicklook visualization around a project folder.
 
-The current version focuses on Sentinel-1 and the [ISCE2](https://github.com/isce-framework/isce2) TOPS stack workflow, with a long-term path toward additional SAR sensors and time-series InSAR pipelines. The project is primarily Codex-assisted and manually reviewed through iterative development.
+The formal v1.2.0 product boundary is the Sentinel-1 [ISCE2](https://github.com/isce-framework/isce2) TOPS stack workflow. The project is primarily Codex-assisted and manually reviewed through iterative development.
 
-> Release note: v1.1.0 builds on v1.0.0 with a headless CLI, a Simplified Chinese interface, a dark theme, and a documentation site. Validate the runtime, downloads, and processing outputs on small sample projects before using it in production workflows.
+> Release note: v1.2.0 adds one-command Conda installation with ISCE2 2.6.5, complete TOPS Stack command discovery for the Conda layout, and an EGM96-to-WGS84 DEM fix. Validate data and processing parameters on a small sample first.
 
 ## Screenshots
 
@@ -49,37 +49,30 @@ See the [full user guide](docs/en/user-guide.md) for more screenshots.
 
 - Ubuntu Desktop 22.04+, or Ubuntu under WSL2/WSLg on Windows 11.
 - An initialized Conda installation (Miniconda, Anaconda, or Miniforge).
-- Git and network access to `conda-forge` and GitHub.
+- Network access to `conda-forge`. Git is optional because a GitHub Release source ZIP can be used.
 
 ### Create the runtime environment
 
-You choose the environment name. The commands below use `insar` only as an example:
+After downloading and extracting the source archive, run this from the project directory:
 
 ```bash
-git clone https://github.com/WU-Pengzhan/InSAR-PILOT.git
 cd InSAR-PILOT
-
-conda env create -n insar -f environment.yml
-conda activate insar
-
-python -m pip install .
+bash install.sh
 ```
 
-InSAR-PILOT only uses the Conda environment that launches it and never switches environments from project metadata. Activate the same environment before every launch:
+The installer creates or updates the `insar` environment by default, installs ISCE2 2.6.5, GDAL, SNAPHU, download tools, and the GUI, then verifies the runtime. Use `bash install.sh my-insar` to choose another environment name.
+
+InSAR-PILOT only uses the Conda environment that launches it and never switches environments from project metadata. Start it with:
 
 ```bash
 conda activate insar
 insar-pilot
 ```
 
-Run these checks after installation:
+To repeat the installation checks:
 
 ```bash
-python -c "import isce, isceobj, eof, snaphu, insar_pilot; print('Python modules: OK')"
-test -f "$CONDA_PREFIX/share/isce2/topsStack/stackSentinel.py"
-command -v gdal_translate
-command -v aria2c
-insar-pilot-cli --help
+python scripts/verify_install.py
 ```
 
 For an editable development installation:

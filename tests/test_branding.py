@@ -12,7 +12,7 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 
 
 def test_public_package_and_application_branding():
-    assert insar_pilot.__version__ == "1.1.0"
+    assert insar_pilot.__version__ == "1.2.0"
     assert insar_pilot.app.main is launch.main
     assert launch.APP_NAME == "InSAR-PILOT"
     assert AppSettings.APPLICATION == "InSAR-PILOT"
@@ -31,6 +31,23 @@ def test_pyproject_exposes_only_insar_pilot_cli():
     assert '"insar_pilot.ui.assets" = ["*.png"]' in text
     assert "sentinel" + "-workbench" not in text
     assert "isce2" + "-gui" not in text
+
+
+def test_runtime_installer_verifies_direct_processing_commands():
+    text = (REPO_ROOT / "scripts" / "verify_install.py").read_text(encoding="utf-8")
+    for command in (
+        "stackSentinel.py",
+        "SentinelWrapper.py",
+        "looks.py",
+        "imageMath.py",
+        "gdal2isce_xml.py",
+        "gdalinfo",
+        "gdal_translate",
+        "gdalwarp",
+        "aria2c",
+        "snaphu",
+    ):
+        assert command in text
 
 
 def test_branding_assets_are_packaged_and_documented():

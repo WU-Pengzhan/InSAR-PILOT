@@ -53,5 +53,5 @@ The codebase is strictly layered. Please preserve these constraints:
 ## Adding a translation
 
 Locale files live in `src/insar_pilot/i18n/locales/` as JSON, with English
-(`en.json`) as the fallback. A Chinese (`zh`) locale is planned for this release; new
+(`en.json`) as the fallback and Chinese (`zh.json`) included; new
 translations should follow the same key structure as `en.json`.

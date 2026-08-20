@@ -61,6 +61,8 @@ def test_prepare_geotiff_builds_egm96_conversion_plans(tmp_path: Path):
     assert len(preparation.plans) == 3
     assert "-overwrite" not in preparation.plans[0].command
     assert preparation.plans[-1].label == "Convert DEM heights from EGM96 to WGS84"
+    correction_command = preparation.plans[-1].command
+    assert "import isce\nimport isceobj" in correction_command
 
 
 def test_prepare_geotiff_builds_egm2008_conversion_plans(tmp_path: Path):

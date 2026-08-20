@@ -20,8 +20,6 @@ dependencies:
   - pyshp>=2.3
   - qtawesome>=1.4,<2
   - requests>=2.31
-  - pytest>=7.4
-  - ruff
 
 # Notes:
 # 1) This environment installs the complete Sentinel-1 processing runtime:
@@ -29,7 +27,4 @@ dependencies:
 # 2) The ISCE2 conda activation hook exposes ISCE_HOME/ISCE_STACK. InSAR-PILOT
 #    also resolves the conda-style TOPS stack under $CONDA_PREFIX/share/isce2.
 # 3) QtWebEngine is included so the Data page basemap works after environment creation.
-# 4) Choose the environment name at creation time, for example:
-#    conda env create -n insar -f environment.yml
-# 5) After creating/activating the environment, install the app from repository root:
-#    pip install .
+# 4) Run ./install.sh from the repository root for a complete one-command install.

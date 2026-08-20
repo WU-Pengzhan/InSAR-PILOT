@@ -272,6 +272,7 @@ class DemPreparationService:
     @staticmethod
     def _build_geoid_correction_command(isce_dem: Path) -> str:
         script = f"""
+import isce
 import isceobj
 from contrib.demUtils.Correct_geoid_i2_srtm import Correct_geoid_i2_srtm
 

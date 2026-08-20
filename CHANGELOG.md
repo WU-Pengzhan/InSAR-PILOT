@@ -2,6 +2,28 @@
 
 All notable changes to this project are documented here.
 
+## [1.2.0] - 2026-08-20
+
+### Added
+
+- One-command `bash install.sh` setup for users starting with WSL/Ubuntu and Conda; it creates or updates the runtime environment, installs the application, and verifies ISCE2 and every command used directly by InSAR-PILOT.
+- Standalone `scripts/verify_install.py` runtime check for ISCE2 modules, TOPS Stack, `looks.py`, `imageMath.py`, `gdal2isce_xml.py`, GDAL, and SNAPHU discovery.
+
+### Changed
+
+- The formal product scope is now the Sentinel-1 ISCE2 2.6.5 CPU workflow: data acquisition, DEM/orbit preparation, TOPS Stack generation and execution, and result quicklooks.
+- `environment.yml` is the complete end-user runtime and installs ISCE2, GDAL, SNAPHU, QtWebEngine, download tools, and required Python packages from `conda-forge`.
+- Installation documentation no longer assumes Git or a pre-existing scientific runtime; a downloaded release source archive plus Conda is sufficient.
+
+### Fixed
+
+- Conda-installed ISCE2 applications and TOPS Stack scripts are added to child-process command discovery automatically.
+- EGM96 DEM conversion now initializes the Conda ISCE2 package before importing `isceobj`.
+
+### Removed
+
+- The unreleased experimental scientific-v2 environment, backend, CLI, product contracts, golden-data helpers, tests, and internal planning documents.
+
 ## [1.1.0] - 2026-07-07
 
 ### Added

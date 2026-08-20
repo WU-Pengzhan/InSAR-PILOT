@@ -12,7 +12,7 @@
 
 它是一个面向 Ubuntu Desktop 和 WSL2/WSLg 的开源桌面处理工作台，以项目文件夹为单位，组织 SAR 数据下载、处理参数设置、官方处理链生成、run_files 执行监控和结果 quicklook 预览。
 
-当前版本主要聚焦 Sentinel-1 与 ISCE2 官方处理流程。长期目标是逐步接入更多 SAR 载荷和时序 InSAR 处理能力，包括 SBAS、StaMPS 等流程。
+v1.2.0 的正式产品范围是 Sentinel-1 与 ISCE2 官方 TOPS Stack 处理流程。
 
 v1.0.0 是首个正式发布版。建议先使用小范围样例项目验证运行环境、下载链路和处理结果，再进入正式生产流程。
 
@@ -118,16 +118,9 @@ GUI 不修改 ISCE2 算法，不伪装处理结果，也不把 run_files 隐藏�
 安装：
 
 ```bash
-conda env create -n insar -f environment.yml
+bash install.sh
 conda activate insar
-python -m pip install .
 insar-pilot
-```
-
-可选地图支持：
-
-```bash
-pip install '.[map]'
 ```
 
 测试：

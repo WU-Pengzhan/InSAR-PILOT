@@ -14,9 +14,9 @@
 
 InSAR-PILOT 是一个开源、窗口化的 SAR/InSAR 处理工作台，用项目文件夹组织数据下载、轨道/DEM 准备、参数配置、流程执行和 quicklook 预览。
 
-当前版本聚焦 Sentinel-1 与 [ISCE2](https://github.com/isce-framework/isce2) TOPS stack 工作流，后续计划扩展到更多 SAR 载荷和时序 InSAR 流程。项目主要由 Codex 辅助开发，并经过人工迭代审查。
+v1.2.0 的正式产品边界是 Sentinel-1 与 [ISCE2](https://github.com/isce-framework/isce2) TOPS stack 工作流。项目主要由 Codex 辅助开发，并经过人工迭代审查。
 
-> 发布说明：v1.1.0 在 v1.0.0 基础上带来无界面 CLI、简体中文界面、深色主题与文档站点。建议先使用小范围样例项目验证运行环境、数据下载和处理结果，再进入正式生产流程。
+> 发布说明：v1.2.0 提供包含 ISCE2 2.6.5 的一键 Conda 安装、Conda 布局下完整的 TOPS Stack 命令发现，以及 EGM96 DEM 转 WGS84 修复。建议先使用小范围样例项目验证数据和处理参数。
 
 ## 界面预览
 
@@ -49,37 +49,30 @@ InSAR-PILOT 是一个开源、窗口化的 SAR/InSAR 处理工作台，用项目
 
 - Ubuntu Desktop 22.04+，或 Windows 11 中已安装的 Ubuntu WSL2/WSLg。
 - 已安装并初始化 Conda（Miniconda、Anaconda 或 Miniforge 均可）。
-- Git，以及能够访问 `conda-forge` 和 GitHub 的网络。
+- 能够访问 `conda-forge` 的网络。Git 不是必需条件，可以直接下载 GitHub Release 的源码 ZIP。
 
 ### 创建运行环境
 
-环境名称由用户自行选择。下列命令使用 `insar` 作为示例：
+下载并解压源码包后，在项目目录运行：
 
 ```bash
-git clone https://github.com/WU-Pengzhan/InSAR-PILOT.git
 cd InSAR-PILOT
-
-conda env create -n insar -f environment.yml
-conda activate insar
-
-python -m pip install .
+bash install.sh
 ```
 
-InSAR-PILOT 只使用启动它的 Conda 环境，不会根据项目文件切换环境。每次启动前，请先激活安装软件时使用的同一环境：
+安装器默认创建或更新 `insar` 环境，安装 ISCE2 2.6.5、GDAL、SNAPHU、下载组件和 GUI，并自动运行环境验证。也可以指定其他环境名，例如 `bash install.sh my-insar`。
+
+InSAR-PILOT 只使用启动它的 Conda 环境，不会根据项目文件切换环境。安装完成后启动：
 
 ```bash
 conda activate insar
 insar-pilot
 ```
 
-安装后可先执行以下检查：
+如需重新检查安装：
 
 ```bash
-python -c "import isce, isceobj, eof, snaphu, insar_pilot; print('Python modules: OK')"
-test -f "$CONDA_PREFIX/share/isce2/topsStack/stackSentinel.py"
-command -v gdal_translate
-command -v aria2c
-insar-pilot-cli --help
+python scripts/verify_install.py
 ```
 
 开发模式使用可编辑安装：

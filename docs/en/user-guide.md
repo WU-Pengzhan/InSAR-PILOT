@@ -12,7 +12,7 @@
 
 It is an open-source desktop processing workbench for Ubuntu Desktop and WSL2/WSLg. It organizes SAR data acquisition, processing setup, official workflow generation, run-file execution, and quicklook inspection around a project folder.
 
-The current version focuses on Sentinel-1 processing with the official ISCE2 workflow. The long-term goal is to support more SAR sensors and time-series InSAR workflows, including SBAS- and StaMPS-based processing chains.
+The formal v1.2.0 product scope is Sentinel-1 processing with the official ISCE2 TOPS Stack workflow.
 
 v1.0.0 is the first stable release. Validate the runtime, download path, and processing outputs on small sample projects before moving into production workflows.
 
@@ -118,16 +118,9 @@ The GUI does not modify ISCE2 algorithms, fake outputs, or hide run files as a b
 Install:
 
 ```bash
-conda env create -n insar -f environment.yml
+bash install.sh
 conda activate insar
-python -m pip install .
 insar-pilot
-```
-
-Optional map support:
-
-```bash
-pip install '.[map]'
 ```
 
 Tests:
