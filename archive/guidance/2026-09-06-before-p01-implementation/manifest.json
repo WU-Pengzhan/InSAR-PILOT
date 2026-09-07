@@ -1,0 +1,30 @@
+[
+  {
+    "path": "docs/handoff/index.md",
+    "sha256": "8c000e9ee3beeaef3191cbc01d15cd1c7faf5ebdef85ee90202f5eca6443c1d0"
+  },
+  {
+    "path": "docs/handoff/current.md",
+    "sha256": "96d741307989f65463a3d479c6bb04a8b24dfcd63539016c7eacf468b299786a"
+  },
+  {
+    "path": "docs/handoff/pages/p01-search-download.md",
+    "sha256": "4f584261b1550f8cb4ac06880b3e6da673f83c833679f76a297df3816098e76e"
+  },
+  {
+    "path": "docs/handoff/pages/p02-data-preparation.md",
+    "sha256": "7b1a46b1d31c5954bb815415795abfcff436dd416537060b194ab0a1024b57c1"
+  },
+  {
+    "path": "docs/architecture/migration.md",
+    "sha256": "434e8e987c07bcffb3d8c0c76daa941f5a482a4bfd82b720a10c5cb850adbe4b"
+  },
+  {
+    "path": "docs/architecture/p01-search-download.md",
+    "sha256": "7e29fd021b2e8bbbf8854dca2e33b45df08497579c438bec742a9713a1a61caa"
+  },
+  {
+    "path": "docs/architecture/p01-ancillary-downloads.md",
+    "sha256": "cdee4ef91d015250a2c428fc865a459e683eab040075da5bd91a4a385c129805"
+  }
+]

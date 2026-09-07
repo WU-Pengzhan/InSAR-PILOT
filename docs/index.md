@@ -1,35 +1,19 @@
-# InSAR-PILOT
+# InSAR-PILOT Web 工作台
 
-<p align="center">
-  <img src="assets/branding/logo.png" width="560" alt="InSAR-PILOT logo">
-</p>
+当前方向：**Web 唯一产品端，先 Sentinel-1，后 NISAR；按页面逐步设计与实施。**
 
-**InSAR-PILOT** 是 **InSAR Processing Interface and Lightweight Orchestration Toolkit** 的缩写，即“面向 InSAR 处理的轻量级图形界面与流程编排工具”。它是一个开源、窗口化的 SAR/InSAR 处理工作台，用**项目文件夹**组织数据下载、轨道/DEM 准备、参数配置、流程执行与 quicklook 预览。
+- [当前范围与架构](architecture/overview.md)
+- [实施进度与暂缓事项](architecture/migration.md)
+- [已确认 Sentinel 五页划分](architecture/sentinel-workbench.md)
+- [工作交接索引](handoff/index.md)
+- [单页任务提示词](handoff/prompts.md)
+- [当前资产与指导清理](architecture/current-state.md)
+- [Web 使用与退出](user-guide.md)
 
-当前版本聚焦 Sentinel-1 与 [ISCE2](https://github.com/isce-framework/isce2) TOPS stack 工作流。InSAR-PILOT **不重新实现** SAR 处理算法——真正的数值计算发生在 ISCE2 二进制程序中，本工具负责构造正确的命令、管理输入与状态、监控执行。
+近期目标是取得 phase stack，具体科学产品待确认。解缠和大范围相位检查暂缓；
+基础文件、输入兼容性、执行状态和成果结构检查保留。
 
-![Start page](assets/screenshots/start-page.png)
-
-## 快速导航
-
-- [安装](installation.md) — conda 环境 + pip 安装，WSL2/Ubuntu 说明
-- [快速开始](quickstart.md) — GUI 上手最短路径
-- [端到端教程](tutorial.md) — 从建项目到出结果的完整走查（GUI 与 CLI 两条路径）
-- [命令行 CLI](cli.md) — 无界面服务器上的 `insar-pilot-cli`
-- [完整手册](user-guide.md) — 各页面逐一说明
-- [架构说明](architecture.md) — 面向贡献者的分层与约定
-- [故障排查](troubleshooting.md) — Qt/地图/DEM/run_files 常见问题
-- [English documentation](en/index.md)
-
-## 核心功能
-
-- **项目制工作区**：每个项目保存下载数据、处理工作目录、日志、quicklook 和 `project.pilot`。
-- **Data Acquisition**：Earthdata 账户检查、ASF Sentinel-1 SLC 查询、场景选择、SLC/EOF 下载、地图与场景表查看。
-- **Processing Setup**：数据源、EOF、DEM、AOI/BBox、IW、参考影像、处理参数、preflight 和命令预览集中配置。
-- **Run Executor**：发现并执行 `run_files/run_*`，支持 next/selected/remaining 执行，显示 step/subcommand 状态、日志与 exit code。
-- **Results Quicklook**：扫描输出结果，预览或导出 SLC、干涉图和 overlay quicklook。
-- **无界面 CLI**：`insar-pilot-cli` 复用与 GUI 相同的服务层，`project.pilot` 与 `logs/` 可在两个前端间互换。
-
-## 许可证
-
-本项目使用 [Apache-2.0](https://github.com/WU-Pengzhan/InSAR-PILOT/blob/main/LICENSE) 许可证。InSAR-PILOT 不是 ISCE2 官方项目，不修改 ISCE2 算法，尊重并依赖 ISCE2 的开源工作。
+已有检索下载、工程、文件选择、任务控制、基础成果/QC 与退出功能。
+当前仍是预览版，五页结构已于 2026-09-06 确认，不等于全部实现。PySide6/Qt 界面停止开发，
+旧安装、教程、CLI 和桌面说明保留作历史参考；当前入口使用 `insar-pilot-web`。
+安装包依赖与旧默认入口的技术清理另行安排。

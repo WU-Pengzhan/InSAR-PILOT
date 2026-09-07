@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "tested_at": "2026-09-04",
+  "proxy_environment_detected": true,
+  "default_environment_exit": {
+    "country_code": "HK",
+    "cloudflare_colo": "HKG"
+  },
+  "direct_exit": {
+    "country_code": "CN",
+    "cloudflare_colo": "HKG",
+    "colo_note": "Cloudflare edge location is not the client proxy exit country"
+  },
+  "direct_tests": {
+    "asf_search": {
+      "succeeded": true,
+      "granules": 2,
+      "elapsed_seconds_approx": 2.5
+    },
+    "earthdata_range_probe": {
+      "succeeded": true,
+      "status_code": 206,
+      "range_supported": true,
+      "hdf5_signature": true,
+      "elapsed_seconds_approx": 8.1
+    },
+    "openseppo_remote_subset": {
+      "succeeded": true,
+      "complete_cache_enabled": false,
+      "elapsed_seconds": 97.14314643999933,
+      "window": "az27932-31348_rg23112-26483",
+      "shape": [3416, 3371],
+      "bytes": 44774547,
+      "sha256": "517327a51d7cf9fce2be21229e42d3c53eeb4076992525a92b1da48ef4304c00",
+      "golden_sha256": "517327a51d7cf9fce2be21229e42d3c53eeb4076992525a92b1da48ef4304c00",
+      "golden_container_exact": true,
+      "science_array_exact": true
+    }
+  },
+  "implementation": {
+    "openseppo_default_network_mode": "direct",
+    "environment_proxy_opt_in": "--network-mode environment",
+    "proxy_urls_persisted": false,
+    "secrets_persisted": false
+  }
+}

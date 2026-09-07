@@ -1,0 +1,18 @@
+[
+  {
+    "path": "docs/handoff/index.md",
+    "sha256": "bc0abb5f41976abd5760215a83ee78d5f1ef02646f7edb6a2e128ffb8bf0c4d5"
+  },
+  {
+    "path": "docs/handoff/current.md",
+    "sha256": "2584878214ffdc119ad293cae04b39f98cde0229ac6501f2d011cb9d45963c0c"
+  },
+  {
+    "path": "docs/handoff/pages/p02-data-preparation.md",
+    "sha256": "9e012e22c1a3bd12a4eb995d5139ddb94a601acba02462eeb9165dccabea165f"
+  },
+  {
+    "path": "docs/architecture/migration.md",
+    "sha256": "ea9626f89139abe20c380c794fff11ca0b16893542870fdd3df43a08b71f458a"
+  }
+]

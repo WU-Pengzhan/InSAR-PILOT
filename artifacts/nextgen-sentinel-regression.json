@@ -1,0 +1,130 @@
+{
+  "date": "2026-09-05",
+  "project": "/tmp/pilot-nextgen-sentinel-trdyr3eo/project",
+  "execution_id": "b3a81391b6344cdd855676e7ee4d4670",
+  "runs": [
+    {
+      "run_id": "7e5bd6e76d8646658fe409fd25c2fa6e",
+      "step_id": "sentinel1.unpack_topo_reference",
+      "status": "SUCCESS",
+      "exit_code": 0,
+      "failure_kind": null
+    },
+    {
+      "run_id": "1f6b74308ba74a349c75b41d50f61e2a",
+      "step_id": "sentinel1.unpack_secondary_slc",
+      "status": "SUCCESS",
+      "exit_code": 0,
+      "failure_kind": null
+    },
+    {
+      "run_id": "c57341f8e24a4a87a44b5d4c9231e440",
+      "step_id": "sentinel1.average_baseline",
+      "status": "SUCCESS",
+      "exit_code": 0,
+      "failure_kind": null
+    },
+    {
+      "run_id": "523c198289ea49c48c86532e28cce5ac",
+      "step_id": "sentinel1.extract_burst_overlaps",
+      "status": "SUCCESS",
+      "exit_code": 0,
+      "failure_kind": null
+    },
+    {
+      "run_id": "224a39eccafb4a2380a3efd73cf864eb",
+      "step_id": "sentinel1.overlap_geo2rdr",
+      "status": "SUCCESS",
+      "exit_code": 0,
+      "failure_kind": null
+    },
+    {
+      "run_id": "e18742f8f39b4df5bfa7faf8a1699868",
+      "step_id": "sentinel1.overlap_resample",
+      "status": "SUCCESS",
+      "exit_code": 0,
+      "failure_kind": null
+    },
+    {
+      "run_id": "60d5f3569ba34526a44fa13a6ffb819e",
+      "step_id": "sentinel1.pairs_misreg",
+      "status": "SUCCESS",
+      "exit_code": 0,
+      "failure_kind": null
+    },
+    {
+      "run_id": "1f80a73206cb4ae7a9273e6ba3d9fecc",
+      "step_id": "sentinel1.timeseries_misreg",
+      "status": "SUCCESS",
+      "exit_code": 0,
+      "failure_kind": null
+    },
+    {
+      "run_id": "8e5c09e6f07f402b8d0169ec23952b4d",
+      "step_id": "sentinel1.fullburst_geo2rdr",
+      "status": "SUCCESS",
+      "exit_code": 0,
+      "failure_kind": null
+    },
+    {
+      "run_id": "be3bc7733f9c4cabb8f539f10ea8f5da",
+      "step_id": "sentinel1.fullburst_resample",
+      "status": "SUCCESS",
+      "exit_code": 0,
+      "failure_kind": null
+    },
+    {
+      "run_id": "7d5abc5e07ed45cdb0d1c34d282b215e",
+      "step_id": "sentinel1.extract_stack_valid_region",
+      "status": "SUCCESS",
+      "exit_code": 0,
+      "failure_kind": null
+    },
+    {
+      "run_id": "0c65cb7a446841e58bf713cc47dbeb69",
+      "step_id": "sentinel1.merge_reference_secondary_slc",
+      "status": "SUCCESS",
+      "exit_code": 0,
+      "failure_kind": null
+    },
+    {
+      "run_id": "0dca2681569f4c579615b9a5b603a2a4",
+      "step_id": "sentinel1.generate_burst_igram",
+      "status": "SUCCESS",
+      "exit_code": 0,
+      "failure_kind": null
+    },
+    {
+      "run_id": "2f5132fa3cc34f0dbd796c829a53e8c3",
+      "step_id": "sentinel1.merge_burst_igram",
+      "status": "SUCCESS",
+      "exit_code": 0,
+      "failure_kind": null
+    },
+    {
+      "run_id": "0bd668a172c2422382a645af39596d89",
+      "step_id": "sentinel1.filter_coherence",
+      "status": "SUCCESS",
+      "exit_code": 0,
+      "failure_kind": null
+    },
+    {
+      "run_id": "d3cc1d433c9c445cb1413eb1fb44ea24",
+      "step_id": "sentinel1.unwrap",
+      "status": "FAILED",
+      "exit_code": 1,
+      "failure_kind": "processor_exit"
+    }
+  ],
+  "success_stages": 15,
+  "expected_stages": 16,
+  "scientific_gate_passed": false,
+  "unwrap_failure": "snaphu v1.4.2: one or more interferogram dimensions too large",
+  "scientific_parameters_preserved": {
+    "azimuth_looks": 1,
+    "range_looks": 1
+  },
+  "runtime_omp_threads": 4,
+  "rerun_workspace_isolation": true,
+  "full_golden_numerical_comparison_complete": false
+}

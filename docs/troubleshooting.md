@@ -87,13 +87,13 @@ insar-pilot
 
 检查：
 
-- Earthdata 账户有效，且已在 Data 页面测试通过
+- Earthdata 用户名和密码完整（可从环境或 `~/.netrc` 自动加载）；Data 页连接测试是可选诊断，不是每次下载的前置步骤
 - 起止日期已设置
 - AOI 是有效的 bbox 或受支持的 KML/WKT 来源
 - 当前环境中已安装 `aria2c`
 - 项目 `data/` 目录可写
 
-SLC 下载依赖 aria2c 后端的分片续传能力。EOF 下载使用运行时环境中安装的轨道下载工具。
+SLC 与 AW3D30_E/OpenTopography 下载依赖 aria2c。COP30 不依赖 aria2c 或 OpenTopography key，使用内置的 AWS COG 并发 Range 下载器。EOF 下载使用运行时环境中安装的轨道下载工具。
 
 ## 5. DEM 准备失败
 
@@ -104,6 +104,8 @@ SLC 下载依赖 aria2c 后端的分片续传能力。EOF 下载使用运行时�
 - 高程基准选择正确
 - 处理工作目录可写
 - 查看项目文件夹下 `logs/` 中的日志
+- COP30 下载中断后不要删除 `DEM/cache/cop30/*.part.*`；重试会续传分块。完整瓦片会保留在缓存供后续 AOI 复用
+- 国内直连较慢时，可比较 `direct` 与明确配置的 `environment` 模式；不要仅修改代理环境变量后假定应用已经继承
 
 若出现 DEM 覆盖范围警告，请换用在目标 bbox 与条带覆盖范围外留有空间余量的 DEM。
 

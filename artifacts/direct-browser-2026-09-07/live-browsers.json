@@ -1,0 +1,12 @@
+[
+  {
+    "channel": "msedge",
+    "direct_access": true,
+    "manual_token": false
+  },
+  {
+    "channel": "chrome",
+    "direct_access": true,
+    "manual_token": false
+  }
+]

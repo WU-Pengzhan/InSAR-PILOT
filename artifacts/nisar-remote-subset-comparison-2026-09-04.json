@@ -1,0 +1,72 @@
+{
+  "schema_version": 1,
+  "tested_at": "2026-09-04",
+  "aoi": "docs/examples/nisar-aoi-example.kml",
+  "source": {
+    "provider": "asf-nisar",
+    "transport": "Earthdata HTTPS HDF5 range reads",
+    "complete_granule_cache_enabled": false,
+    "complete_granule_download_observed": false,
+    "remote_bytes_transferred": null,
+    "remote_bytes_note": "openSEPPO 0.7.1 does not expose aggregate transferred-byte telemetry",
+    "granule_count": 2,
+    "remote_granule_sizes": [29032972288, 28290580480]
+  },
+  "openseppo": {
+    "version": "0.7.1",
+    "frequency": "A",
+    "polarizations": ["HH"],
+    "min_height_m": 0,
+    "max_height_m": 3000,
+    "elapsed_seconds": 224.11418734200015,
+    "succeeded": true,
+    "outputs": [
+      {
+        "granule_cycle": 24,
+        "window": "az27932-31348_rg23112-26483",
+        "bytes": 44774547,
+        "remote_subset_sha256": "f1160d973786aa022605ec2296ab4722c3ef0d72a33c181896284792130cb020",
+        "golden_subset_sha256": "517327a51d7cf9fce2be21229e42d3c53eeb4076992525a92b1da48ef4304c00"
+      },
+      {
+        "granule_cycle": 25,
+        "window": "az27122-30537_rg23109-26479",
+        "bytes": 44671660,
+        "remote_subset_sha256": "27665f66a2587b323dbb8113b07f66801d27fabc89fc66e643cd801ad5ee572b",
+        "golden_subset_sha256": "c67f564f58a68931557d6b9ad4af77206bc1166575b2117b5a20446e6eba81e2"
+      }
+    ],
+    "semantic_comparison": {
+      "hdf5_objects_per_file": 143,
+      "datasets_per_file": 120,
+      "schema_differences": 0,
+      "exact_dataset_matches": 119,
+      "different_datasets": ["/science/LSAR/identification/boundingPolygon"],
+      "difference_note": "The output footprint was regenerated with a different representative terrain height; radar windows, science arrays, shapes and dtypes are identical. HDF5 object-reference attributes were compared semantically rather than by object address."
+    }
+  },
+  "rifg_comparison": {
+    "remote_input_elapsed_seconds": 18.478526595001313,
+    "shape": [569, 674],
+    "wrapped_dtype": "complex64",
+    "coherence_dtype": "float32",
+    "wrapped_phase_circular_rmse_rad": 2.102554503835563e-7,
+    "wrapped_complex_rmse": 1.061016874359666e-8,
+    "coherence_rmse": 7.351101771746471e-8
+  },
+  "gunw_comparison": {
+    "remote_subset_run_elapsed_seconds": 25.123462613999436,
+    "golden_subset_run_elapsed_seconds": 57.06912448100047,
+    "shape": [140, 117],
+    "projection_epsg": 32611,
+    "coordinate_axes_exact": true,
+    "connected_components_exact": true,
+    "unwrapped_phase_dtype": "float32",
+    "unwrapped_phase_rmse_rad": 4.053002840009867e-7,
+    "unwrapped_phase_max_abs_difference_rad": 3.337860107421875e-6,
+    "unwrapped_coherence_rmse": 4.0776338749992647e-8,
+    "wrapped_phase_circular_rmse_rad": 6.925796469658962e-8,
+    "wrapped_coherence_rmse": 5.1387225141752424e-8
+  },
+  "secrets_persisted": false
+}

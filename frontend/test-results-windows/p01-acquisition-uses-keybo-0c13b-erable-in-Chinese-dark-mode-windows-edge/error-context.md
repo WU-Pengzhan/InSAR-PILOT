@@ -1,0 +1,255 @@
+# Instructions
+
+- Following Playwright test failed.
+- Explain why, be concise, respect Playwright best practices.
+- Provide a snippet of code with the fix, if possible.
+
+# Test info
+
+- Name: p01-acquisition.spec.ts >> uses keyboard controls and keeps imagery failure recoverable in Chinese dark mode
+- Location: ..\..\..\..\..\..\wsl$\Ubuntu\Ubuntu\home\griffin\projects\insar-pilot\frontend\e2e\p01-acquisition.spec.ts:74:1
+
+# Error details
+
+```
+Test timeout of 30000ms exceeded.
+```
+
+```
+Error: locator.click: Test timeout of 30000ms exceeded.
+Call log:
+  - waiting for getByTestId('data-explorer').getByRole('button', { name: '框选 AOI', exact: true })
+
+```
+
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - banner [ref=e4]:
+    - toolbar [ref=e5]:
+      - generic [ref=e6] [cursor=pointer]:
+        - img "InSAR-PILOT logo" [ref=e7]
+        - generic [ref=e8]: InSAR-PILOT
+        - generic [ref=e9]: NEXT
+      - separator [ref=e10]
+      - generic [ref=e11]: SAR / InSAR 处理工作台
+      - button "24 CPU" [ref=e12] [cursor=pointer]:
+        - generic [aria-hidden] [ref=e13]: memory
+      - button "下载" [ref=e15] [cursor=pointer]:
+        - generic [ref=e16]:
+          - img [aria-hidden] [ref=e17]: download
+          - generic [ref=e18]: 下载
+      - button "检索" [ref=e19] [cursor=pointer]:
+        - generic [ref=e20]:
+          - img [aria-hidden] [ref=e21]: travel_explore
+          - generic [ref=e22]: 检索
+      - button "展开属性面板" [ref=e23] [cursor=pointer]:
+        - img [aria-hidden] [ref=e25]: chevron_left
+      - button "Change language" [ref=e26] [cursor=pointer]:
+        - img [aria-hidden] [ref=e28]: translate
+      - button "Toggle theme" [ref=e29] [cursor=pointer]:
+        - img [aria-hidden] [ref=e31]: light_mode
+      - generic [ref=e32]:
+        - status [ref=e33]: 后台运行中
+        - button "退出应用" [ref=e35] [cursor=pointer]:
+          - generic [ref=e36]:
+            - img [aria-hidden] [ref=e37]: power_settings_new
+            - generic [ref=e38]: 退出应用
+  - main [ref=e40]:
+    - generic [ref=e41]:
+      - complementary [ref=e43]:
+        - generic [ref=e44]: 工程浏览器
+        - generic [ref=e45]:
+          - generic [aria-hidden] [ref=e46]: folder_open
+          - paragraph [ref=e47]: 打开工程以查看数据和处理历史。
+          - button "新建工程" [ref=e48] [cursor=pointer]
+        - generic [ref=e51]:
+          - button "下载任务" [ref=e52] [cursor=pointer]:
+            - generic [ref=e53]:
+              - img [aria-hidden] [ref=e54]: download
+              - generic [ref=e55]: 下载任务
+          - button "文件视图" [disabled] [ref=e56]:
+            - generic [ref=e57]:
+              - img [aria-hidden] [ref=e58]: folder
+              - generic [ref=e59]: 文件视图
+          - button "数据仓库" [ref=e60] [cursor=pointer]:
+            - generic [ref=e61]:
+              - img [aria-hidden] [ref=e62]: inventory_2
+              - generic [ref=e63]: 数据仓库
+      - separator "Resize" [ref=e64]
+      - main [ref=e69]:
+        - tablist [ref=e70]:
+          - generic [ref=e71]:
+            - tab "首页" [ref=e72] [cursor=pointer]
+            - tab "数据检索" [selected] [ref=e76] [cursor=pointer]
+        - generic [ref=e81]:
+          - generic [ref=e82]:
+            - generic [ref=e83]:
+              - generic [ref=e84]: SAR 数据检索
+              - heading "为研究区域查找数据" [level=1] [ref=e85]
+            - status [ref=e86]: ASF DAAC
+          - button "收起筛选" [ref=e87] [cursor=pointer]
+          - generic [ref=e90]:
+            - generic [ref=e91]:
+              - heading "检索条件" [level=2] [ref=e92]
+              - status [ref=e93]: Sentinel-1 · IW · SLC
+              - generic [ref=e96] [cursor=pointer]:
+                - generic [ref=e97]:
+                  - generic: 任务
+                  - generic [ref=e98]:
+                    - generic [ref=e99]: SENTINEL-1
+                    - combobox "任务" [ref=e100]: SENTINEL-1
+                - generic [aria-hidden] [ref=e102]: arrow_drop_down
+              - group "Sentinel-1 卫星 · 可多选" [ref=e103]:
+                - generic [ref=e105]:
+                  - checkbox "SENTINEL-1A" [checked] [ref=e106] [cursor=pointer]:
+                    - generic [ref=e111]: A
+                  - checkbox "SENTINEL-1B" [checked] [ref=e112] [cursor=pointer]:
+                    - generic [ref=e117]: B
+                  - checkbox "SENTINEL-1C" [checked] [ref=e118] [cursor=pointer]:
+                    - generic [ref=e123]: C
+                  - checkbox "SENTINEL-1D" [checked] [ref=e124] [cursor=pointer]:
+                    - generic [ref=e129]: D
+              - generic [ref=e130]:
+                - generic [ref=e134]:
+                  - generic: 开始日期 · UTC
+                  - textbox "开始日期 · UTC" [ref=e135]: 2026-06-08
+                - generic [ref=e139]:
+                  - generic: 结束日期 · UTC
+                  - textbox "结束日期 · UTC" [ref=e140]: 2026-09-06
+              - generic [ref=e143] [cursor=pointer]:
+                - generic [ref=e144]:
+                  - generic: AOI 格式
+                  - generic [ref=e145]:
+                    - generic [ref=e146]: BBOX
+                    - combobox "AOI 格式" [ref=e147]: BBOX
+                - generic [aria-hidden] [ref=e149]: arrow_drop_down
+              - generic [ref=e153]:
+                - generic: 西、南、东、北
+                - textbox "西、南、东、北" [ref=e154]: 100,30,102,32
+              - button "在地图上预览 AOI" [ref=e155] [cursor=pointer]:
+                - generic [ref=e156]:
+                  - img [aria-hidden] [ref=e157]: center_focus_strong
+                  - generic [ref=e158]: 在地图上预览 AOI
+              - generic [ref=e161] [cursor=pointer]:
+                - generic [ref=e162]:
+                  - generic: 轨道方向 · 可选
+                  - combobox "轨道方向 · 可选" [ref=e164]
+                - generic [aria-hidden] [ref=e166]: arrow_drop_down
+              - generic [ref=e170]:
+                - generic: 相对轨道 · 可选
+                - spinbutton "相对轨道 · 可选" [ref=e171]
+              - generic [ref=e174] [cursor=pointer]:
+                - generic [ref=e175]:
+                  - generic: 极化 · 可选
+                  - combobox "极化 · 可选" [ref=e177]
+                - generic [aria-hidden] [ref=e179]: arrow_drop_down
+              - generic [ref=e180]:
+                - button "检索 SAR 数据" [ref=e181] [cursor=pointer]:
+                  - generic [ref=e182]:
+                    - img [aria-hidden] [ref=e183]: search
+                    - generic [ref=e184]: 检索 SAR 数据
+                - button "重置筛选" [ref=e185] [cursor=pointer]
+            - generic [ref=e188]:
+              - generic [ref=e189]:
+                - button "定位覆盖范围" [ref=e191] [cursor=pointer]
+                - button "重试底图" [ref=e194] [cursor=pointer]
+                - generic [ref=e197]:
+                  - generic:
+                    - generic:
+                      - img:
+                        - generic:
+                          - generic [ref=e198] [cursor=pointer]
+                          - generic [ref=e199] [cursor=pointer]
+                  - generic:
+                    - generic [ref=e200]:
+                      - button "Zoom in" [ref=e201] [cursor=pointer]: +
+                      - button "Zoom out" [ref=e202] [cursor=pointer]: −
+                    - generic [ref=e203]:
+                      - link "Leaflet" [ref=e204] [cursor=pointer]:
+                        - /url: https://leafletjs.com
+                      - text: "| Tiles © Esri"
+                - generic: 底图加载失败
+              - generic [ref=e209]:
+                - generic [ref=e210]:
+                  - generic [ref=e211]: 下载设置
+                  - button "刷新下载准备状态" [ref=e212] [cursor=pointer]:
+                    - img [aria-hidden] [ref=e214]: refresh
+                - generic [ref=e215]:
+                  - generic [ref=e216]: aria2c · 未安装
+                  - generic [ref=e218]: Earthdata · 已配置
+                - code [ref=e220]: /tmp/pilot-picker-e2e-dsiqxo3y/library
+                - generic [ref=e221]: DEM · GDAL 可用
+                - button "Expand \"下载程序\"" [ref=e225] [cursor=pointer]:
+                  - generic [ref=e226]: 下载程序
+                  - generic [aria-hidden] [ref=e229]: keyboard_arrow_down
+          - generic [ref=e230]:
+            - generic [ref=e231]:
+              - heading "检索结果 · 1" [level=2] [ref=e232]
+              - generic [ref=e233]: SENTINEL-1 · 2026-06-08 — 2026-09-06
+            - generic [ref=e234]:
+              - button "全选已加载结果" [ref=e235] [cursor=pointer]
+              - button "取消全选" [ref=e238] [cursor=pointer]
+              - generic [ref=e241]: 0 项已选择 · 0.00 GiB
+            - generic [ref=e242]:
+              - table [ref=e244]:
+                - rowgroup [ref=e245]:
+                  - row [ref=e246]:
+                    - columnheader "Select all rows" [ref=e247]:
+                      - checkbox "Select all rows" [ref=e248] [cursor=pointer]
+                    - columnheader "卫星" [ref=e253] [cursor=pointer]:
+                      - text: 卫星
+                      - generic [aria-hidden] [ref=e254]: arrow_upward
+                    - columnheader "成像时间（UTC）" [ref=e255] [cursor=pointer]:
+                      - text: 成像时间（UTC）
+                      - generic [aria-hidden] [ref=e256]: arrow_upward
+                    - columnheader "相对轨道" [ref=e257] [cursor=pointer]:
+                      - text: 相对轨道
+                      - generic [aria-hidden] [ref=e258]: arrow_upward
+                    - columnheader "轨道方向" [ref=e259]
+                    - columnheader "极化" [ref=e260]
+                    - columnheader "GiB" [ref=e261]
+                    - columnheader "产品 ID" [ref=e262]
+                - rowgroup [ref=e263]:
+                  - row [ref=e264] [cursor=pointer]:
+                    - cell [ref=e265]:
+                      - checkbox "Select row" [ref=e266]
+                    - cell "SENTINEL-1D" [ref=e271]
+                    - cell "2026-01-02T12:00:00Z" [ref=e272]
+                    - cell [ref=e273]
+                    - cell [ref=e274]
+                    - cell "VV" [ref=e275]
+                    - cell "0.00" [ref=e276]
+                    - cell "S1D-first" [ref=e277]
+              - generic [ref=e278]:
+                - generic [ref=e279]:
+                  - generic [ref=e280]: "Records per page:"
+                  - generic [ref=e283] [cursor=pointer]:
+                    - generic [ref=e285]:
+                      - generic [ref=e286]: "10"
+                      - combobox "Records per page:" [ref=e287]: "10"
+                    - generic [aria-hidden] [ref=e289]: arrow_drop_down
+                - generic [ref=e290]: 1–1 of 1
+            - generic [ref=e292]:
+              - button "已选清单 (0)" [ref=e293] [cursor=pointer]
+              - button "仅下载" [disabled] [ref=e296]:
+                - generic [ref=e297]:
+                  - img [aria-hidden] [ref=e298]: download
+                  - generic [ref=e299]: 仅下载
+              - button "从所选数据创建工程" [disabled] [ref=e300]
+          - button "Expand \"网络设置\"" [ref=e305] [cursor=pointer]:
+            - generic [ref=e306]: 网络设置
+            - generic [aria-hidden] [ref=e309]: keyboard_arrow_down
+  - contentinfo [ref=e310]:
+    - generic [ref=e311]:
+      - generic [ref=e313]: 本机引擎
+      - separator [ref=e314]
+      - generic [ref=e315]: 0 个处理任务
+      - button "任务" [ref=e316] [cursor=pointer]
+      - button "下载任务" [ref=e319] [cursor=pointer]:
+        - generic [ref=e320]:
+          - img [aria-hidden] [ref=e321]: download
+          - generic [ref=e322]: 下载任务
+      - generic [ref=e323]: Unassigned · 迁移预览版
+```

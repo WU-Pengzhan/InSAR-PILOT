@@ -1,0 +1,16 @@
+[
+  {
+    "satellite": "C",
+    "key": "AUX_POEORB/S1C_OPER_AUX_POEORB_OPOD_20250328T071010_V20250307T225942_20250309T005942.EOF",
+    "bytes": 4643667,
+    "xml_mission_interval_osv_validated": true,
+    "note": "Public EOF sample; synthetic scene interval equal to EOF validity, not a SAR transfer."
+  },
+  {
+    "satellite": "D",
+    "key": "AUX_POEORB/S1D_OPER_AUX_POEORB_OPOD_20260130T071440_V20260109T225942_20260111T005942.EOF",
+    "bytes": 4634941,
+    "xml_mission_interval_osv_validated": true,
+    "note": "Public EOF sample; synthetic scene interval equal to EOF validity, not a SAR transfer."
+  }
+]

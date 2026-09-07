@@ -1,0 +1,49 @@
+{
+  "date": "2026-09-05",
+  "legacy_suite": {
+    "passed": 490,
+    "skipped": 1,
+    "skip_reason": "FastAPI unavailable in legacy science environment; API tests run separately"
+  },
+  "headless_suite": {
+    "passed": 33
+  },
+  "frontend_tests": {
+    "passed": 3
+  },
+  "typescript_build": "passed",
+  "ruff_new_files": "passed",
+  "mypy_new_files": {
+    "passed": true,
+    "files": 17
+  },
+  "mkdocs_strict": "passed",
+  "wheel": "/tmp/pilot-nextgen-wheel/insar_pilot-1.2.0-py3-none-any.whl",
+  "wheel_frontend_matches_current_build": true,
+  "browser": {
+    "viewports": [
+      [
+        1440,
+        900
+      ],
+      [
+        1366,
+        768
+      ]
+    ],
+    "languages": [
+      "en",
+      "zh"
+    ],
+    "themes": [
+      "light",
+      "dark"
+    ],
+    "native_zoom_125_150": "not verified; shortcut had no effect",
+    "rifg_preview_pixels": [
+      674,
+      569
+    ]
+  },
+  "full_migration_complete": false
+}

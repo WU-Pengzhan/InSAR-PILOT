@@ -1,0 +1,30 @@
+[
+  {
+    "path": "docs/installation.md",
+    "sha256": "4cf36a2b3b826ecef10c462726d96e5e48878f22ed08239f3bb29f9fff940717"
+  },
+  {
+    "path": "docs/architecture/overview.md",
+    "sha256": "224ce72af734af424c36f844a8e107f6b4783f062690b3b6ea6e872a6d387406"
+  },
+  {
+    "path": "docs/architecture/migration.md",
+    "sha256": "14fe3cbad7f8ecfc1c66593d710b0cf38e9e2e9a78da848ddbc4338fb112d69e"
+  },
+  {
+    "path": "docs/handoff/index.md",
+    "sha256": "a24314965fdcabb4ea7def9d3893e764aa3017f483cd3db440030902e3c326ed"
+  },
+  {
+    "path": "docs/handoff/current.md",
+    "sha256": "724c64937e04eef839e9aaf86271858321d5f1388ec298168773dc1b232914d9"
+  },
+  {
+    "path": "docs/handoff/pages/shell-project-entry.md",
+    "sha256": "a0f3bb9e635edb6bdf11ffd4dc78b14e7935d029c7fdf40b97f8250d4ec21662"
+  },
+  {
+    "path": "README.md",
+    "sha256": "7585046981858099aee29a98740e2d572a240998b6a7b671294f9fa299f7b107"
+  }
+]

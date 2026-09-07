@@ -1,0 +1,5 @@
+{
+  "restart_exit": 0,
+  "status": "RUNNING \u2014 0 download jobs, 0 processing jobs, 0 worker processes.\nClosing the browser keeps the backend running. Exit the application with insar-pilot-web --stop.",
+  "user_downloads_started": false
+}

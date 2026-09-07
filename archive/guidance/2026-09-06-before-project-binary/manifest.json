@@ -1,0 +1,30 @@
+[
+  {
+    "path": "docs/architecture/project-file-entry.md",
+    "sha256": "a9a13e4d348a5deddea600d583049efb43393066a65baa744af981a616a6d96f"
+  },
+  {
+    "path": "docs/architecture/project-model.md",
+    "sha256": "44ef73e8afd8ab03f94ce8f0361ea7116fb24851d6a33f0d831b6b6d4691aad2"
+  },
+  {
+    "path": "docs/architecture/storage.md",
+    "sha256": "a5add92c973b9f4aeba39e84a57df02cbde3da1c567b99865d8060ee266e1922"
+  },
+  {
+    "path": "docs/architecture/migration.md",
+    "sha256": "2fc6fa29ae1f0ea7746ae889c77e4b443a324501b47dc1bf39d5f14a2a0260ff"
+  },
+  {
+    "path": "docs/handoff/index.md",
+    "sha256": "bd38f2a49df73cefab102f4734e65d7fce9c28056652da9e34f67893e99cd63b"
+  },
+  {
+    "path": "docs/handoff/current.md",
+    "sha256": "09a797cca0e720acfe2d8467bf55dcda6aeac6d0bb811eb62b6dff2cc625a2b9"
+  },
+  {
+    "path": "docs/handoff/pages/shell-project-entry.md",
+    "sha256": "c25e3aa31793f55bdf3e7fd4d1d0b09acae152110c15c61fe3f4245479e27c96"
+  }
+]

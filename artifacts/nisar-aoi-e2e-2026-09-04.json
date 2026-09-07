@@ -1,0 +1,72 @@
+{
+  "schema_version": 1,
+  "tested_at": "2026-09-04",
+  "aoi": "docs/examples/nisar-aoi-example.kml",
+  "search": {
+    "provider": "asf-nisar",
+    "mission": "NISAR",
+    "product_type": "RSLC",
+    "production_configuration": "PR",
+    "path": 13,
+    "frame": 71,
+    "result_count": 2,
+    "granules": [
+      "NISAR_L1_PR_RSLC_024_013_D_071_4005_DHDH_A_20260627T024036_20260627T024114_P05023_N_F_J_001",
+      "NISAR_L1_PR_RSLC_025_013_D_071_4005_DHDH_A_20260709T024036_20260709T024113_P05023_N_F_J_001"
+    ]
+  },
+  "authenticated_access": {
+    "status_code": 206,
+    "range_supported": true,
+    "hdf5_signature": true,
+    "full_redownload_performed": false
+  },
+  "subset": {
+    "backend": "openSEPPO 0.7.1",
+    "succeeded": true,
+    "exit_code": 0,
+    "elapsed_seconds": 38.07417508799972,
+    "output_count": 2
+  },
+  "runtime": {
+    "isce3": "0.25.17",
+    "gdal": "3.13.3",
+    "python": "/home/griffin/miniconda3/envs/insar-nisar/bin/python",
+    "available": true
+  },
+  "rifg": {
+    "succeeded": true,
+    "exit_code": 0,
+    "elapsed_seconds": 23.098331529999996,
+    "frequency": "A",
+    "polarization": "HH",
+    "shape": [569, 674],
+    "wrapped_dtype": "complex64",
+    "coherence_dtype": "float32"
+  },
+  "full_insar_workflow": {
+    "isce3_version": "0.25.17",
+    "succeeded": true,
+    "exit_code": 0,
+    "elapsed_seconds": 41.79172467800163,
+    "input": "two openSEPPO AOI RSLC subsets",
+    "frequency": "A",
+    "polarization": "HH",
+    "runw": {
+      "validated": true,
+      "shape": [277, 338],
+      "unwrapped_phase_dtype": "float32",
+      "coherence_dtype": "float32"
+    },
+    "gunw": {
+      "validated": true,
+      "shape": [140, 117],
+      "unwrapped_phase_dtype": "float32",
+      "coherence_dtype": "float32",
+      "projection_epsg": 32611,
+      "x_coordinates": 117,
+      "y_coordinates": 140
+    }
+  },
+  "secrets_persisted": false
+}

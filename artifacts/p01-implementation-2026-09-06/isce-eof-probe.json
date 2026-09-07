@@ -1,0 +1,36 @@
+[
+  {
+    "satellite": "S1C",
+    "file": "S1C_OPER_AUX_POEORB_OPOD_20250328T071010_V20250307T225942_20250309T005942.EOF",
+    "isce_selected_exact_file": true,
+    "state_vectors": 15,
+    "position_m": [
+      -2076376.4833651406,
+      5835975.397283558,
+      -3429441.114712432
+    ],
+    "velocity_mps": [
+      374.58805574995904,
+      3933.5326839904683,
+      6477.11748830259
+    ],
+    "scope": "EOF parse and interpolation; no SAR computation"
+  },
+  {
+    "satellite": "S1D",
+    "file": "S1D_OPER_AUX_POEORB_OPOD_20260130T071440_V20260109T225942_20260111T005942.EOF",
+    "isce_selected_exact_file": true,
+    "state_vectors": 15,
+    "position_m": [
+      -1123576.6548842795,
+      6070999.893789763,
+      3449050.4686171836
+    ],
+    "velocity_mps": [
+      2305.1166524042314,
+      -3257.3255150546593,
+      6463.008238335957
+    ],
+    "scope": "EOF parse and interpolation; no SAR computation"
+  }
+]

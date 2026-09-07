@@ -8,6 +8,8 @@ __pycache__/
 .ruff_cache/
 .hermes/
 node_modules/
+frontend/test-results/
+frontend/playwright-report/
 .venv/
 build/
 dist/

@@ -1,0 +1,10 @@
+{
+  "result": "PASS",
+  "archived_files_verified": 8,
+  "unchanged_product_files": 365,
+  "documents_checked": 9,
+  "local_links_checked": 86,
+  "acceptance_scenarios": 16,
+  "git_diff_check": "PASS",
+  "rendered_design_html": "PASS"
+}

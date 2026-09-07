@@ -1,0 +1,18 @@
+[
+  {
+    "path": "frontend/src/App.vue",
+    "sha256": "7ceb640a0ae0369237fea4d9c3d63e23d8e1f263226ad9f6b4edd4c375f7c592"
+  },
+  {
+    "path": "frontend/src/DataExplorer.vue",
+    "sha256": "bd125ffa831fd07c7b3028935749a317d444007db0353086689036c63bc01d19"
+  },
+  {
+    "path": "frontend/src/SearchMap.vue",
+    "sha256": "34060a65947415af5613585514fdbfd1d77fc40a08d9fa5ca019d8bd725f06dd"
+  },
+  {
+    "path": "frontend/src/style.css",
+    "sha256": "e926b6e3fc90068c290020c4ff0608f0c70d26c06bb74b815f7036ec5c2b12b1"
+  }
+]

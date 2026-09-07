@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document>
+    <name>NISAR AOI example</name>
+    <Placemark>
+      <name>Southern California test AOI</name>
+      <Polygon>
+        <outerBoundaryIs>
+          <LinearRing>
+            <coordinates>
+              -117.7676,34.5553,0
+              -117.6676,34.5553,0
+              -117.6676,34.6553,0
+              -117.7676,34.6553,0
+              -117.7676,34.5553,0
+            </coordinates>
+          </LinearRing>
+        </outerBoundaryIs>
+      </Polygon>
+    </Placemark>
+  </Document>
+</kml>

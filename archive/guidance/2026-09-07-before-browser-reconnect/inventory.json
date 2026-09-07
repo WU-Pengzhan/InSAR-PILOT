@@ -1,0 +1,26 @@
+[
+  {
+    "path": "README.md",
+    "sha256": "c975db99f3650a3d9a7f0bba9614334ef431b13a66e9aff6de684a6ab940acba"
+  },
+  {
+    "path": "docs/architecture/run-job-model.md",
+    "sha256": "a2f99a71b2397b977b60c3e61f3071e43f83c7ccfe0663ef557b700a173c7b2a"
+  },
+  {
+    "path": "docs/architecture/migration.md",
+    "sha256": "1025070b80bc471f63a6ad5b3925e39dc23d1380256a3b08068c9ac2df067b09"
+  },
+  {
+    "path": "docs/handoff/index.md",
+    "sha256": "a6a2484c884f665664b92e224cefcc661f0ab4d9edd4bab90a1b036db381f071"
+  },
+  {
+    "path": "docs/handoff/current.md",
+    "sha256": "5900a39d96466704982d663e3fb1ee6c4a1780102d1b042280c8a278a47c9dc7"
+  },
+  {
+    "path": "docs/handoff/pages/shell-project-entry.md",
+    "sha256": "375f171564cf417ef35d5f5ff560fcf496c8d43e5a091b391b416e7d30d464b0"
+  }
+]

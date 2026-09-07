@@ -87,13 +87,13 @@ insar-pilot
 
 Check:
 
-- Earthdata credentials are valid and tested in Data
+- the Earthdata username and password are complete (they may be loaded from the environment or `~/.netrc`); the Data-page connection test is optional diagnostics, not a prerequisite for every download
 - start/end dates are set
 - AOI is a valid bbox or supported KML/WKT source
 - `aria2c` is installed in the active environment
 - the project `data/` directory is writable
 
-SLC downloads require the aria2c backend for multipart resumable transfers. EOF downloads use the orbit-download tooling installed in the runtime environment.
+SLC and AW3D30_E/OpenTopography downloads require aria2c. COP30 needs neither aria2c nor an OpenTopography key; it uses the built-in concurrent AWS COG range downloader. EOF downloads use the orbit-download tooling installed in the runtime environment.
 
 ## 5. DEM preparation fails
 
@@ -104,6 +104,8 @@ Checklist:
 - the height reference is selected correctly
 - the processing work directory is writable
 - inspect logs under `logs/` in the project folder
+- after an interrupted COP30 transfer, keep `DEM/cache/cop30/*.part.*`; retry resumes the chunks, and completed tiles remain cached for later AOIs
+- if direct-China throughput is slow, compare explicit `direct` and `environment` modes; changing proxy environment variables alone does not make the app inherit them
 
 If DEM coverage warnings appear, use a DEM with spatial margin around the target bbox and swath coverage.
 

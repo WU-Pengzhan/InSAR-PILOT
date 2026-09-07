@@ -1,0 +1,49 @@
+{
+  "date": "2026-09-05",
+  "feature": "Host file and directory picker",
+  "backend_tests": {
+    "passed": 39
+  },
+  "frontend_unit_tests": {
+    "passed": 8
+  },
+  "browser_tests": [
+    {
+      "browser": "Windows Microsoft Edge",
+      "backend": "WSL Ubuntu",
+      "passed": 5
+    },
+    {
+      "browser": "Linux Firefox",
+      "backend": "WSL Ubuntu",
+      "passed": 5
+    },
+    {
+      "browser": "Linux Chromium",
+      "backend": "WSL Ubuntu",
+      "passed": 5
+    },
+    {
+      "browser": "Linux Firefox",
+      "backend": "Ubuntu, WSL environment variables unset",
+      "passed": 4,
+      "skipped": 1,
+      "skip_reason": "Windows-only path test"
+    }
+  ],
+  "build": "vue-tsc and Vite passed",
+  "lint": "Ruff passed",
+  "typing": "mypy passed for API and file browser",
+  "docs": "MkDocs strict passed",
+  "viewport": "1366x768",
+  "themes": [
+    "English/light",
+    "Chinese/dark"
+  ],
+  "limitations": [
+    "Separate bare-metal Linux installation not used",
+    "Full GUI acceptance matrix and scientific processing were not rerun"
+  ],
+  "science_data_modified": false,
+  "screenshot": "artifacts/nextgen-file-picker-windows-zh.png"
+}

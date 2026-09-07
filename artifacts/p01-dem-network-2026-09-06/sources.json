@@ -1,0 +1,59 @@
+{
+  "time": "2026-09-06T09:48:51.851746+08:00",
+  "results": [
+    {
+      "source": "aria2",
+      "url": "https://aria2.github.io/manual/en/html/aria2c.html",
+      "status": 200,
+      "bytes": 483289,
+      "seconds": 0.81,
+      "snippets": [
+        "M = 1024K). This option does not affect BitTorrent downloads. Default: 0 -x , --max-connection-per-server =&lt;NUM&gt; ¶ The maximum number of connections to one server for each download. Default: 1 --max-file-not-found =&lt;NUM&gt; ¶ If aria2 receives &quot;file not found&quot; status from the remote HTTP/FTP servers NUM times without getting a single byte, then force the download to fail. Specify 0 to disable this option. This options is effective only when using HTTP/FTP servers. The number o",
+        "cate file must be in PEM format and can contain multiple CA certificates. Use --check-certificate option to enable verification. Note If you build with OpenSSL or the recent version of GnuTLS which has gnutls_certificate_set_x509_system_trust() function and the library is properly configured to locate the system-wide CA certificates store, aria2 will automatically load those certificates at the startup. Note WinTLS and AppleTLS do not support this option. Instead you will have to import the cert",
+        "m , --max-tries =&lt;N&gt; ¶ Set number of tries. 0 means unlimited. See also --retry-wait . Default: 5 -k , --min-split-size =&lt;SIZE&gt; ¶ aria2 does not split less than 2*SIZE byte range. For example, let's consider downloading 20MiB file. If SIZE is 10M, aria2 can split file into 2 range [0-10MiB) and [10MiB-20MiB) and download it using 2 sources(if --split &gt;= 2, of course). If SIZE is 15M, since 2*15M &gt; 20MiB, aria2 does not split file and download it using 1 source. You can append K",
+        " specified, or this option is omitted, no log is written to disk at all. -j , --max-concurrent-downloads =&lt;N&gt; ¶ Set the maximum number of parallel downloads for every queue item. See also the --split option. Default: 5 Note --max-concurrent-downloads limits the number of items which are downloaded concurrently. --split and --min-split-size affect the number of connections inside each item. Imagine that you have an input file (see --input-file option) like this: http://example.com/foo http:"
+      ]
+    },
+    {
+      "source": "copernicus",
+      "url": "https://registry.opendata.aws/copernicus-dem/",
+      "status": 200,
+      "bytes": 9202,
+      "seconds": 16.85,
+      "snippets": [
+        "igital Elevation Model (DEM)\", \"description\" : \"The Copernicus DEM is a Digital Surface Model (DSM) which represents the surface of the Earth including buildings, infrastructure and vegetation. We provide two instances of Copernicus DEM named GLO-30 Public and GLO-90. GLO-90 provides worldwide coverage at 90 meters. GLO-30 Public provides limited worldwide coverage at 30 meters because a small subset of tiles covering specific countries are not yet released to the public by the Copernicus Progra",
+        "astructure and vegetation. We provide two instances of Copernicus DEM named GLO-30 Public and GLO-90. GLO-90 provides worldwide coverage at 90 meters. GLO-30 Public provides limited worldwide coverage at 30 meters because a small subset of tiles covering specific countries are not yet released to the public by the Copernicus Programme. Note that in both cases ocean areas do not have tiles, there one can assume height values equal to zero. Data is provided as Cloud Optimized GeoTIFFs and comes fr"
+      ]
+    },
+    {
+      "source": "asf",
+      "url": "https://docs.asf.alaska.edu/asf_search/downloading/",
+      "status": 200,
+      "bytes": 39866,
+      "seconds": 0.87,
+      "snippets": [
+        "SearchResults.download() and the generic download_urls() function both accept a processes parameter which allows for parallel downloads. Methods # download_urls() # Downloads all products from the specified URLs to the specified location. args urls: List of URLs from which to download path: Local path in which to save the product session: The session to use, in most cases should be authenticated beforehand processes: Number of download processes to use. Defaults to 1 (i.e. sequential download) d",
+        " be passed to whichever download method is being called, can be re-used, and is thread safe. auth_with_creds('user', 'pass) auth_with_token('EDL token') auth_with_cookiejar(http.cookiejar) Example with manual authentication: results = asf_search.granule_search([...]) session = asf_search.ASFSession().auth_with_creds('user', 'pass') results.download(path='/Users/SARGuru/data', session=session) asf_search also supports downloading an arbitrary list of URLs. All of the available authentication meth",
+        "p() Export Formats Classes Classes ASFProduct ASFSearchOptions ASFSearchResults ASFSession Pair Best Practices Wildcard Queries Exceptions What's New ASF Search API ASF Search API Search API Basics Search API Keywords & Endpoints Tools Troubleshooting Cookbook Wildcard Queries What's New Product Details Product Details Using ASF Data Displacement Product Usage Displacement Product FAQs ALOS PALSAR Products Events (SARVIEWS) ASF Web Table of contents Session Authentication Methods download_urls()"
+      ]
+    },
+    {
+      "source": "gdal",
+      "url": "https://gdal.org/en/stable/programs/gdalwarp.html",
+      "status": 200,
+      "bytes": 95012,
+      "seconds": 1.33,
+      "snippets": [
+        "name of a .prj file containing a WKT CRS definition. If the SRS has an explicit vertical datum that points to a geoid grid, and the input dataset is a single band dataset, a vertical correction will be applied to the values of the dataset. -s_coord_epoch &lt;epoch&gt;  Added in version 3.4. Assign a coordinate epoch, linked with the source SRS. Useful when the source SRS is a dynamic CRS. Only taken into account if -s_srs is used. Before PROJ 9.4, -s_coord_epoch and -t_coord_epoch were mutually",
+        "&lt;NAME&gt;=&lt;VALUE&gt;]... [-ovr &lt;level&gt;|AUTO|AUTO-&lt;n&gt;|NONE] [[-vshift]|[-novshiftgrid]] [-if &lt;format&gt;]... [-srcband &lt;band&gt;]... [-dstband &lt;band&gt;]... Description  The gdalwarp utility is an image mosaicing, reprojection and warping utility. The program can reproject to any supported projection, and can also apply GCPs stored with the image if the image is &quot;raw&quot; with control information. Tip Equivalent in new &quot;gdal&quot; command line interface: gda"
+      ]
+    },
+    {
+      "source": "cop30-readme",
+      "url": "https://copernicus-dem-30m.s3.amazonaws.com/readme.html",
+      "status": 200,
+      "bytes": 8536,
+      "note": "Read after inventory fetch; raw text saved separately."
+    }
+  ]
+}

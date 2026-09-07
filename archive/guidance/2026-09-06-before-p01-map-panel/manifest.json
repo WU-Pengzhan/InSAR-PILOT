@@ -1,0 +1,26 @@
+[
+  {
+    "path": "docs/architecture/gui-architecture.md",
+    "sha256": "688f5870d7957478312dadd022e0b7cfba5b31cbcca6f9e925142ad84645a64d"
+  },
+  {
+    "path": "docs/architecture/p01-search-download.md",
+    "sha256": "acfd879b67b40e1fced92c5f2f94c79b1cb99bafc8ec54eccdb401bedbb4bcd9"
+  },
+  {
+    "path": "docs/architecture/migration.md",
+    "sha256": "38cdcf9b63129eaafbbf37a0055badbe529478b5409b717ef1a8107561a341e1"
+  },
+  {
+    "path": "docs/handoff/index.md",
+    "sha256": "b35ff625742898d40c508544cf044599332a9105732c7ec22bf3c173f5375de4"
+  },
+  {
+    "path": "docs/handoff/current.md",
+    "sha256": "c6ec713538dd589d8acaa09eb0c3d21a5183fa12b272a3ca31828ff3855326ec"
+  },
+  {
+    "path": "docs/handoff/pages/p01-search-download.md",
+    "sha256": "3b12fd10809b52e9d53439755b3af8036eab31fb26ecd3c1e3ae291005ab6ad7"
+  }
+]

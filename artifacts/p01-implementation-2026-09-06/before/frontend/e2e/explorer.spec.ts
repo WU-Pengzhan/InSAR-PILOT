@@ -1,0 +1,59 @@
+import { expect, test } from '@playwright/test'
+
+test.beforeEach(async ({ page }) => {
+  await page.addInitScript(() => { if (!sessionStorage.getItem('explorer-test-init')) { localStorage.clear(); sessionStorage.setItem('explorer-test-init', '1') }; sessionStorage.setItem('pilot-token', 'local-picker-test-session') })
+  // Deterministic tile response; browser tests do not depend on the imagery CDN.
+  await page.route('**/api/v1/maps/imagery/**', route => route.fulfill({ contentType: 'image/png', body: Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=', 'base64') }))
+  await page.goto('/')
+  await expect(page.getByRole('heading', {name:'Recent projects'})).toBeVisible()
+})
+
+test('uses the original logo and collapses/restores the properties panel', async ({ page }) => {
+  await expect(page.getByAltText('InSAR-PILOT logo')).toBeVisible()
+  expect(await page.getByAltText('InSAR-PILOT logo').evaluate((image: HTMLImageElement) => image.naturalWidth)).toBe(512)
+  const workspace = page.locator('.workspace')
+  const before = await workspace.boundingBox()
+  await page.getByRole('button', {name:'Hide properties panel',exact:true}).click()
+  await expect(page.locator('.inspector')).not.toBeVisible()
+  expect((await workspace.boundingBox())!.width).toBeGreaterThan(before!.width + 100)
+  await page.reload()
+  await expect(page.locator('.inspector')).not.toBeVisible()
+  await page.getByRole('button', {name:'Show properties panel',exact:true}).click()
+  await expect(page.locator('.inspector')).toBeVisible()
+  expect(Math.abs((await workspace.boundingBox())!.width - before!.width)).toBeLessThan(3)
+})
+
+test('draws an AOI and submits legacy-compatible search filters with selectable footprints', async ({ page }, info) => {
+  const requests: any[] = []
+  await page.route('**/api/v1/data/search', async route => {
+    requests.push(route.request().postDataJSON())
+    await route.fulfill({json:[{mission:'SENTINEL-1',error:null,page:{items:[{remote_product_id:'S1-fixture',mission:'SENTINEL-1',platform:'SENTINEL-1A',acquisition_time:'2024-01-01T00:00:00Z',polarizations:['VV'],size_bytes:1024**3,relative_orbit:1,footprint:{type:'Polygon',coordinates:[[[90,20],[95,20],[95,25],[90,25],[90,20]]]}}],next_page:null}}]})
+  })
+  await page.getByRole('button', {name:'Explore',exact:true}).click()
+  const explorer = page.getByTestId('data-explorer')
+  await expect(explorer.locator('.leaflet-container')).toBeVisible()
+  await explorer.getByRole('button', {name:'Draw AOI',exact:true}).click()
+  const map = explorer.locator('.leaflet-host')
+  const bounds = (await map.boundingBox())!
+  await map.click({position:{x:bounds.width*.3,y:bounds.height*.4}})
+  await map.click({position:{x:bounds.width*.65,y:bounds.height*.65}})
+  await expect(explorer.getByLabel('West, south, east, north', {exact:true})).not.toHaveValue('')
+  await explorer.getByRole('button', {name:'Search SAR data',exact:true}).click()
+  await expect(explorer.getByText('S1-fixture', {exact:true})).toBeVisible()
+  expect(requests[0].aoi_wkt).toMatch(/^POLYGON/)
+  expect(requests[0].platforms).toEqual(['SENTINEL-1A','SENTINEL-1B','SENTINEL-1C','SENTINEL-1D'])
+  await explorer.getByRole('checkbox',{name:'SENTINEL-1B',exact:true}).uncheck()
+  await explorer.getByRole('checkbox',{name:'SENTINEL-1C',exact:true}).uncheck()
+  await explorer.getByRole('button', {name:'Search SAR data',exact:true}).click()
+  await expect.poll(()=>requests.length).toBe(2)
+  expect(requests[1].platforms).toEqual(['SENTINEL-1A','SENTINEL-1D'])
+  await explorer.getByRole('button', {name:'Select all loaded',exact:true}).click()
+  await expect(explorer.locator('.selection-toolbar')).toContainText('1 selected')
+  expect(await explorer.locator('.leaflet-tile').first().getAttribute('src')).toContain('/api/v1/maps/imagery/')
+  await page.screenshot({path:info.outputPath('explorer.png'), animations:'disabled'})
+  await explorer.getByRole('checkbox',{name:'SENTINEL-1A',exact:true}).uncheck()
+  await explorer.getByRole('checkbox',{name:'SENTINEL-1D',exact:true}).uncheck()
+  await explorer.getByRole('button', {name:'Search SAR data',exact:true}).click()
+  await expect(explorer.getByRole('alert')).toContainText('Select at least one Sentinel-1 satellite.')
+  expect(requests).toHaveLength(2)
+})

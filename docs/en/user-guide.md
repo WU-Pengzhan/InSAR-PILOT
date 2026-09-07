@@ -1,5 +1,8 @@
 # InSAR-PILOT User Guide
 
+> **Web preview exit:** Closing the browser leaves the backend running. Use **Exit app** in the header; pause/cancel active tasks in Jobs first. `insar-pilot-web --status` inspects the backend; `insar-pilot-web --stop` exits when idle. Run `insar-pilot-web` to start again. Use the same `--state` for a custom state directory. The instructions below describe the retained legacy desktop application.
+
+
 <p align="center">
   <img src="../assets/branding/logo.png" width="640" alt="InSAR-PILOT logo">
 </p>
@@ -45,7 +48,7 @@ project_root/
 
 The Data page prepares Sentinel-1 inputs:
 
-- test Earthdata/ASF credentials
+- enter or load Earthdata/ASF credentials from `~/.netrc`; connection testing is optional diagnostics and complete credentials can download directly
 - enter dates, AOI, orbit direction, relative orbit, and polarization
 - search ASF Sentinel-1 SLC scenes
 - inspect footprints and metadata in the map/table workspace
@@ -53,6 +56,15 @@ The Data page prepares Sentinel-1 inputs:
 - import the downloaded workspace into Setup
 
 Recommended order: test credentials first, then define search filters. Download progress does not reset the map view, and logs only auto-scroll when the user is already at the bottom.
+
+KML AOIs support `Polygon`, `LineString`, and `Point`. ASF accepts one search geometry per request; when a KML contains multiple lines, the longest main path is used for the search while every line remains available to map previews and bounds calculations.
+
+### DEM download sources
+
+- COP30 does not need an OpenTopography key. The app resolves one-degree COG tiles for the planned extent, downloads each AWS Open Data tile through eight resumable ranges into `DEM/cache/cop30/`, then uses GDAL to crop/mosaic one AOI GeoTIFF. Later runs in the same download workspace reuse cached tiles.
+- AW3D30_E still uses OpenTopography and requires a validated API key.
+- The height references differ: COP30 is EGM2008 while AW3D30_E is WGS84 ellipsoidal. Do not infer the height reference from the file extension.
+- The default `direct` network mode explicitly ignores WSL proxy environment variables; only `environment` inherits them.
 
 ## 4. Processing Setup
 
@@ -87,12 +99,16 @@ Each step and subcommand records status, log path, exit code, and messages. Afte
 
 ![Results quicklook](../assets/screenshots/results-quicklook.png)
 
-Results is limited to output browsing and visualization:
+Results uses a full-width product workbench limited to core radar-product browsing and visualization:
 
-- scan processing outputs
-- browse discovered SLC, interferogram, merged products, and quicklooks
-- generate SLC, interferogram, or overlay previews
-- export BMP quicklooks
+- collapse data/XML/VRT/full-VRT sidecars into searchable SLC, filtered/unfiltered INT, coherence, and unwrapped-phase products; geometry and intermediate files remain available through **Open other file**
+- select an INT to match the reference-date merged SLC and default to an overlay; a standard overlay uses
+  co-registered SLC intensity for brightness, `arg(INT)` for phase color, and
+  `abs(INT) > 0` for validity; when SLC is omitted, `abs(INT)` is the fallback brightness
+- regenerate only when the user clicks **Preview** after changing a product or parameter; use Ctrl+wheel zoom, wheel scrolling, fit-to-window, or 100% pixels in the full-resolution viewer
+- display coherence with a fixed 0–1 Viridis scale and unwrapped phase with a default valid-pixel P2–P98 continuous scale
+- crop phase products to their valid-data extent without additional image compression; export lossless PNG or BMP plus a same-name JSON parameter file
+- keep the log console hidden at startup and show it only when requested from **View**
 
 This page does not own workflow state. State is stored in the project file, Run page, and logs.
 

@@ -1,0 +1,34 @@
+[
+  {
+    "path": "docs/architecture/p01-search-download.md",
+    "sha256": "f12dfa4c524927c33fcc351a8291aacae44d06a5f6dac9232d5de56442a7947e"
+  },
+  {
+    "path": "docs/handoff/index.md",
+    "sha256": "cf60dc85ff7dc084ff89347806174bd005c451afe4831b9b62ce2ffe37dac81f"
+  },
+  {
+    "path": "docs/handoff/current.md",
+    "sha256": "6fe236a4af8326bd21b9cbd4d22c5c62a01c760ef4b034f5718cae28672e171f"
+  },
+  {
+    "path": "docs/handoff/pages/p01-search-download.md",
+    "sha256": "b5027324c9752483e3a49722f694bdc925165a3e949ca33ecd41feb89426dba7"
+  },
+  {
+    "path": "docs/handoff/pages/p02-data-preparation.md",
+    "sha256": "e83223d181e2a7e0c384535b64d461545994da5a581df62bfe6244ee7323a14d"
+  },
+  {
+    "path": "docs/architecture/migration.md",
+    "sha256": "c2d27d743a759297bc7d48004308403d8cb5b27b90988f6b47c6be487208f4b0"
+  },
+  {
+    "path": "docs/architecture/sentinel-workbench.md",
+    "sha256": "504721e3e5ba3a93d332b165a5837c121054b14d96f43cbdc07f112e1174b734"
+  },
+  {
+    "path": "mkdocs.yml",
+    "sha256": "f73265be35607a088bfffe0ebb9f40b2de52552a6daa06e7fe2efa1bfbdd6fb8"
+  }
+]

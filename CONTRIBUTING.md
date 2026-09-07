@@ -1,57 +1,41 @@
 # Contributing to InSAR-PILOT
 
-Thanks for your interest in improving InSAR-PILOT. This guide covers the development
-setup, how to run the checks, and the architecture rules the codebase relies on.
+The product direction is Web only, Sentinel-1 first, then NISAR. Read
+[AGENTS.md](AGENTS.md), the [current architecture](docs/architecture/overview.md)
+and the [accepted Sentinel page structure](docs/architecture/sentinel-workbench.md).
 
-## Development setup
+## Work in small, reviewable page increments
 
-Day-to-day development uses the [uv](https://docs.astral.sh/uv/)-managed virtual
-environment, which provides PySide6 and the standard library — everything the test
-suite and linter need:
+Agree on the page's purpose, inputs, actions, output and failure states before
+implementation. Establish domain/application/API contracts, then build the page
+and validate it. Do not convert every roadmap item into a simultaneous task.
+The five-page division was accepted on 2026-09-06. Start each task from the
+[handoff index](docs/handoff/index.md), current handoff and selected page card.
+Design-only tasks stop at reviewable design; implementation requests proceed
+within the authorized scope without another approval round. Complete one page task,
+then update its record and stop before the next page.
 
-```bash
-uv sync --extra dev
-```
+Do not develop new Qt UI features. Retained PySide6 code is migration material;
+removing dependencies and changing installed entrypoints is a separate technical
+cleanup, not an excuse to keep two product roadmaps.
 
-ISCE2 is **only** required to run real GUI processing, not to develop or test the
-application. Tests and lint never invoke ISCE2. The full ISCE2/GDAL/aria2 runtime is
-installed separately from `environment.yml` (conda env `insar`) and is exercised only
-at GUI runtime.
+The near-term product is a phase stack, with its exact scientific representation
+still to be confirmed. Unwrapping and broad phase numerical comparisons are
+deferred. Structural validity and honest execution status remain required.
+Preserve official TOPS burst processing and existing ISCE3/openSEPPO behavior.
 
-## Running tests and lint
+## Verification
 
-```bash
-# Full test suite (headless Qt via the offscreen platform plugin)
-QT_QPA_PLATFORM=offscreen uv run pytest -q
+Use the application Web Python environment for engine/API tests and the existing
+insar environment for affected reused backend tests. For frontend changes run
+`npm test` and `npm run build` in `frontend/`, then the relevant Playwright cases.
+Run Ruff and applicable mypy checks for changed Python modules. Check documentation
+with `python -m mkdocs build --strict` in an environment containing the docs tools.
 
-# Lint
-uv run ruff check src tests
-```
-
-`QT_QPA_PLATFORM=offscreen` is required because many tests construct real Qt widgets.
-
-## Architecture rules
-
-The codebase is strictly layered. Please preserve these constraints:
-
-1. **Strict layering `ui → services/download → domain`.** `services/`, `domain/`, and
-   `download/` must stay Qt-free and unit-testable; only `ui/` may import Qt.
-2. **All ISCE/processing subprocess work goes through `ShellCommandBuilder`
-   (`services/shell.py`), never bare `subprocess`.** This ensures conda activation and
-   the ISCE2 environment exports are applied to every command.
-3. **Any new persisted field must be added to the relevant `domain` dataclass AND its
-   `from_dict`,** with type coercion and backward compatibility for older
-   `project.pilot` files.
-
-## Pull request conventions
-
-- Keep PRs small and focused on a single change.
-- Add tests for new logic in `services/` or `download/` (both are Qt-free and
-  `tmp_path`-friendly, so they run without a display).
-- Make sure `uv run ruff check src tests` and the test suite pass before opening a PR.
-
-## Adding a translation
-
-Locale files live in `src/insar_pilot/i18n/locales/` as JSON, with English
-(`en.json`) as the fallback and Chinese (`zh.json`) included; new
-translations should follow the same key structure as `en.json`.
+Protect existing work and read-only scientific inputs. Keep runs, artifacts and logs
+isolated. Do not rerun heavy scientific jobs for documentation or cosmetic changes.
+Report evidence and limitations in [migration status](docs/architecture/migration.md).
+Create a fresh per-task record using the [handoff template](docs/handoff/template.md),
+update the page card, handoff index/current and migration, and link the record in
+the final response. Keep old records intact. Archived guidance is not a second
+source of current requirements.

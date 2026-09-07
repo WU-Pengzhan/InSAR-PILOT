@@ -19,7 +19,7 @@ insar-pilot
 
 Users only need an initialized Conda installation and network access to `conda-forge`; ISCE2, GDAL, Git, and system Python packages do not need to be preinstalled. `install.sh` creates or updates the default `insar` environment, installs the application and complete runtime, and verifies it. Use `bash install.sh my-insar` to select another environment name.
 
-`environment.yml` installs the GUI, QtWebEngine map, ISCE2 2.6.5, GDAL, aria2, sentineleof, asf-search, and SNAPHU. SLC downloads require `aria2c` for multipart resumable transfers.
+`environment.yml` installs the GUI, QtWebEngine map, ISCE2 2.6.5, GDAL, aria2, sentineleof, asf-search, and SNAPHU. SLC and DEM downloads require `aria2c` for multipart resumable transfers.
 
 !!! note "The launching process is the runtime"
     InSAR-PILOT detects the runtime (ISCE2/GDAL/snaphu/stack tools) from the **process that launches it**. Activate the environment where InSAR-PILOT is installed before starting it; `insar` is only the example name used here. Project files never switch Conda environments.

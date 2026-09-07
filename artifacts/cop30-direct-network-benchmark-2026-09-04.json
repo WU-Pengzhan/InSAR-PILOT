@@ -1,0 +1,85 @@
+{
+  "date": "2026-09-04",
+  "environment": "Ubuntu WSL, proxy environment variables ignored (NetworkConfig direct mode)",
+  "test_area": {
+    "bbox_snwe": [34.1, 34.2, 108.1, 108.2],
+    "cop30_tile": "Copernicus_DSM_COG_10_N34_00_E108_00_DEM"
+  },
+  "benchmarks": [
+    {
+      "source": "OpenTopography Global DEM API",
+      "request": "COP30 0.1 x 0.1 degree subset",
+      "bytes": 554274,
+      "time_to_headers_seconds": 10.769,
+      "total_seconds": 12.364,
+      "stream_mib_per_second": 0.331
+    },
+    {
+      "source": "OpenTopography Global DEM API",
+      "request": "COP30 0.5 x 0.5 degree subset",
+      "bytes": 12155095,
+      "time_to_headers_seconds": 10.746,
+      "total_seconds": 90.893,
+      "stream_mib_per_second": 0.145
+    },
+    {
+      "source": "AWS Open Data copernicus-dem-30m",
+      "request": "8 MiB sequential HTTP range",
+      "bytes": 8388608,
+      "total_seconds": 40.596,
+      "stream_mib_per_second": 0.202
+    },
+    {
+      "source": "AWS Open Data copernicus-dem-30m",
+      "request": "complete 1-degree tile, 4 parallel HTTP ranges",
+      "bytes": 41074825,
+      "total_seconds": 77.299,
+      "aggregate_mib_per_second": 0.507
+    },
+    {
+      "source": "AWS Open Data copernicus-dem-30m",
+      "request": "complete 1-degree tile, 8 parallel HTTP ranges",
+      "bytes": 41074825,
+      "total_seconds": 35.378,
+      "aggregate_mib_per_second": 1.107
+    },
+    {
+      "source": "Microsoft Planetary Computer COP30 signed asset",
+      "request": "8 MiB sequential HTTP range",
+      "bytes": 8388608,
+      "total_seconds": 65.29,
+      "stream_mib_per_second": 0.123
+    },
+    {
+      "source": "Microsoft Planetary Computer AW3D30 signed asset",
+      "request": "8 MiB sequential HTTP range",
+      "bytes": 8388608,
+      "total_seconds": 96.793,
+      "stream_mib_per_second": 0.083
+    }
+  ],
+  "endpoint_checks": {
+    "copernicus_legacy_prism_download": "TCP/TLS connection timed out after 15 seconds",
+    "cdse_stac": "reachable in 1.18 seconds, but the advertised collections did not include Copernicus DEM",
+    "cdse_odata": "reachable, but no COP-DEM_GLO-30 or Copernicus_DSM products were returned",
+    "cdse_sentinel_hub_process_api": "supports COPERNICUS_30 AOI processing but requires CDSE OAuth credentials; throughput not tested",
+    "isce2_dem_py": "installed script supports SRTM v2/v3 and NASADEM, not COP30",
+    "nisar_stage_dem_py": "installed script reads s3://nisar-dem; anonymous direct access returned HTTP 403"
+  },
+  "implemented_e2e": {
+    "provider": "AWS Open Data copernicus-dem-30m",
+    "network_mode": "direct",
+    "parallel_ranges": 8,
+    "source_tile_bytes": 41074825,
+    "source_tile_sha256": "1148013d5c170ddeead193b5c22b2ce446979fed96c3406683d61adf14a5bd32",
+    "elapsed_seconds_including_validation_and_crop": 39.946,
+    "output_bytes": 412994,
+    "output_sha256": "c8567575d401686f8a57fce4808419e7fe398b95a3b72dcc7d381883611eeda3",
+    "output_shape": [360, 360],
+    "output_epsg": 4326,
+    "output_dtype": "Float32",
+    "gdal_checksum": 22611,
+    "output_bbox_snwe": [34.1, 34.2, 108.1, 108.2]
+  },
+  "decision": "Use credential-free AWS COP30 COG tiles with eight resumable ranges and a local tile cache. Retain OpenTopography for AW3D30_E. Keep CDSE as a future authenticated provider and benchmark it before changing the default."
+}

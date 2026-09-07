@@ -1,5 +1,8 @@
 # InSAR-PILOT 用户手册
 
+> **Web 预览版的退出方式：** 关闭浏览器后后台仍会运行。请点击右上角“退出应用”；有任务时先进入任务页暂停或取消，待进程退出后再退出应用。终端可使用 `insar-pilot-web --status` 查询、`insar-pilot-web --stop` 在空闲时退出。重新启动使用 `insar-pilot-web`。自定义状态目录需使用相同的 `--state` 参数。下文为保留的 legacy 桌面版使用说明。
+
+
 <p align="center">
   <img src="assets/branding/logo.png" width="640" alt="InSAR-PILOT logo">
 </p>
@@ -45,7 +48,7 @@ project_root/
 
 Data 页面负责 Sentinel-1 数据准备：
 
-- 测试 Earthdata/ASF 账户。
+- 填写或从 `~/.netrc` 加载 Earthdata/ASF 账户；连接测试仅用于提前诊断，完整凭据可直接下载。
 - 输入日期、AOI、轨道方向、相对轨道号和极化方式。
 - 查询 ASF Sentinel-1 SLC 场景。
 - 在地图和表格中检查 footprint 与元数据。
@@ -53,6 +56,15 @@ Data 页面负责 Sentinel-1 数据准备：
 - 将下载目录导入到 Setup 的数据源字段。
 
 建议先测试账户，再设置检索条件。搜索结果不会因为下载进度刷新而重置地图视图；日志只在用户停留底部时自动滚动。
+
+KML AOI 支持 `Polygon`、`LineString` 和 `Point`。ASF 每次只接受一个检索几何；当 KML 包含多条线时，软件使用覆盖距离最长的主线检索，同时在地图预览和范围计算中保留全部线段。
+
+### DEM 下载来源
+
+- COP30 不需要 OpenTopography key。软件按计划范围解析 1° COG 瓦片，从 AWS Open Data 使用 8 路可续传 Range 下载到 `DEM/cache/cop30/`，随后由 GDAL 裁剪/拼接为一个 AOI GeoTIFF。同一下载工作区再次使用该瓦片时直接命中缓存。
+- AW3D30_E 仍使用 OpenTopography，必须先验证 API key。
+- 两种 DEM 的高程基准不同：COP30 为 EGM2008，AW3D30_E 为 WGS84 椭球高。不要仅按文件扩展名推断高程基准。
+- 默认网络模式为 `direct`，明确忽略 WSL 的代理环境变量；只有选择 `environment` 时才继承代理。
 
 ## 4. Processing Setup
 
@@ -87,12 +99,16 @@ Run 页面用于执行和恢复处理：
 
 ![Results quicklook](assets/screenshots/results-quicklook.png)
 
-Results 页面只负责输出浏览和可视化：
+Results 页面使用全宽产品工作台，只负责核心雷达产品浏览和可视化：
 
-- 扫描处理输出目录。
-- 浏览发现的 SLC、interferogram、merged products 和 quicklook。
-- 生成 SLC、干涉图或 overlay 预览。
-- 导出 BMP quicklook。
+- 自动归并原始数据、XML、VRT 和 full VRT，在可搜索目录中显示 SLC、滤波/未滤波 INT、相干系数和解缠相位；几何与中间文件通过“打开其他文件”访问。
+- 选择 INT 时默认按参考日期匹配 merged SLC 并生成 overlay；标准 overlay 使用同一配准网格的 SLC
+  强度作为明暗、INT 的 `arg(INT)` 作为相位颜色，并以 `abs(INT) > 0`
+  限制有效区；SLC 留空时使用 `abs(INT)` 作为亮度。
+- 参数变化后由用户点击“预览”再生成，避免全分辨率产品被反复自动计算；预览支持 Ctrl+滚轮缩放、滚轮浏览、适应窗口和 100% 像素显示。
+- 相干系数使用 0–1 Viridis 色标；解缠相位默认使用有效像素 P2–P98 连续色标。
+- 默认裁剪到相位产品的有效数据外包范围，不额外压缩生成影像；导出支持无损 PNG 和 BMP，并生成同名 JSON 参数文件。
+- 日志控制台启动时保持隐藏，仅在用户通过“视图”菜单打开时显示。
 
 该页面不承担流程状态管理；流程状态以项目文件、Run 页面和日志为准。
 

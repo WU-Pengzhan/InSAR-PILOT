@@ -1,0 +1,77 @@
+{
+  "date": "2026-09-06",
+  "reason": "Five-page division accepted; prepare indexed handoff and per-page prompts.",
+  "scope": "Guidance snapshots only; not a full source/data backup.",
+  "files": [
+    {
+      "source": "AGENTS.md",
+      "archive": "AGENTS.archived.md",
+      "sha256": "b6f4849fae5312c483031bcbb07c74621c4c4397f5e9a65256df3122d2a7d2a8"
+    },
+    {
+      "source": "CONTRIBUTING.md",
+      "archive": "CONTRIBUTING.md",
+      "sha256": "1a192f763facd227f78c4097482af2a37fe65e4a00ce120ef7e3572bf0226cc4"
+    },
+    {
+      "source": "README.md",
+      "archive": "README.md",
+      "sha256": "78de4a1f55cdf33ee62c4d49ed7d8d67febe63a7c2b1450571af9b21bb6545fd"
+    },
+    {
+      "source": "README_EN.md",
+      "archive": "README_EN.md",
+      "sha256": "f8febabc5edda7c215870e89b4918703f2047d1e1f3f3d8519ffd73b52576d1c"
+    },
+    {
+      "source": "mkdocs.yml",
+      "archive": "mkdocs.yml",
+      "sha256": "4c0af952338245e14a8444fd60b2231f22f8e63f2decf403f1098e6bc907905d"
+    },
+    {
+      "source": "docs/index.md",
+      "archive": "docs/index.md",
+      "sha256": "71413dc14f0849abb9cc1306926feed0c678f082ba0bbe35cddec84813c2b762"
+    },
+    {
+      "source": "docs/en/index.md",
+      "archive": "docs/en/index.md",
+      "sha256": "6ef7c371ed7d6ddbb07c1bba0056c6df2a83f45bf71e22ffd7d455b6ef553204"
+    },
+    {
+      "source": "docs/architecture/overview.md",
+      "archive": "docs/architecture/overview.md",
+      "sha256": "6cb5fa775c2a484445fff09f3542c462b880807b0ce96880579e8916560927f0"
+    },
+    {
+      "source": "docs/architecture/migration.md",
+      "archive": "docs/architecture/migration.md",
+      "sha256": "58d1e86956e99cf4fcabd5919d4097bb6920974906bcee9400c0a2d263746a4e"
+    },
+    {
+      "source": "docs/architecture/sentinel-workbench.md",
+      "archive": "docs/architecture/sentinel-workbench.md",
+      "sha256": "77dcdfd433f602c31e22bed707ee5932db571ae464ea8071363c404975fb4ce4"
+    },
+    {
+      "source": "docs/architecture/gui-architecture.md",
+      "archive": "docs/architecture/gui-architecture.md",
+      "sha256": "3be7de1923c9afab6ced467cceea3b6434fa0ab9c1f7d4ed1677ffc83fcdd07b"
+    },
+    {
+      "source": "docs/architecture/current-state.md",
+      "archive": "docs/architecture/current-state.md",
+      "sha256": "7b6e77be2ff6f85cd1ae4eade80fc0fd6be3b0e9d3d64227b3806e6269c8e92c"
+    },
+    {
+      "source": "docs/architecture/pipeline-model.md",
+      "archive": "docs/architecture/pipeline-model.md",
+      "sha256": "b1e968d2a84997add48a770be2bcfd0df15b2f0bb7eb25957438164305fe9e87"
+    },
+    {
+      "source": "docs/architecture/sentinel1-pipeline.md",
+      "archive": "docs/architecture/sentinel1-pipeline.md",
+      "sha256": "1ee8bee829282d898f2f967bc81697b9bee917980309b937dd1a9a8b45d161ff"
+    }
+  ]
+}

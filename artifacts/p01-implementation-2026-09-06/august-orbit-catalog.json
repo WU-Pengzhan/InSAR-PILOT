@@ -1,0 +1,12 @@
+[
+  {
+    "satellite": "S1A",
+    "prefix_generation_month": "202608",
+    "key": null
+  },
+  {
+    "satellite": "S1D",
+    "prefix_generation_month": "202608",
+    "key": "AUX_POEORB/S1D_OPER_AUX_POEORB_OPOD_20260801T071418_V20260711T225942_20260713T005942.EOF"
+  }
+]

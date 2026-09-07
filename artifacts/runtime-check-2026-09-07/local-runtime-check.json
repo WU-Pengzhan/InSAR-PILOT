@@ -1,0 +1,84 @@
+[
+  {
+    "processor": "isce2",
+    "python_executable": "/home/griffin/miniconda3/envs/insar/bin/python",
+    "checked_at": "2026-09-07T05:33:34.185597Z",
+    "status": "READY",
+    "mode": "CPU",
+    "checks": [
+      {
+        "name": "ISCE2",
+        "ok": true,
+        "detail": "2.6.5"
+      },
+      {
+        "name": "isceobj",
+        "ok": true,
+        "detail": "True"
+      },
+      {
+        "name": "stackSentinel.py",
+        "ok": true,
+        "detail": "True"
+      },
+      {
+        "name": "SentinelWrapper.py",
+        "ok": true,
+        "detail": "True"
+      },
+      {
+        "name": "GDAL",
+        "ok": true,
+        "detail": "3.10.3"
+      },
+      {
+        "name": "PROJ",
+        "ok": true,
+        "detail": "True"
+      }
+    ],
+    "cuda_validated": false,
+    "reason": "checks_passed"
+  },
+  {
+    "processor": "isce3",
+    "python_executable": "/home/griffin/miniconda3/envs/insar-nisar/bin/python",
+    "checked_at": "2026-09-07T05:33:35.091049Z",
+    "status": "READY",
+    "mode": "CPU",
+    "checks": [
+      {
+        "name": "ISCE3",
+        "ok": true,
+        "detail": "0.25.17"
+      },
+      {
+        "name": "nisar.workflows.insar",
+        "ok": true,
+        "detail": "True"
+      },
+      {
+        "name": "GDAL HDF5",
+        "ok": true,
+        "detail": "True"
+      },
+      {
+        "name": "GDAL HDF5Image",
+        "ok": true,
+        "detail": "True"
+      },
+      {
+        "name": "GDAL",
+        "ok": true,
+        "detail": "3.13.3"
+      },
+      {
+        "name": "PROJ",
+        "ok": true,
+        "detail": "True"
+      }
+    ],
+    "cuda_validated": false,
+    "reason": "checks_passed"
+  }
+]

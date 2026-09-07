@@ -1,151 +1,59 @@
 # InSAR-PILOT
 
-<p align="center">
-  <img src="docs/assets/branding/logo.png" width="640" alt="InSAR-PILOT logo">
-</p>
+**A local, project-based SAR/InSAR Web workbench.**
 
-**InSAR-PILOT** stands for **InSAR Processing Interface and Lightweight Orchestration Toolkit**.
+[中文](README.md) · [Current architecture](docs/architecture/overview.md) · [Implementation status](docs/architecture/migration.md) · [Sentinel page structure](docs/architecture/sentinel-workbench.md)
 
-**Subtitle: Open Desktop Workbench for Guided SAR/InSAR Processing**
+## Product direction
 
-[中文](README.md) | [Docs Site](https://wu-pengzhan.github.io/InSAR-PILOT/) | [Full User Guide](docs/en/user-guide.md) | [Troubleshooting](docs/troubleshooting.md)
+As of 2026-09-05, Web is the only interface under active development. Complete the
+Sentinel-1 / ISCE2 TOPS experience first, then address NISAR / ISCE3 separately.
+Each project locks to a sensor profile; processing screens may differ by mission.
 
-[![CI](https://github.com/WU-Pengzhan/InSAR-PILOT/actions/workflows/ci.yml/badge.svg)](https://github.com/WU-Pengzhan/InSAR-PILOT/actions/workflows/ci.yml) [![CodeQL](https://github.com/WU-Pengzhan/InSAR-PILOT/actions/workflows/codeql.yml/badge.svg)](https://github.com/WU-Pengzhan/InSAR-PILOT/actions/workflows/codeql.yml) [![License](https://img.shields.io/badge/License-Apache%202.0-blue)](LICENSE) [![Python](https://img.shields.io/badge/Python-3.10%2B-blue)](https://www.python.org) [![ISCE2](https://img.shields.io/badge/Powered%20by-ISCE2-2f6db3)](https://github.com/isce-framework/isce2)
+The near-term deliverable is a phase stack; the precise coregistered-SLC versus
+wrapped-interferogram contract awaits confirmation. Unwrapping investigation and
+broad phase numerical comparisons are deferred. Input compatibility, honest process
+status and basic output structure checks remain necessary.
 
-InSAR-PILOT is an open-source desktop workbench for SAR/InSAR processing. It organizes data acquisition, orbit/DEM preparation, parameter setup, workflow execution, and quicklook visualization around a project folder.
+The five-page responsibilities were accepted on 2026-09-06. Design and deliver
+one page at a time; the accepted structure is not a claim of completed implementation.
 
-The formal v1.2.0 product boundary is the Sentinel-1 [ISCE2](https://github.com/isce-framework/isce2) TOPS stack workflow. The project is primarily Codex-assisted and manually reviewed through iterative development.
+PySide6/Qt interface development is discontinued. Preserve reusable scientific
+algorithms, download services, readers, NISAR/openSEPPO and historical evidence.
 
-> Release note: v1.2.0 adds one-command Conda installation with ISCE2 2.6.5, complete TOPS Stack command discovery for the Conda layout, and an EGM96-to-WGS84 DEM fix. Validate data and processing parameters on a small sample first.
+## Available preview
 
-## Screenshots
-
-![Start page](docs/assets/screenshots/start-page.png)
-
-![Data acquisition](docs/assets/screenshots/data-acquisition.png)
-
-![Processing setup](docs/assets/screenshots/processing-setup.png)
-
-![Dark mode](docs/assets/screenshots/dark-mode.png)
-
-See the [full user guide](docs/en/user-guide.md) for more screenshots.
-
-## Features
-
-- Project workspace: each project stores downloads, processing work files, logs, quicklooks, and `project.pilot`.
-- Dedicated project file: `.pilot` is the InSAR-PILOT project suffix; the internal format remains auditable JSON, and legacy `insar_pilot_project.json` files can still be loaded.
-- Data Acquisition: Earthdata account check, ASF Sentinel-1 SLC search, scene selection, SLC/EOF download, map preview, and scene table.
-- Processing Setup: data sources, EOF orbit files, DEM, AOI/BBox, IW swaths, reference scene, processing parameters, preflight, and command preview.
-- Run Executor: discovers and executes `run_files/run_*`; supports next/selected/remaining execution with step, subcommand, log, and exit-code visibility.
-- Results Quicklook: scans outputs and previews/exports SLC, interferogram, and overlay quicklooks.
-- Bilingual interface: built-in Simplified Chinese and English UI with in-app language switching.
-- Light and dark themes: switch between light and dark appearance from within the app.
-- Headless CLI: `insar-pilot-cli` drives the same project state on machines without a display.
-- Desktop compatibility: the launcher selects a suitable Qt display backend for WSL2/WSLg or Ubuntu Desktop and provides a native map fallback.
-
-## Install and Launch
-
-### Prerequisites
-
-- Ubuntu Desktop 22.04+, or Ubuntu under WSL2/WSLg on Windows 11.
-- An initialized Conda installation (Miniconda, Anaconda, or Miniforge).
-- Network access to `conda-forge`. Git is optional because a GitHub Release source ZIP can be used.
-
-### Create the runtime environment
-
-After downloading and extracting the source archive, run this from the project directory:
+The Web preview provides projects and input references, grouped search, Sentinel
+ABCD selection, imagery-only maps, host-side file selection, download controls,
+prepared-input plans, isolated execution history, logs, basic products/QC/maps,
+language/theme controls, a collapsible Inspector and explicit application exit.
+Preparation, professional parameter forms and product interactions remain incomplete.
 
 ```bash
-cd InSAR-PILOT
-bash install.sh
+python -m venv .venv-web
+.venv-web/bin/pip install -e '.[web]'
+.venv-web/bin/insar-pilot-web
 ```
 
-The installer creates or updates the `insar` environment by default, installs ISCE2 2.6.5, GDAL, SNAPHU, download tools, and the GUI, then verifies the runtime. Use `bash install.sh my-insar` to choose another environment name.
+The launcher also supports `--no-browser`, `--status` and `--stop`.
+Any browser can open the local address. Only one window/tab enters the workbench at a time; others wait without taking over. Closing the active window lets a waiting page connect automatically. An unresponsive window loses its claim after about 15 seconds; automatic retries may take a few seconds longer.
+Closing a browser does not cancel tasks. Explicit idle exit stops the service.
+Ubuntu browsers and Windows browsers connected to WSL use the same Web frontend.
 
-InSAR-PILOT only uses the Conda environment that launches it and never switches environments from project metadata. Start it with:
+Packaging still contains Qt dependencies and the old `insar-pilot` default entrypoint.
+Use `insar-pilot-web`; dependency/entrypoint cleanup is a separate scoped task,
+not a requirement to continue desktop feature development. Scientific environments
+are selected explicitly and are not replaced by the Web application environment.
 
-```bash
-conda activate insar
-insar-pilot
-```
+## Development and evidence
 
-To repeat the installation checks:
+Read [AGENTS.md](AGENTS.md), [CONTRIBUTING.md](CONTRIBUTING.md) and the
+[handoff index](docs/handoff/index.md). Use the [per-page prompts](docs/handoff/prompts.md)
+to start design, implementation or continuation tasks.
+Only current `docs/architecture/` documents define the target; dated reviews and
+`docs/legacy/` / `archive/` are historical evidence.
+The pre-decision guidance snapshot and hashes are in
+`archive/guidance/2026-09-05-before-web-sentinel/`; this is not a full source/data backup.
 
-```bash
-python scripts/verify_install.py
-```
-
-For an editable development installation:
-
-```bash
-python -m pip install -e '.[dev]'
-insar-pilot
-```
-
-## Typical Workflow
-
-1. Create or open a project folder.
-2. Use Data to configure dates, AOI, orbit direction, polarization, and search Sentinel-1 scenes.
-3. Select scenes and download SLC ZIPs plus EOF orbit files.
-4. Use Setup to configure DEM, BBox/IW, and processing parameters, then run Validate/Prepare and Preflight.
-5. Generate the official processing command and `run_files`.
-6. Use Run to execute run files while inspecting logs, subcommand status, and failures.
-7. Use Results to scan outputs and generate quicklooks.
-
-Default project layout:
-
-```text
-project_root/
-  project.pilot
-  data/
-    SLC/
-    Orbit/
-    DEM/
-  processing/work/
-  outputs/quicklooks/
-  logs/
-  .insar_pilot/cache/
-```
-
-## Headless / CLI Usage
-
-On servers without a display, `insar-pilot-cli` drives the same project state as the GUI (`project.pilot` and `logs/` stay fully interchangeable between front-ends).
-
-```bash
-# 1. Create the standard project layout and project.pilot
-insar-pilot-cli init /data/aoi_stack --name aoi_stack
-
-# 2. Preview the generation command (no execution); then generate and sync run_files
-insar-pilot-cli generate /data/aoi_stack --dry-run
-insar-pilot-cli generate /data/aoi_stack
-
-# 3. Run steps sequentially (stops on first non-zero exit); a range is also allowed
-insar-pilot-cli run /data/aoi_stack
-insar-pilot-cli run /data/aoi_stack --steps 2-5
-
-# 4. Inspect per-step status and log paths
-insar-pilot-cli status /data/aoi_stack
-```
-
-Exit codes: `0` success, `1` a command failed, `2` usage/config error. Data/DEM/AOI preparation is still done in the GUI today; the CLI focuses on generation, execution, and status.
-
-## Platform and Runtime
-
-- Ubuntu Desktop or WSL2/WSLg.
-- The complete processing environment currently pins Python 3.10 for the ISCE2/GDAL runtime.
-- The examples use `insar` as the environment name; you may choose another name.
-- `environment.yml` installs the GUI, QtWebEngine map, ISCE2, GDAL, aria2, sentineleof, asf-search, and runtime utilities; SLC downloads require aria2c for multipart resumable transfers.
-
-For Qt, map, DEM, or run-file issues, start with [docs/troubleshooting.md](docs/troubleshooting.md).
-
-## Tests
-
-The current development test environment is the existing `insar` environment:
-
-```bash
-conda run -n insar env PYTHONPATH=src QT_QPA_PLATFORM=offscreen pytest -q
-```
-
-## License
-
-This project is licensed under [Apache-2.0](LICENSE).
+This local preview is not a claim that the public release or documentation site
+already matches the working tree. Licensed under [Apache-2.0](LICENSE).

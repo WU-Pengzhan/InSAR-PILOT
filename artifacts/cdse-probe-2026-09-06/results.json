@@ -1,0 +1,44 @@
+{
+  "time_utc": "2026-09-06T07:58:06.533434+00:00",
+  "environment": "WSL Ubuntu / Web Python / requests environment proxy behavior",
+  "proxy_environment_present": true,
+  "tests": [
+    {
+      "kind": "catalogue",
+      "attempt": 1,
+      "status": 200,
+      "seconds": 2.647,
+      "bytes": 646
+    },
+    {
+      "kind": "catalogue",
+      "attempt": 2,
+      "status": 200,
+      "seconds": 0.523,
+      "bytes": 646
+    },
+    {
+      "kind": "catalogue",
+      "attempt": 3,
+      "status": 200,
+      "seconds": 0.488,
+      "bytes": 646
+    },
+    {
+      "kind": "unauthenticated_product_range",
+      "status": 401,
+      "headers_seconds": 2.416,
+      "content_range": null,
+      "content_type": "application/json; charset=utf-8",
+      "product_bytes_read": 0,
+      "total_seconds": 2.416
+    }
+  ],
+  "product": {
+    "@odata.mediaContentType": "application/octet-stream",
+    "Id": "fed25452-511d-4b14-8a69-ac96d9dcfd6d",
+    "Name": "S1A_IW_SLC__1SDV_20240101T003214_20240101T003238_051906_064571_12F6.SAFE",
+    "ContentLength": 6636421423,
+    "Online": true
+  }
+}

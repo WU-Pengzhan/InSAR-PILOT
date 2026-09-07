@@ -1,0 +1,123 @@
+{
+  "date": "2026-09-05",
+  "reason": "User decision: Web only, Sentinel first, page-by-page design; old guidance is historical only.",
+  "head": "31ccf3afd23c2ea118dfe8bc99c0697bd5f505ec",
+  "scope": "Exact copies of listed guidance files from the dirty working tree; not a full source backup.",
+  "files": [
+    {
+      "source": "AGENTS.md",
+      "archive": "AGENTS.archived.md",
+      "sha256": "1465fe366b7dbaafaf31f052cdd7839494d07fe4b3469bcd268f9e1d0dc07483"
+    },
+    {
+      "source": "CONTRIBUTING.md",
+      "archive": "CONTRIBUTING.md",
+      "sha256": "a88de6e7f515dacdf6976fe7be3807737074b82d24ca0b2b8692c9e09c503344"
+    },
+    {
+      "source": "README.md",
+      "archive": "README.md",
+      "sha256": "ba44b563b4e1862725e55522d059c57a7f384835cb054d02c3724809047a92b3"
+    },
+    {
+      "source": "README_EN.md",
+      "archive": "README_EN.md",
+      "sha256": "4cdee1260961423955b5640d93c8dc2d370005630960be89fd70433026fdd7ca"
+    },
+    {
+      "source": ".github/PULL_REQUEST_TEMPLATE.md",
+      "archive": ".github/PULL_REQUEST_TEMPLATE.md",
+      "sha256": "095f11a89c708fd0dba3625960903fa397d41b77f9f0a1ecfbfe29e39c3253a8"
+    },
+    {
+      "source": "docs/index.md",
+      "archive": "docs/index.md",
+      "sha256": "203e158f6cc9b18c4702d9378c0c52820e2ae5e267227e05b33973f5c048f74b"
+    },
+    {
+      "source": "docs/en/index.md",
+      "archive": "docs/en/index.md",
+      "sha256": "09ba17b0cb680bf0d24b3cad0d95c50fc190642a7297052d0d0e5094c354256e"
+    },
+    {
+      "source": "docs/architecture/artifact-model.md",
+      "archive": "docs/architecture/artifact-model.md",
+      "sha256": "cb2ffb6586b0c72629b4629968c5321f40557277383bf14972a1c84ebd2ef788"
+    },
+    {
+      "source": "docs/architecture/current-state.md",
+      "archive": "docs/architecture/current-state.md",
+      "sha256": "400df3967cb07cb8b2b76355189dd13db4e03f99114da0b680c865b46e598d7a"
+    },
+    {
+      "source": "docs/architecture/data-model.md",
+      "archive": "docs/architecture/data-model.md",
+      "sha256": "d400744f06ad01ac983b0677cd2d03ba146589af2676f0a6ff1d3058ded51ec6"
+    },
+    {
+      "source": "docs/architecture/domain-model.md",
+      "archive": "docs/architecture/domain-model.md",
+      "sha256": "98d1f9b99bdb3258b92f50d2c081c13e4871abc1f7e1124bc828247c784fddbe"
+    },
+    {
+      "source": "docs/architecture/gui-architecture.md",
+      "archive": "docs/architecture/gui-architecture.md",
+      "sha256": "500b3ae5a7967c3ec08cf4023de3bdadfd8e13f2a7866914cfe0db6d06f89e00"
+    },
+    {
+      "source": "docs/architecture/migration.md",
+      "archive": "docs/architecture/migration.md",
+      "sha256": "7149d12b9ae30f6d1aec04976b20ea1f62419dc60899a0e36af715f471dd5208"
+    },
+    {
+      "source": "docs/architecture/nisar-pipeline.md",
+      "archive": "docs/architecture/nisar-pipeline.md",
+      "sha256": "946b122fabb4a4a7078f7d04311a0d324a6d55eafb1325195260251b5dbc9f65"
+    },
+    {
+      "source": "docs/architecture/overview.md",
+      "archive": "docs/architecture/overview.md",
+      "sha256": "016c5a30ec93fc9510e300a511e388a147c6da35cf6921a8d1800684fbbb5609"
+    },
+    {
+      "source": "docs/architecture/pipeline-model.md",
+      "archive": "docs/architecture/pipeline-model.md",
+      "sha256": "5e9e4b4036fa7ab10332882e081602e3192823425899dcccbaa91817550c60ae"
+    },
+    {
+      "source": "docs/architecture/project-model.md",
+      "archive": "docs/architecture/project-model.md",
+      "sha256": "1b4a3b0911217e9d5ec02c3e2b5082922a3cadf2eed25f3893f12ac1e0b78e3e"
+    },
+    {
+      "source": "docs/architecture/qc-model.md",
+      "archive": "docs/architecture/qc-model.md",
+      "sha256": "57c38bf3e7bd227706c511cd994fa299e88c74e43ab80b46c5d24e63d647f383"
+    },
+    {
+      "source": "docs/architecture/run-job-model.md",
+      "archive": "docs/architecture/run-job-model.md",
+      "sha256": "5a7430ad0441dfec6dba5353e5601d48fd05589d3f6a19ef9e78bec950522bb3"
+    },
+    {
+      "source": "docs/architecture/sentinel1-pipeline.md",
+      "archive": "docs/architecture/sentinel1-pipeline.md",
+      "sha256": "5f4c4255111cee2e2de4b2ab225303e33276dd88de9d64aa5cec3571acfe0b77"
+    },
+    {
+      "source": "docs/architecture/status-review-2026-09-05.md",
+      "archive": "docs/architecture/status-review-2026-09-05.md",
+      "sha256": "aa0cf085ac4547550b7c950d3ab94c38373fa7839a2966c01ded83ebf22c137f"
+    },
+    {
+      "source": "docs/architecture/storage.md",
+      "archive": "docs/architecture/storage.md",
+      "sha256": "0aa9af28fb17229e3f7009adbedeaccac90abe158fbfc5900e0bed34d4739175"
+    },
+    {
+      "source": "docs/architecture/baseline.json",
+      "archive": "docs/architecture/baseline.json",
+      "sha256": "5773490d841a489e58256b6f4877d7ce4d48912768f35069f0eeb8e4c20f223a"
+    }
+  ]
+}

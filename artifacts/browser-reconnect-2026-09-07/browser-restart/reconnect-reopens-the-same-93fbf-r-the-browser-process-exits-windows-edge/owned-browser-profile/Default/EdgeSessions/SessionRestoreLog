@@ -1,0 +1,6 @@
+{"logTime": "0907/055237", "session": "START"}
+{"logTime": "0907/055237", "level": "INFO", "location": "chrome\\browser\\sessions\\session_service_log.cc:326 EdgeLogSessionServiceMessage", "message": "SessionServiceEvent: kStart - {\r\n   \"crashed\": false,\r\n   \"type\": 0\r\n}\r\n"}
+{"logTime": "0907/055238", "level": "INFO", "location": "chrome\\browser\\ui\\startup\\startup_browser_creator_impl.cc:361 EdgeLogLastSessionExitTypeOnStartup", "message": "Previous Session Exit Type: PreviousSessionExitType::kNormalBrowserShutDown"}
+{"logTime": "0907/055238", "level": "INFO", "location": "chrome\\browser\\ui\\startup\\startup_browser_creator_impl.cc:1545 DetermineURLsAndLaunch", "message": "Startup Preference: 0"}
+{"logTime": "0907/055238", "level": "INFO", "location": "chrome\\browser\\ui\\startup\\startup_browser_creator_impl.cc:1547 DetermineURLsAndLaunch", "message": "Browser Open Behavior: 0"}
+{"logTime": "0907/055240", "level": "INFO", "location": "components\\sessions\\core\\command_storage_manager.cc:638 operator()", "message": "Valid session file found: SessionRestore"}

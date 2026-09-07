@@ -1,0 +1,62 @@
+[
+  {
+    "path": "docs/architecture/project-lifecycle-layout.md",
+    "sha256": "9fa5b3b7284f8cd11ddbe48d1edfba07477d6012d4bac658283c5e64f0c75fa8"
+  },
+  {
+    "path": "docs/architecture/project-file-entry.md",
+    "sha256": "8ce9d99c13bf5853e2aee89837d9adc60721e3827cae27c5aa0a112574d063f0"
+  },
+  {
+    "path": "docs/architecture/storage.md",
+    "sha256": "ed5e958656c6d11f0c0e415914dc3d939471dc262b48e2553683d18f35c03a63"
+  },
+  {
+    "path": "docs/architecture/data-model.md",
+    "sha256": "cfe67802258d171b8284c6660cee49a55c9984f0442c2974953cdd3a03b87f97"
+  },
+  {
+    "path": "docs/architecture/gui-architecture.md",
+    "sha256": "731b977fdd7bde2a36f78a791068f916364126ad28cfb2095dc6986810f264d6"
+  },
+  {
+    "path": "docs/architecture/p01-search-download.md",
+    "sha256": "98dc9d555ea162288674b90eb75f425984329239a7b66618b6d472f128c94288"
+  },
+  {
+    "path": "docs/architecture/p01-ancillary-downloads.md",
+    "sha256": "3e6ac443535e6075d543f3abd891fa9616cdf9dee892cd23f36ed4c92104c583"
+  },
+  {
+    "path": "docs/architecture/migration.md",
+    "sha256": "482f18f0e69f2d53195c227052045cccb2512ccc0f71fb7d932621a235d33255"
+  },
+  {
+    "path": "docs/architecture/overview.md",
+    "sha256": "8845b8502df1c31cd9db36b9a65bf6479f2ff78a3894de15a76c3650989817fb"
+  },
+  {
+    "path": "docs/handoff/index.md",
+    "sha256": "64ddc67f3f1531ca35130644cad36d33428a75cd25916ec3359e038800d0a74e"
+  },
+  {
+    "path": "docs/handoff/current.md",
+    "sha256": "2285162a6737eb74239db7068b18c06bee69d13aaeafbc0c45de36acf72a7fa8"
+  },
+  {
+    "path": "docs/handoff/pages/shell-project-entry.md",
+    "sha256": "3b6963b8941dfc059422c226a225b7be4bb97b4161cc2d25f719ba6bcd197ce2"
+  },
+  {
+    "path": "docs/handoff/pages/p01-search-download.md",
+    "sha256": "bf563eecb1ab8525f71d928bb40c32e0abb80e8565b239f65b175b01eb008537"
+  },
+  {
+    "path": "docs/handoff/pages/p02-data-preparation.md",
+    "sha256": "9614921bdf26b4eef2fbad2739135dba367cf140889ac73c3a5357de879a1f30"
+  },
+  {
+    "path": "mkdocs.yml",
+    "sha256": "2d0bbcb9648ec44518f0616ac002939a4e857ccfc29fd6b433ecd57c8cf63c8e"
+  }
+]

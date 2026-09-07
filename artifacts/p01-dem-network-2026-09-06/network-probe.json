@@ -1,0 +1,63 @@
+{
+  "time": "2026-09-06T09:49:30.461251+08:00",
+  "source": "https://copernicus-dem-30m.s3.amazonaws.com/Copernicus_DSM_COG_10_N34_00_E108_00_DEM/Copernicus_DSM_COG_10_N34_00_E108_00_DEM.tif",
+  "network": "WSL direct, trust_env=False; no credentials",
+  "payload_budget_bytes": 25165824,
+  "runs": [
+    {
+      "workers": 1,
+      "bytes": 4194304,
+      "seconds": 2.93,
+      "MiB_s": 1.365,
+      "ok": true,
+      "errors": []
+    },
+    {
+      "workers": 4,
+      "bytes": 4194304,
+      "seconds": 2.728,
+      "MiB_s": 1.466,
+      "ok": true,
+      "errors": []
+    },
+    {
+      "workers": 8,
+      "bytes": 4194304,
+      "seconds": 2.176,
+      "MiB_s": 1.838,
+      "ok": true,
+      "errors": []
+    },
+    {
+      "workers": 8,
+      "bytes": 4194304,
+      "seconds": 2.404,
+      "MiB_s": 1.664,
+      "ok": true,
+      "errors": []
+    },
+    {
+      "workers": 4,
+      "bytes": 4194304,
+      "seconds": 2.668,
+      "MiB_s": 1.499,
+      "ok": true,
+      "errors": []
+    },
+    {
+      "workers": 1,
+      "bytes": 4194304,
+      "seconds": 2.579,
+      "MiB_s": 1.551,
+      "ok": true,
+      "errors": []
+    }
+  ],
+  "head": {
+    "status": 200,
+    "size": 41074825,
+    "etag": "\"b578850485787f86baf5d2461a2592be\"",
+    "seconds": 1.004,
+    "accept_ranges": "bytes"
+  }
+}

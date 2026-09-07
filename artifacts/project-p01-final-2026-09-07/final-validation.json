@@ -1,0 +1,20 @@
+{
+  "date": "2026-09-07",
+  "port": 8765,
+  "new_download_endpoint": true,
+  "active_downloads": 0,
+  "stored_download_attempts": 2,
+  "owned_fixture_pids_absent": true,
+  "backend_initial_passed": 108,
+  "backend_log_followup_passed": 23,
+  "backend_final_context_log_followup_passed": 20,
+  "frontend_unit_passed": 16,
+  "windows_edge_passed": 16,
+  "linux_second_run_passed": 30,
+  "linux_second_run_obsolete_expectation_failures": 2,
+  "linux_corrected_p01_download_passed": 10,
+  "ruff": "passed",
+  "mypy": "10 sources passed; final API/download 2 sources rechecked",
+  "external_authenticated_throughput": "not tested",
+  "scientific_run": "not performed"
+}

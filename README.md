@@ -1,151 +1,96 @@
 # InSAR-PILOT
 
-<p align="center">
-  <img src="docs/assets/branding/logo.png" width="640" alt="InSAR-PILOT logo">
-</p>
+<p align="center"><img src="docs/assets/branding/logo.png" width="640" alt="InSAR-PILOT logo"></p>
 
-**InSAR-PILOT** 是 **InSAR Processing Interface and Lightweight Orchestration Toolkit** 的缩写，中文可理解为“面向 InSAR 处理的轻量级图形界面与流程编排工具”。
+**面向科研用户的本机 SAR/InSAR Web 工作台。**
 
-**副标题：Open Desktop Workbench for Guided SAR/InSAR Processing**
+[English](README_EN.md) · [当前架构](docs/architecture/overview.md) · [实施状态](docs/architecture/migration.md) · [Sentinel 页面划分](docs/architecture/sentinel-workbench.md)
 
-[English](README_EN.md) | [文档站点](https://wu-pengzhan.github.io/InSAR-PILOT/) | [完整中文手册](docs/user-guide.md) | [故障排查](docs/troubleshooting.md)
+## 当前开发方向
 
-[![CI](https://github.com/WU-Pengzhan/InSAR-PILOT/actions/workflows/ci.yml/badge.svg)](https://github.com/WU-Pengzhan/InSAR-PILOT/actions/workflows/ci.yml) [![CodeQL](https://github.com/WU-Pengzhan/InSAR-PILOT/actions/workflows/codeql.yml/badge.svg)](https://github.com/WU-Pengzhan/InSAR-PILOT/actions/workflows/codeql.yml) [![License](https://img.shields.io/badge/License-Apache%202.0-blue)](LICENSE) [![Python](https://img.shields.io/badge/Python-3.10%2B-blue)](https://www.python.org) [![ISCE2](https://img.shields.io/badge/Powered%20by-ISCE2-2f6db3)](https://github.com/isce-framework/isce2)
+2026-09-05 起，Web 是唯一继续开发的产品端：先完善 Sentinel-1 / ISCE2 TOPS，再推进 NISAR / ISCE3。一个工程锁定一个传感器 Profile，两种传感器可使用不同处理页面。
 
-InSAR-PILOT 是一个开源、窗口化的 SAR/InSAR 处理工作台，用项目文件夹组织数据下载、轨道/DEM 准备、参数配置、流程执行和 quicklook 预览。
+近期目标是取得 phase stack；具体 SLC/缠绕干涉相位合同待确认。解缠排障和大范围相位数值评价暂缓，基础输入、执行和成果结构检查保留。五页职责已于 2026-09-06 确认，接下来按单页指令设计、实现和验收。
 
-v1.2.0 的正式产品边界是 Sentinel-1 与 [ISCE2](https://github.com/isce-framework/isce2) TOPS stack 工作流。项目主要由 Codex 辅助开发，并经过人工迭代审查。
+PySide6/Qt 界面停止继续开发。旧科学算法、下载核心、数据 reader、NISAR/openSEPPO 与验收证据继续复用和保留。
 
-> 发布说明：v1.2.0 提供包含 ISCE2 2.6.5 的一键 Conda 安装、Conda 布局下完整的 TOPS Stack 命令发现，以及 EGM96 DEM 转 WGS84 修复。建议先使用小范围样例项目验证数据和处理参数。
+## 已有 Web 能力
 
-## 界面预览
+- 工程创建/打开、数据绑定、配置修订、Library 引用。
+- Sentinel ABCD/NISAR 分组检索、AOI 和纯影像底图、下载清单与暂停/继续/取消/重试。
+- 支持 Linux 与 Windows 浏览器访问 WSL 的文件选择。
+- 已准备输入的处理计划、运行历史、独立目录、日志、基础成果/QC 和地图。
+- 中英文、明暗主题、可收起属性栏、明确的后台连接与退出提示。
 
-![Start page](docs/assets/screenshots/start-page.png)
+当前是迁移预览版。专业参数表单、完整数据准备和成果交互仍需逐页完善。
+已确认的五页方案尚未逐页实现；既有测试与科学执行边界见实施状态。
 
-![Data acquisition](docs/assets/screenshots/data-acquisition.png)
+## 运行 Web 预览版
 
-![Processing setup](docs/assets/screenshots/processing-setup.png)
-
-![Dark mode](docs/assets/screenshots/dark-mode.png)
-
-更多页面截图见 [完整中文手册](docs/user-guide.md)。
-
-## 核心功能
-
-- 项目制工作区：每个项目保存下载数据、处理工作目录、日志、quicklook 和 `project.pilot`。
-- 专用项目文件：`.pilot` 是 InSAR-PILOT 的项目后缀，内部仍采用可审计的 JSON 结构；旧版 `insar_pilot_project.json` 仍可读取。
-- Data Acquisition：Earthdata 账户检查、ASF Sentinel-1 SLC 查询、场景选择、SLC/EOF 下载、地图与场景表查看。
-- Processing Setup：数据源、EOF、DEM、AOI/BBox、IW、参考影像、处理参数、preflight 和命令预览集中配置。
-- Run Executor：发现并执行 `run_files/run_*`，支持 next/selected/remaining 执行，显示 step/subcommand 状态、日志和 exit code。
-- Results Quicklook：扫描输出结果，预览或导出 SLC、干涉图和 overlay quicklook。
-- 多语言界面：内置简体中文与英文界面，可在应用内实时切换语言。
-- 明暗主题：提供浅色与深色主题，并支持应用内一键切换。
-- 无界面 CLI：`insar-pilot-cli` 可在无显示环境下驱动同一套项目状态。
-- 桌面适配：启动器自动选择 WSL2/WSLg 或 Ubuntu Desktop 的 Qt 显示后端，并支持 WebEngine 地图 fallback。
-
-## 安装与启动
-
-### 前置条件
-
-- Ubuntu Desktop 22.04+，或 Windows 11 中已安装的 Ubuntu WSL2/WSLg。
-- 已安装并初始化 Conda（Miniconda、Anaconda 或 Miniforge 均可）。
-- 能够访问 `conda-forge` 的网络。Git 不是必需条件，可以直接下载 GitHub Release 的源码 ZIP。
-
-### 创建运行环境
-
-下载并解压源码包后，在项目目录运行：
+在仓库中建立独立应用环境，科学处理继续使用显式指定的原处理环境：
 
 ```bash
-cd InSAR-PILOT
-bash install.sh
+python -m venv --copies .venv-web
+.venv-web/bin/pip install -e '.[web]'
+.venv-web/bin/insar-pilot-web
 ```
 
-安装器默认创建或更新 `insar` 环境，安装 ISCE2 2.6.5、GDAL、SNAPHU、下载组件和 GUI，并自动运行环境验证。也可以指定其他环境名，例如 `bash install.sh my-insar`。
-
-InSAR-PILOT 只使用启动它的 Conda 环境，不会根据项目文件切换环境。安装完成后启动：
+如需在任意目录使用 `insar-pilot-web`，可安装用户级入口（从仓库目录执行）：
 
 ```bash
-conda activate insar
-insar-pilot
+# 使用长期保留的 Python；系统 Python 需要安装 python3-venv。
+/usr/bin/python3 -m venv --copies "$HOME/.local/share/insar-pilot/web-venv"
+"$HOME/.local/share/insar-pilot/web-venv/bin/python" -m pip install -e '.[web]'
+install -Dm755 scripts/insar-pilot-web "$HOME/.local/bin/insar-pilot-web"
 ```
 
-如需重新检查安装：
+Web 安装不包含 ISCE2/ISCE3。打开顶部“运行环境”可检查所选 Python 的必要组件并查看失败原因；环境由用户自行管理，不区分包管理方式，详见[检测说明](docs/architecture/runtime-support.md)。
+
+确保 `~/.local/bin` 在 PATH 中。不需激活 `insar` 即可运行 Web；科学环境单独配置。
+环境与应用状态不得放在 `/tmp`，也不要从临时 venv 创建正式 venv。
+用户级入口默认使用 `~/.local/state/insar-pilot` 保存应用状态；工程数据仍留在各自工程目录。
+若旧入口提示 Python `not found`，先检查 `readlink -f ~/.local/share/insar-pilot/web-venv/bin/python`，
+修复失效环境后重新安装入口；不要删除工程或 Library 来修复启动问题。
+
+安装有可用启动命令时：
 
 ```bash
-python scripts/verify_install.py
+insar-pilot-web --no-browser
+insar-pilot-web --status
+insar-pilot-web --stop
 ```
 
-开发模式使用可编辑安装：
+浏览器可自行选择，不必使用系统默认浏览器：
 
 ```bash
-python -m pip install -e '.[dev]'
-insar-pilot
+insar-pilot-web --browser firefox
+insar-pilot-web --browser chrome
+insar-pilot-web --browser edge
+insar-pilot-web --no-browser
 ```
 
-## 典型工作流
+每次选择一条命令即可；WSL 中 browser 指 Windows 上对应浏览器，原生 Linux 指本机浏览器。
+`--no-browser` 只启动后台。后台运行时，任意浏览器可直接打开 `http://127.0.0.1:8765/`。同一时刻只有一个窗口/标签页进入工作台，其余页面显示占用提示并自动等待。
+首次访问、切换浏览器或清除 Cookie 后由页面自动建立本机会话，无需通过启动器授权、复制 token 或再次输入命令。
+关闭当前窗口后，等待页会自动连接；异常断开约 15 秒释放占用（自动重试可能再需数秒），不取消后台任务。没有抢占按钮。
+`--browser` 只是自动打开指定浏览器的便利选项。后台正常重启保持指定端口。
+端口被其他服务占用时会明确报错，不再静默换端口。可用 `--port` 显式指定其他端口。
 
-1. New Project 或 Open Project，选择一个项目文件夹。
-2. 在 Data 页面设置时间、AOI、轨道方向、极化方式并查询 Sentinel-1 场景。
-3. 选择场景后下载 SLC ZIP 和 EOF 轨道文件。
-4. 在 Setup 页面选择 DEM、BBox/IW 和处理参数，运行 Validate/Prepare 与 Preflight。
-5. 生成官方处理命令和 `run_files`。
-6. 在 Run 页面执行 run_files，并观察日志、子命令状态和失败信息。
-7. 在 Results 页面扫描输出并生成 quicklook。
+Ubuntu 使用 Linux 浏览器；WSL 后台可由 Windows 浏览器连接 localhost。
+关闭浏览器不停止后台任务；“退出应用”在没有活动任务时关闭服务。
+发布资源包含编译后的前端；Node 用于前端开发。
 
-项目文件夹默认结构：
+当前安装元数据仍包含 Qt 依赖，`insar-pilot` 默认命令仍指向旧端。
+这是待单独清理的安装/入口状态，不代表继续开发桌面端；当前请使用 `insar-pilot-web`。
+本轮产品方向调整没有修改处理环境或安装入口。
 
-```text
-project_root/
-  project.pilot
-  data/
-    SLC/
-    Orbit/
-    DEM/
-  processing/work/
-  outputs/quicklooks/
-  logs/
-  .insar_pilot/cache/
-```
+## 开发与历史
 
-## 无界面 / CLI 用法
+阅读 [AGENTS.md](AGENTS.md)、[CONTRIBUTING](CONTRIBUTING.md) 和[工作交接索引](docs/handoff/index.md)。
+[每页提示词](docs/handoff/prompts.md)用于启动设计、实现或接续任务。
+当前规范只在 `docs/architecture/`；`docs/legacy/` 与 `archive/` 中的文件为历史证据。
+旧指导按文件清单和 SHA-256 归档于 `archive/guidance/2026-09-05-before-web-sentinel/`。
+该归档不是完整源码/数据备份；工作树现有修改和科学数据均保留。
 
-在没有图形界面的服务器上，可用 `insar-pilot-cli` 直接驱动同一套项目状态（`project.pilot` 与 `logs/` 完全兼容 GUI，可互换打开）。
-
-```bash
-# 1. 创建标准项目目录与 project.pilot
-insar-pilot-cli init /data/aoi_stack --name aoi_stack
-
-# 2. 预览生成命令（不执行）；确认无误后执行生成并同步 run_files
-insar-pilot-cli generate /data/aoi_stack --dry-run
-insar-pilot-cli generate /data/aoi_stack
-
-# 3. 顺序执行 run 步骤（首个非零退出即停止）；也可选步骤区间
-insar-pilot-cli run /data/aoi_stack
-insar-pilot-cli run /data/aoi_stack --steps 2-5
-
-# 4. 查看各步骤状态与日志路径
-insar-pilot-cli status /data/aoi_stack
-```
-
-退出码：`0` 成功，`1` 命令执行失败，`2` 用法或配置错误。数据/DEM/AOI 的准备目前仍在 GUI 中完成；CLI 侧重生成、执行与状态查询。
-
-## 平台与运行环境
-
-- Ubuntu Desktop 或 WSL2/WSLg。
-- 完整处理环境当前固定使用 Python 3.10，以匹配 ISCE2/GDAL 运行时。
-- 文档示例使用 `insar` 作为环境名；用户可以自行选择其他名称。
-- `environment.yml` 安装 GUI、QtWebEngine 地图、ISCE2、GDAL、aria2、sentineleof、asf-search 等运行组件；SLC 下载依赖 aria2c 的分片续传能力。
-
-如果遇到 Qt、地图、DEM 或 run_files 执行问题，请先看 [docs/troubleshooting.md](docs/troubleshooting.md)。
-
-## 测试
-
-当前开发测试固定在已有 `insar` 环境中运行：
-
-```bash
-conda run -n insar env PYTHONPATH=src QT_QPA_PLATFORM=offscreen pytest -q
-```
-
-## 许可证
-
-本项目使用 [Apache-2.0](LICENSE) 许可证。
+[文档站点](https://wu-pengzhan.github.io/InSAR-PILOT/) 的线上内容可能早于当前本地工作树。
+项目使用 [Apache-2.0](LICENSE) 许可证。

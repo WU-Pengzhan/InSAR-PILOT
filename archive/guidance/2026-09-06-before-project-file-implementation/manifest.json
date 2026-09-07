@@ -1,0 +1,34 @@
+[
+  {
+    "path": "docs/architecture/project-file-entry.md",
+    "sha256": "a09198cea9c9f9b030ab5a137aa6c77695db0d36393556a1e168f0b3fa53349f"
+  },
+  {
+    "path": "docs/architecture/project-model.md",
+    "sha256": "102019077e3d4ae859ada4a4109c29b8065eb033bab1334b02e510a25f6fb633"
+  },
+  {
+    "path": "docs/architecture/storage.md",
+    "sha256": "7fe499326174176e644404c17941d40b66c06c073a47ce7acb0ae19ca6fa5a95"
+  },
+  {
+    "path": "docs/architecture/migration.md",
+    "sha256": "58101d1e66ddc4d54690b7bf218e56bc8c48c24eb09e3c90f7bc6301634327b8"
+  },
+  {
+    "path": "docs/handoff/index.md",
+    "sha256": "ee654afd7d7ff7547fe040264fe7b17450b6a4fe5694b40109b666ca805ff019"
+  },
+  {
+    "path": "docs/handoff/current.md",
+    "sha256": "15c819868fae9ec368460c7f415dddcb765fce6fadb191c5443af00db27d4b45"
+  },
+  {
+    "path": "docs/handoff/pages/shell-project-entry.md",
+    "sha256": "a3c025511dbc4fc36fe1b1cbe0228fe573097ec6528d8a85d0188f147ff23e99"
+  },
+  {
+    "path": "docs/handoff/pages/p02-data-preparation.md",
+    "sha256": "ff8e6d9c986a31ac0bfda8e386fed7fd3b14905d3dca80cb9de654961d68f0b4"
+  }
+]

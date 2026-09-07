@@ -1,0 +1,10 @@
+{
+  "imagery_state": "ready",
+  "loaded_tiles": 9,
+  "primary_pages": 5,
+  "readiness": "check_circle_outline\n下载环境已配置\nexpand_more",
+  "viewport": {
+    "width": 1366,
+    "height": 900
+  }
+}

@@ -1,0 +1,8 @@
+#!/bin/sh
+# Persistent local Web runtime; application state uses the launcher's user-directory default.
+web_python="${HOME}/.local/share/insar-pilot/web-venv/bin/python"
+if [ ! -x "$web_python" ]; then
+    printf '%s\n' "InSAR-PILOT Web Python is unavailable: $web_python" "Repair the persistent Web environment using the repository README installation steps." >&2
+    exit 127
+fi
+exec "$web_python" -m insar_pilot.web.launch "$@"

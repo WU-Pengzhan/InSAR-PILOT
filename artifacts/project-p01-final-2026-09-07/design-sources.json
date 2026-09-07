@@ -1,0 +1,67 @@
+{
+  "date_utc": "2026-09-07T01:41:05.922613+00:00",
+  "sources": [
+    {
+      "url": "https://docs.asf.alaska.edu/vertex/manual/",
+      "status": 200,
+      "title": [
+        "Vertex Getting Started User Guide - ASF SAR Data Search Manual"
+      ],
+      "excerpts": [
+        "arch Options Area of Interest Options Shape Validation Date Filters Additional Filters Product Filters Observational Filters Path and Frame Filters Additional Search Options List Search Options List Search File Import Baseline Search Options SBAS Search Options Event Search Options On Demand Products Search Options Derived Datasets Search Options Search Results On Demand Queue ",
+        "ived Datasets Search Options Search Results On Demand Queue Downloads Queue Other Vertex Options Baseline SBAS Displacement Event Derived Datasets What's New Wildcard Queries Tutorial Videos Source Code Custom Processing Python Search Package Python Search Package Basics Searching Downloading Classes Classes ASFProduct ASFSearchOptions ASFSearchResults ASFSession Pair Best Prac",
+        "e box. Additional drawing tool options are available in the toolbar at the top of the screen, including point , linestring , and polygon options. Point allows you to define an area of interest by clicking on the map to place a point. Line allows you to define an area of interest over a series of line segments by clicking on the map multiple times. Double-click to stop adding se",
+        " Vertex Getting Started User Guide - ASF SAR Data Search Manual Skip to content Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the \"Software\"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicen"
+      ]
+    },
+    {
+      "url": "https://documentation.dataspace.copernicus.eu/Applications/Browser.html",
+      "error": "SSLError"
+    },
+    {
+      "url": "https://carbondesignsystem.com/components/data-table/usage/",
+      "status": 200,
+      "title": [
+        "info icon"
+      ],
+      "excerpts": [
+        "table toolbar gives a location for primary buttons, search, filtering, table display settings, and other utilities. When to use To organize and display data. If your user must navigate to a specific piece of data to complete a task. Displaying all of a user\u2019s resources. When not to use When a more complex display of the data or interactions are required. As a replacement for a ",
+        "ingle or batch actions can be taken on rows. The data table toolbar gives a location for primary buttons, search, filtering, table display settings, and other utilities. When to use To organize and display data. If your user must navigate to a specific piece of data to complete a task. Displaying all of a user\u2019s resources. When not to use When a more complex display of the data",
+        " the 2x grid guidelines. Although, the data table can share horizontal space with other components and content, consider giving your data table the most width on the page to help your user view dense data. These three examples show the data table on the wide (default), narrow, and condensed gutter modes. Note the different type alignments and gutter sizes. Wide gutter mode The ",
+        " Skip to main content Carbon Design System Search Switch sites Foundations IBM Brand Center IBM Design Language Implementation Carbon Design System Carbon for IBM Products Carbon for Cloud Carbon for IBM.com IBM Event Design IBM Workplace Design Practices Enterprise Design Thinking IBM Accessibility IBM Design for AI IBM Design Research IBM Experience Standards"
+      ]
+    },
+    {
+      "url": "https://carbondesignsystem.com/patterns/empty-states-pattern/",
+      "error": "SSLError"
+    },
+    {
+      "url": "https://www.w3.org/WAI/WCAG22/Understanding/reflow.html",
+      "error": "SSLError"
+    },
+    {
+      "url": "https://documentation.dataspace.copernicus.eu/Applications/Browser.html",
+      "status": 200,
+      "excerpts": [
+        "l Embeddings Dataset SRTM APIs Product search and download Access Token OData Catalog subscriptions Sentinel-1 SLC Bursts STAC product catalogue S3 Access TCP stack configuration Traceability API openEO Getting Started Python R JavaScript Glossary Data Collections openEO Processes File Formats Authentication Client Credentials P",
+        "y Service credit consumption Reporting About Data Workspace Catalogue CSV QGIS Plugin Copernicus Data Space Ecosystem Dashboard Ecosystem Definitions Services categories Services onboarding Regulation and policies Quotas &amp; Limitations Access through Research Network Jupyter Notebook Samples FAQ Support Catalog APIs news Upco"
+      ]
+    },
+    {
+      "url": "https://code.visualstudio.com/docs/editing/workspaces/workspaces",
+      "status": 200,
+      "excerpts": [
+        " Notes Blog Learn Events Resources Extensions MCP Download Search Download \ud83c\udfac Watch The Story of VS Code! Dismiss this update // Restore dismissal and the session's random starting message before first paint. (function () { var banner = document.currentScript.previousElementSibling; if (!banner) { return; } var version = banner.g",
+        " What is a VS Code workspace? // Leave as var; siteConsent is initialized and referenced elsewhere. var siteConsent = null; const GPC_DataSharingOptIn = false; WcpConsent.onInitCallback(function () { window.appInsights = new oneDS.ApplicationInsights(); window.appInsights.initialize({ instrumentati"
+      ]
+    },
+    {
+      "url": "https://www.w3.org/WAI/WCAG22/Understanding/reflow.html",
+      "status": 200,
+      "excerpts": [
+        "rtical scrolling content at a width equivalent to 320 CSS pixels ; Horizontal scrolling content at a height equivalent to 256 CSS pixels . Except for parts of the content which require two-dimensional layout for usage or meaning. Note 1 320 CSS pixels is equivalent to a starting viewport width of 1280 CSS pixels wide at 400% zoo",
+        "formation or functionality, and without requiring scrolling in two dimensions for: Vertical scrolling content at a width equivalent to 320 CSS pixels ; Horizontal scrolling content at a height equivalent to 256 CSS pixels . Except for parts of the content which require two-dimensional layout for usage or meaning. Note 1 320 CSS "
+      ]
+    }
+  ]
+}

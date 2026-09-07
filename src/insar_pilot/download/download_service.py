@@ -15,6 +15,10 @@ The aria2c invocation deliberately stays here: the test suite monkeypatches
 from __future__ import annotations
 
 import contextlib
+import hashlib
+import json
+import os
+import re
 import shutil
 import subprocess
 import tempfile
@@ -28,6 +32,7 @@ import asf_search as asf
 import requests
 
 from insar_pilot.download import session_auth, task_state
+from insar_pilot.download.integrity import quarantine, receipt_path, validate_cached
 from insar_pilot.download.models import DownloadResult, DownloadTask, SceneRecord
 from insar_pilot.download.network import NetworkConfig
 from insar_pilot.download.orbit_service import OrbitDownloadService
@@ -42,6 +47,9 @@ class DownloadService:
     def __init__(self, orbit_service: OrbitDownloadService | None = None, *, max_retries: int = 2) -> None:
         self.orbit_service = orbit_service or OrbitDownloadService()
         self.max_retries = max(0, int(max_retries))
+        self.connections = 4
+        self.limit_mib = 0.0
+        self.object_identity: dict[str, object] = {}
 
     def create_tasks(
         self,
@@ -78,6 +86,26 @@ class DownloadService:
                 )
         return tasks
 
+    def create_rslc_tasks(
+        self,
+        scenes: list[SceneRecord],
+        output_dir: str | Path,
+    ) -> list[DownloadTask]:
+        """Create NISAR RSLC tasks without Sentinel-specific orbit downloads."""
+
+        target = Path(output_dir).expanduser()
+        return [
+            DownloadTask(
+                task_id=f"rslc-{index + 1:03d}",
+                scene=scene,
+                output_dir=str(target),
+                product_type="RSLC",
+                local_path=str(task_state.rslc_path(target, scene)),
+                url=scene.download_url,
+            )
+            for index, scene in enumerate(scenes)
+        ]
+
     def download(
         self,
         tasks: list[DownloadTask],
@@ -108,13 +136,15 @@ class DownloadService:
                     progress_callback(task.with_updates(status=result.status, message=result.message))
                 continue
 
-            if product_type == "SLC":
+            if product_type in {"SLC", "RSLC"}:
                 if session is None:
-                    session = self._create_session(username, password, network)
+                    session = network.session()
+                    session._earthdata_username = username  # type: ignore[attr-defined]
+                    session._earthdata_password = password  # type: ignore[attr-defined]
                 result = self._download_slc(task, session, network, progress_callback, cancel_check)
                 slc_status_by_scene[task.scene.scene_id] = result.status
                 result_by_task_id[task.task_id] = result
-                if task_state.is_retryable_slc_failure(result):
+                if task_state.is_retryable_sar_failure(result):
                     retry_tasks.append(task)
             elif product_type == "ORBIT":
                 slc_status = slc_status_by_scene.get(task.scene.scene_id)
@@ -133,7 +163,7 @@ class DownloadService:
                     result = self._result_from_task(skipped)
                 else:
                     result = self.orbit_service.download(
-                        task, progress_callback=progress_callback, cancel_check=cancel_check
+                        task, progress_callback=progress_callback, cancel_check=cancel_check, network=network
                     )
             else:
                 result = self._result_from_task(task.with_updates(status="failed", message="Unknown product type."))
@@ -154,18 +184,20 @@ class DownloadService:
                         result_by_task_id[task.task_id] = result
                         slc_status_by_scene[task.scene.scene_id] = result.status
                         continue
+                    for _wait in range(attempt_index * 20):
+                        if cancel_check and cancel_check():
+                            break
+                        time.sleep(0.1)
                     retry_notice = task.with_updates(
                         status="running",
-                        message=(
-                            f"Retrying SLC download (attempt {attempt_index + 1}/{self.max_retries + 1})..."
-                        ),
+                        message=(f"Retrying SLC download (attempt {attempt_index + 1}/{self.max_retries + 1})..."),
                     )
                     if progress_callback:
                         progress_callback(retry_notice)
                     result = self._download_slc(task, session, network, progress_callback, cancel_check)
                     result_by_task_id[task.task_id] = result
                     slc_status_by_scene[task.scene.scene_id] = result.status
-                    if task_state.is_retryable_slc_failure(result):
+                    if task_state.is_retryable_sar_failure(result):
                         next_retry_tasks.append(task)
                 retry_tasks = next_retry_tasks
 
@@ -184,6 +216,7 @@ class DownloadService:
                     orbit_task,
                     progress_callback=progress_callback,
                     cancel_check=cancel_check,
+                    network=network,
                 )
             else:
                 skipped = orbit_task.with_updates(
@@ -240,7 +273,14 @@ class DownloadService:
         final_path.parent.mkdir(parents=True, exist_ok=True)
         part_path = final_path.with_suffix(final_path.suffix + ".part")
 
-        if final_path.is_file() and final_path.stat().st_size > 0:
+        if final_path.is_file():
+            try:
+                validate_cached(final_path, task.product_type, 0, cancel_check)
+            except InterruptedError:
+                return self._result_from_task(task.with_updates(status="cancelled", message="Validation cancelled."))
+            except (OSError, ValueError):
+                quarantine(final_path)
+        if final_path.is_file():
             scene = task.scene.with_status("downloaded", final_path)
             skipped = task.with_updates(
                 status="skipped",
@@ -254,6 +294,7 @@ class DownloadService:
                 progress_callback(skipped)
             return self._result_from_task(skipped, scene=scene)
 
+        product_label = task.product_type.upper()
         url = task.url or self._resolve_scene_url(task.scene, network)
         if not url:
             failed = task.with_updates(status="failed", message="No ASF download URL was available for this scene.")
@@ -268,7 +309,7 @@ class DownloadService:
                 url=url,
                 local_path=str(part_path),
                 backend="aria2",
-                message="aria2c is required for SLC download but was not found on PATH.",
+                message=f"aria2c is required for {product_label} download but was not found on PATH.",
             )
             if progress_callback:
                 progress_callback(failed)
@@ -278,14 +319,22 @@ class DownloadService:
             status="running",
             url=url,
             local_path=str(part_path),
-            bytes_done=part_path.stat().st_size if part_path.exists() else 0,
+            bytes_done=0,
             backend="aria2",
-            message=f"Preparing ASF authentication for aria2c download: {part_path}",
+            message=(
+                f"Preparing ASF authentication for aria2c download: {part_path}"
+                if product_label == "SLC"
+                else f"Preparing ASF authentication for {product_label} aria2c download: {part_path}"
+            ),
         )
         if progress_callback:
             progress_callback(running)
 
         try:
+            username = str(getattr(session, "_earthdata_username", "") or "")
+            password = str(getattr(session, "_earthdata_password", "") or "")
+            if username and password:
+                session = self._create_session(username, password, network)
             total = self._preflight_slc_for_aria2(session, url, network)
             return self._download_slc_with_aria2(
                 task,
@@ -305,7 +354,7 @@ class DownloadService:
                 url=url,
                 local_path=str(part_path if part_path.exists() else final_path),
                 backend="aria2",
-                message=f"SLC download failed: {exc}",
+                message=f"{product_label} download failed: {self._safe_subprocess_excerpt(str(exc))}",
             )
             if progress_callback:
                 progress_callback(failed)
@@ -315,7 +364,13 @@ class DownloadService:
         response = self._open_slc_response(session, url, network)
         try:
             response.raise_for_status()
-            return int(response.headers.get("content-length", "0") or 0)
+            total = int(response.headers.get("content-length", "0") or 0)
+            self.object_identity = {
+                "url_sha256": hashlib.sha256(url.split("?")[0].encode()).hexdigest(),
+                "etag": response.headers.get("ETag", ""),
+                "bytes": total,
+            }
+            return total
         finally:
             with contextlib.suppress(Exception):
                 response.close()
@@ -333,19 +388,34 @@ class DownloadService:
         progress_callback: ProgressCallback | None,
         cancel_check: CancelCheck | None,
     ) -> DownloadResult:
+        identity_path = Path(str(part_path) + ".identity.json")
+        identity = self.object_identity
+        etag = str(identity.get("etag", ""))
+        reliable = bool(etag and not etag.startswith("W/") and identity.get("bytes"))
+        previous = json.loads(identity_path.read_text()) if identity_path.exists() else None
+        if part_path.exists() and (not reliable or previous != identity):
+            quarantine(part_path)
+            control = Path(str(part_path) + ".aria2")
+            if control.exists():
+                quarantine(control)
+        identity_path.write_text(json.dumps(identity))
         cookie_path = self._cookie_file_for_aria2(session)
         command = [
             aria2c,
+            "--no-conf=true",
+            "--check-certificate=true",
+            "--file-allocation=none",
             "--continue=true",
             "--max-tries=1",
             "--allow-overwrite=true",
             "--auto-file-renaming=false",
             "--console-log-level=warn",
             "--summary-interval=1",
-            "--show-console-readout=false",
-            "--max-connection-per-server=4",
-            "--split=4",
-            "--min-split-size=1M",
+            "--show-console-readout=true",
+            "--human-readable=false",
+            f"--max-connection-per-server={self.connections if reliable else 1}",
+            f"--split={self.connections if reliable else 1}",
+            "--min-split-size=16M",
             "--connect-timeout",
             str(max(int(network.timeout_seconds), 1)),
             "--timeout",
@@ -356,81 +426,125 @@ class DownloadService:
             part_path.name,
         ]
         command.extend(self._aria2_network_args(network))
+        if getattr(self, "limit_mib", 0) > 0:
+            command.append(f"--max-download-limit={int(self.limit_mib * 1024**2)}")
         if cookie_path:
             command.extend(["--load-cookies", cookie_path])
-        command.append(url)
+        if reliable:
+            command.append(f"--header=If-Match: {etag}")
+        # Signed URLs and cookies stay in private temporary files, never argv/logs.
+        with tempfile.NamedTemporaryFile("w", delete=False, prefix="pilot-source-", encoding="utf-8") as source:
+            if any("\n" in value or "\r" in value for value in (url, str(part_path))):
+                raise ValueError("Invalid source URL.")
+            source.write(url + f"\n  dir={part_path.parent}\n  out={part_path.name}\n")
+            source_path = Path(source.name)
+        command.extend(["--input-file", str(source_path)])
 
         started = time.monotonic()
         process: subprocess.Popen[str] | None = None
-        try:
-            process = subprocess.Popen(  # noqa: S603 - command is an argv list and shell is not used.
-                command,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-                text=True,
-                shell=False,
-            )
-        except Exception as exc:
-            if cookie_path:
-                Path(cookie_path).unlink(missing_ok=True)
-            raise RuntimeError(f"could not start aria2c: {exc}") from exc
-
+        captured_output = ""
         last_emit = 0.0
+        done = 0
+        speed = 0.0
         try:
-            while process.poll() is None:
-                if cancel_check and cancel_check():
-                    process.terminate()
-                    try:
-                        process.wait(timeout=5)
-                    except subprocess.TimeoutExpired:
-                        process.kill()
-                        process.wait(timeout=5)
-                    done = part_path.stat().st_size if part_path.exists() else 0
-                    cancelled = task.with_updates(
-                        status="cancelled",
-                        url=url,
-                        local_path=str(part_path),
-                        bytes_total=total,
-                        bytes_done=done,
-                        speed_bps=task_state.speed_bps(done, started),
-                        eta_seconds=None,
-                        backend="aria2",
-                        message=f"Download cancelled; partial file kept at {part_path}.",
+            # aria2c can emit enough progress/connection diagnostics to fill an OS
+            # pipe.  The GUI polls the process while it runs, so an unread PIPE
+            # deadlocks both processes before communicate() can ever be reached.
+            # A seekable temporary file preserves failure diagnostics without a
+            # bounded producer/consumer buffer.
+            with tempfile.TemporaryFile(mode="w+", encoding="utf-8") as process_output:
+                try:
+                    process = subprocess.Popen(  # noqa: S603 - argv list; shell is not used.
+                        command,
+                        stdout=process_output,
+                        stderr=subprocess.STDOUT,
+                        text=True,
+                        shell=False,
                     )
-                    if progress_callback:
-                        progress_callback(cancelled)
-                    return self._result_from_task(cancelled)
-                now = time.monotonic()
-                if progress_callback and now - last_emit >= 0.5:
-                    done = part_path.stat().st_size if part_path.exists() else 0
-                    speed = task_state.speed_bps(done, started)
-                    progress_callback(
-                        task.with_updates(
-                            status="running",
+                except Exception as exc:
+                    raise RuntimeError(f"could not start aria2c: {exc}") from exc
+
+                while process.poll() is None:
+                    if cancel_check and cancel_check():
+                        process.terminate()
+                        try:
+                            process.wait(timeout=5)
+                        except subprocess.TimeoutExpired:
+                            process.kill()
+                            process.wait(timeout=5)
+                        cancelled = task.with_updates(
+                            status="cancelled",
                             url=url,
                             local_path=str(part_path),
                             bytes_total=total,
                             bytes_done=done,
-                            speed_bps=speed,
-                            eta_seconds=task_state.eta_seconds(done, total, speed),
+                            speed_bps=task_state.speed_bps(done, started),
+                            eta_seconds=None,
                             backend="aria2",
-                            message="Downloading SLC with aria2c...",
+                            message=f"Download cancelled; partial file kept at {part_path}.",
                         )
-                    )
-                    last_emit = now
-                time.sleep(0.1)
-            stdout, stderr = process.communicate()
+                        if progress_callback:
+                            progress_callback(cancelled)
+                        return self._result_from_task(cancelled)
+                    now = time.monotonic()
+                    if progress_callback and now - last_emit >= 0.5:
+                        # Sparse split-file length is not received-byte progress.
+                        length = os.fstat(process_output.fileno()).st_size
+                        tail = os.pread(process_output.fileno(), min(length, 8192), max(0, length - 8192)).decode(
+                            "utf-8", errors="replace"
+                        )
+                        samples = re.findall(r"(\d+)B/(\d+)B.*?DL:(\d+)B", tail)
+                        if samples:
+                            done, _, measured = samples[-1]
+                            done, speed = int(done), float(measured)
+                        progress_callback(
+                            task.with_updates(
+                                status="running",
+                                url=url,
+                                local_path=str(part_path),
+                                bytes_total=total,
+                                bytes_done=done,
+                                speed_bps=speed,
+                                eta_seconds=task_state.eta_seconds(done, total, speed),
+                                backend="aria2",
+                                message=f"Downloading {task.product_type.upper()} with aria2c...",
+                            )
+                        )
+                        last_emit = now
+                    time.sleep(0.1)
+                process_output.flush()
+                process_output.seek(0)
+                captured_output = process_output.read()
         finally:
+            source_path.unlink(missing_ok=True)
             if cookie_path:
                 Path(cookie_path).unlink(missing_ok=True)
 
+        if process is None:
+            raise RuntimeError("aria2c process did not start.")
         if process.returncode != 0:
-            detail = self._safe_subprocess_excerpt(stderr or stdout)
+            detail = self._safe_subprocess_excerpt(captured_output)
             raise RuntimeError(f"aria2c exited with status {process.returncode}" + (f": {detail}" if detail else "."))
         if not part_path.exists() or part_path.stat().st_size <= 0:
-            raise RuntimeError("aria2c completed without producing a partial SLC file.")
+            raise RuntimeError(f"aria2c completed without producing a partial {task.product_type.upper()} file.")
 
+        if progress_callback:
+            progress_callback(
+                task.with_updates(status="validating", message="Verifying source size, structure and integrity...")
+            )
+        try:
+            validate_cached(part_path, task.product_type, total, cancel_check)
+        except InterruptedError:
+            return self._result_from_task(
+                task.with_updates(status="cancelled", message="Validation cancelled; partial retained.")
+            )
+        except (OSError, ValueError):
+            quarantine(part_path)
+            Path(str(part_path) + ".aria2").unlink(missing_ok=True)
+            raise
         part_path.replace(final_path)
+        receipt = receipt_path(part_path)
+        receipt.replace(receipt_path(final_path))
         scene = task.scene.with_status("downloaded", final_path)
         completed = task.with_updates(
             status="completed",
@@ -441,7 +555,7 @@ class DownloadService:
             speed_bps=0.0,
             eta_seconds=0.0,
             backend="aria2",
-            message="SLC download completed with aria2c.",
+            message=f"{task.product_type.upper()} download completed with aria2c.",
         )
         if progress_callback:
             progress_callback(completed)
@@ -451,7 +565,10 @@ class DownloadService:
     def _aria2_network_args(network: NetworkConfig) -> list[str]:
         mode = network.normalized_mode()
         if mode == "direct":
-            return ["--all-proxy="]
+            # aria2 reads both the generic and protocol-specific proxy
+            # environment variables.  Clearing only all-proxy still leaves an
+            # HTTP_PROXY/HTTPS_PROXY route active, which violates direct mode.
+            return ["--all-proxy=", "--http-proxy=", "--https-proxy=", "--ftp-proxy="]
         if mode == "manual":
             args: list[str] = []
             proxies = network.proxy_dict()
@@ -484,6 +601,8 @@ class DownloadService:
     @staticmethod
     def _safe_subprocess_excerpt(text: str) -> str:
         cleaned = " ".join((text or "").strip().split())
+        cleaned = re.sub(r"https?://[^\s]+", "[source URL]", cleaned, flags=re.I)
+        cleaned = re.sub(r"(?i)(token|secret|api_key)=[^\s&]+", r"\1=[redacted]", cleaned)
         if not cleaned:
             return ""
         for marker in ("Authorization:", "Cookie:", "password=", "passwd="):

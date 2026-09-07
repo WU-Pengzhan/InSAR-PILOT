@@ -1,0 +1,34 @@
+[
+  {
+    "path": "README.md",
+    "sha256": "f93726bb2a310f209df06f938ecb7e540b2f67844e045625f935fe22b020c56f"
+  },
+  {
+    "path": "README_EN.md",
+    "sha256": "f3136651f4254287972c23da4b29a65ac27fe10cca215b79f05686c70f5a37d2"
+  },
+  {
+    "path": "docs/architecture/run-job-model.md",
+    "sha256": "d284fbeaf657c25f3bf6dd67d57bf92e6667950e4bb476c02db3e8ab3d96171d"
+  },
+  {
+    "path": "docs/architecture/gui-architecture.md",
+    "sha256": "c77439920177116b821f7b27c0ccff2167295b0dcedfdcef2ee785e21983d97b"
+  },
+  {
+    "path": "docs/architecture/migration.md",
+    "sha256": "9e094084221136a87a0d582c6dd9d194d06043a508baa5c593750c39fc986ce9"
+  },
+  {
+    "path": "docs/handoff/index.md",
+    "sha256": "2d72e40f29df0f8a37d94dd3f6f9efe38378e2aed690c6c81434a39f7885ca7e"
+  },
+  {
+    "path": "docs/handoff/current.md",
+    "sha256": "9592da6daaa1b4c8fa8b1c25ebbaa61a2a9085e0ee05c4057f9ee243df1478b5"
+  },
+  {
+    "path": "docs/handoff/pages/shell-project-entry.md",
+    "sha256": "b242d7e75c5d62a7ee1e84a091713ea612588d71d495b5dd6d1f0ca5473e47e0"
+  }
+]

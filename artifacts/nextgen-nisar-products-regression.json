@@ -1,0 +1,92 @@
+{
+  "schema_version": 1,
+  "date": "2026-09-05",
+  "run_id": "bd756431215c44c4b5f1ca467bfa721e",
+  "run_status": "SUCCESS",
+  "exit_code": 0,
+  "new_project": "/tmp/pilot-nextgen-nisar-ghbk7c7f/project",
+  "compute": "CPU",
+  "omp_threads": 4,
+  "logical_artifacts": 8,
+  "physical_hdf5_containers": 3,
+  "rifg_golden_comparison": {
+    "reference": "/home/griffin/insar_projects/golden/nisar/aoi_subset_validation/products/RIFG_product.h5",
+    "phase": {
+      "shape": [
+        569,
+        674
+      ],
+      "dtype": "complex64",
+      "shape_equal": true,
+      "dtype_equal": true,
+      "valid_samples": 382158,
+      "mask_equal": true,
+      "rmse": 0.0004009463894577217,
+      "max_abs_difference": 0.005247557070106268
+    },
+    "coherence": {
+      "shape": [
+        569,
+        674
+      ],
+      "dtype": "float32",
+      "shape_equal": true,
+      "dtype_equal": true,
+      "valid_samples": 382158,
+      "mask_equal": true,
+      "rmse": 2.0215972778024788e-05,
+      "max_abs_difference": 0.00020396709442138672
+    }
+  },
+  "gunw_repeatability": {
+    "reference": "/tmp/pilot-nextgen-nisar-ghbk7c7f/project/workspaces/10ed67c24a5a4e45b0f179a9c5a29ec2/products/GUNW_product.h5",
+    "reference_scope": "Earlier next-generation execution whose numerical process exited 0 but publication validation failed; this is repeatability evidence, not legacy parity.",
+    "phase": {
+      "shape": [
+        4338,
+        4401
+      ],
+      "dtype": "float32",
+      "shape_equal": true,
+      "dtype_equal": true,
+      "valid_samples": 37973,
+      "mask_equal": true,
+      "rmse": 0.00039412770788730723,
+      "max_abs_difference": 0.0014753341674804688
+    },
+    "coherence": {
+      "shape": [
+        4338,
+        4401
+      ],
+      "dtype": "float32",
+      "shape_equal": true,
+      "dtype_equal": true,
+      "valid_samples": 37973,
+      "mask_equal": true,
+      "rmse": 5.85891772445694e-06,
+      "max_abs_difference": 6.362795829772949e-05
+    },
+    "components": {
+      "shape": [
+        4338,
+        4401
+      ],
+      "dtype": "uint16",
+      "shape_equal": true,
+      "dtype_equal": true,
+      "valid_samples": 19091538,
+      "mask_equal": true,
+      "rmse": 0.0,
+      "max_abs_difference": 0.0
+    },
+    "coordinate_axes_exact": true
+  },
+  "scientific_regression_gate_complete": false,
+  "remaining": [
+    "Sentinel SNAPHU dimension limit at 1x1 looks",
+    "GUNW full-versus-subset golden numerical acceptance",
+    "HKIA performance",
+    "CUDA"
+  ]
+}

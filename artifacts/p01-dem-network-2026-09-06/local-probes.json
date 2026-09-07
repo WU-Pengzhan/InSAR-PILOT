@@ -1,0 +1,8 @@
+{
+  "S1D_orbit_mission_mapping": "S1A",
+  "one_byte_invalid_zip_existing_result": {
+    "status": "skipped",
+    "bytes_done": 1,
+    "backend": "existing"
+  }
+}

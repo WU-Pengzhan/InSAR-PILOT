@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "tested_at": "2026-09-04",
+  "openseppo_version": "0.7.1",
+  "aoi": "docs/examples/nisar-aoi-example.kml",
+  "input": "two local golden NISAR RSLC granules",
+  "height_arguments_supplied": false,
+  "automatic_height": {
+    "provider": "USGS Elevation Point Query Service",
+    "sample_strategy": "AOI bbox corners and center",
+    "reported_max_terrain_m": 938,
+    "automatic_buffer_m": 500,
+    "resolved_max_height_m": 1438,
+    "query_succeeded": true,
+    "fallback_max_height_m": 1000
+  },
+  "outputs": [
+    {
+      "granule_cycle": 24,
+      "window": "az28032-31248_rg23594-26483",
+      "shape": [3216, 2889],
+      "bytes": 36183384,
+      "elapsed_seconds": 18.29,
+      "corner_heights_with_buffer_m": [1384, 1365, 1474, 1366],
+      "representative_footprint_height_m": 1397
+    },
+    {
+      "granule_cycle": 25,
+      "window": "az27223-30437_rg23590-26479",
+      "shape": [3214, 2889],
+      "bytes": 36119377,
+      "elapsed_seconds": 19.72,
+      "corner_heights_with_buffer_m": [1385, 1365, 1476, 1365],
+      "representative_footprint_height_m": 1398
+    }
+  ],
+  "comparison_with_manual_0_3000_m": {
+    "science_window_area_reduction_fraction": 0.1931,
+    "output_file_size_reduction_fraction_approx": 0.1916,
+    "interpretation": "Automatic terrain produced a smaller valid radar window; it is not pixel-grid-identical to the conservative window because the multilook grid origin changes."
+  },
+  "isce3_rifg": {
+    "succeeded": true,
+    "elapsed_seconds": 25.754350987999715,
+    "shape": [536, 577],
+    "wrapped_dtype": "complex64",
+    "coherence_dtype": "float32"
+  },
+  "implementation_notes": {
+    "max_height_controls_pixel_window": true,
+    "min_height_controls_pixel_window": false,
+    "min_height_usage": "Fallback for far-range corner height when footprint elevation lookup fails",
+    "auto_query_is_reproducible": false,
+    "recommended_production_source": "Project DEM statistics recorded in the task manifest"
+  }
+}

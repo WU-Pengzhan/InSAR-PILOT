@@ -1,0 +1,28 @@
+{
+  "aria2_available": true,
+  "credentials_configured": true,
+  "gdal_available": true,
+  "dem_download_web_ready": true,
+  "satellites": [
+    {
+      "platform": "SENTINEL-1A",
+      "supported": true,
+      "note": "Availability depends on the requested dates and region."
+    },
+    {
+      "platform": "SENTINEL-1B",
+      "supported": true,
+      "note": "Archive data; no recent acquisitions."
+    },
+    {
+      "platform": "SENTINEL-1C",
+      "supported": true,
+      "note": "Availability depends on the requested dates and region."
+    },
+    {
+      "platform": "SENTINEL-1D",
+      "supported": true,
+      "note": "Availability depends on the requested dates and region."
+    }
+  ]
+}

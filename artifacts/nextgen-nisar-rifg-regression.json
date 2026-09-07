@@ -1,0 +1,17 @@
+{
+  "run_id": "8bda02fa01254ecf86660d2cfb49c551",
+  "status": "SUCCESS",
+  "phase_circular_rmse_rad": 2.2309284281344733e-07,
+  "coherence_rmse": 7.442498054669359e-08,
+  "shape": [
+    569,
+    674
+  ],
+  "coherence_valid_sample_count": 382158,
+  "new_project": "/tmp/pilot-nextgen-nisar-ghbk7c7f/project",
+  "runtime_threads": "original inherited settings; no OpenMP override",
+  "phase_tolerance_rad": 5e-07,
+  "coherence_tolerance": 1.2e-07,
+  "tolerance_basis": "Earlier stored CPU evidence plus margin; does not qualify changed OpenMP settings.",
+  "passed": true
+}

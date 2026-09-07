@@ -1,5 +1,5 @@
 site_name: InSAR-PILOT
-site_description: Open desktop workbench for guided SAR/InSAR processing on Ubuntu and WSL.
+site_description: Local SAR/InSAR Web workbench; Sentinel-1 first, NISAR later.
 site_author: InSAR-PILOT Contributors
 site_url: https://wu-pengzhan.github.io/InSAR-PILOT/
 
@@ -64,8 +64,46 @@ nav:
       - 命令行 CLI: cli.md
       - 完整手册: user-guide.md
       - 故障排查: troubleshooting.md
+  - Next Generation:
+      - Overview: architecture/overview.md
+      - Current state: architecture/current-state.md
+      - Domain: architecture/domain-model.md
+      - Project: architecture/project-model.md
+      - Pipeline: architecture/pipeline-model.md
+      - Run and Job: architecture/run-job-model.md
+      - Artifacts: architecture/artifact-model.md
+      - QC: architecture/qc-model.md
+      - Data: architecture/data-model.md
+      - Sentinel-1: architecture/sentinel1-pipeline.md
+      - NISAR: architecture/nisar-pipeline.md
+      - GUI and API: architecture/gui-architecture.md
+      - UI/UX 设计规范: architecture/design-system.md
+      - 工程入口与目录: architecture/project-lifecycle-layout.md
+      - Sentinel 页面划分: architecture/sentinel-workbench.md
+      - P01 检索与下载设计: architecture/p01-search-download.md
+      - P01 EOF/DEM 与网络评估: architecture/p01-ancillary-downloads.md
+      - Storage: architecture/storage.md
+      - Migration: architecture/migration.md
+      - 历史阶段总结（方向调整前）: architecture/status-review-2026-09-05.md
+  - 工作交接:
+      - 总索引: handoff/index.md
+      - 当前交接: handoff/current.md
+      - 任务提示词: handoff/prompts.md
+      - P01 检索与下载: handoff/pages/p01-search-download.md
+      - P02 数据与准备: handoff/pages/p02-data-preparation.md
+      - P03 参数与生成: handoff/pages/p03-parameters-generation.md
+      - P04 运行: handoff/pages/p04-run-monitor.md
+      - P05 成果与 QC: handoff/pages/p05-products-qc.md
+      - 交接记录模板: handoff/template.md
+      - 实施准备记录（2026-09-06）: handoff/records/2026-09-06-guidance-preparation.md
+      - P01 设计记录（2026-09-06）: handoff/records/2026-09-06-p01-search-download-design.md
+      - P01 EOF/DEM 评估记录（2026-09-06）: handoff/records/2026-09-06-p01-dem-network-design.md
   - 开发者:
       - 架构说明: architecture.md
+      - 官方处理路径: official-processing-paths.md
+      - 下一代重构路线: refactoring-roadmap.md
+      - Sentinel-1 / NISAR 数据整合: sentinel-nisar-data-integration.md
+      - NISAR AOI / RSLC / ISCE3: nisar-rslc-aoi-workflow.md
   - English:
       - Overview: en/index.md
       - Installation: en/installation.md
@@ -73,4 +111,5 @@ nav:
       - CLI: en/cli.md
       - User Guide: en/user-guide.md
       - Architecture: en/architecture.md
+      - Refactoring roadmap: en/refactoring-roadmap.md
       - Troubleshooting: en/troubleshooting.md
