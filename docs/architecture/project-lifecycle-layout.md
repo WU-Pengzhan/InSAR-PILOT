@@ -15,7 +15,7 @@
 - 新建界面已使用保存父目录 + 名称 + creation-preview；打开已过滤 .pilot 并检查身份。
 - EngineStore 当前在根目录创建 runs、workspaces、artifacts、cache；运行/发布等路径有直接拼接。
 - engine_download 与 acquisition 当前把下载位置固定到应用 Library；因此目录分区不是只改前端标签。
-- 尚未验证或修改本轮新启动/目录设计；旧功能验收不能当作新设计验收。
+- 启动、简化目录与下载归属已在 2026-09-07 实施；当前证据见[工程/P01 交付](../handoff/records/2026-09-07-project-p01-release.md)。
 
 ## 启动与页面状态（实施合同）
 建议所有全新页面加载（包含浏览器刷新）进入 NO_PROJECT / Home；不恢复上次项目或页面。

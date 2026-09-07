@@ -60,11 +60,11 @@ nav:
   - 用户指南:
       - 安装: installation.md
       - 快速开始: quickstart.md
-      - 端到端教程: tutorial.md
+      - 第一个检索工程: tutorial.md
       - 命令行 CLI: cli.md
-      - 完整手册: user-guide.md
+      - 工作台指南: user-guide.md
       - 故障排查: troubleshooting.md
-  - Next Generation:
+  - 当前架构:
       - Overview: architecture/overview.md
       - Current state: architecture/current-state.md
       - Domain: architecture/domain-model.md
@@ -84,7 +84,9 @@ nav:
       - P01 EOF/DEM 与网络评估: architecture/p01-ancillary-downloads.md
       - Storage: architecture/storage.md
       - Migration: architecture/migration.md
-      - 历史阶段总结（方向调整前）: architecture/status-review-2026-09-05.md
+  - 版本与维护:
+      - 1.5.0: releases/1.5.0.md
+      - 发行维护: releases/maintenance.md
   - 工作交接:
       - 总索引: handoff/index.md
       - 当前交接: handoff/current.md

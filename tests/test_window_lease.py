@@ -82,3 +82,21 @@ def test_unresponsive_window_times_out_without_being_able_to_steal_replacement(t
                 current = replacement.receive_json()
                 assert current["state"] == "active" and current["owner"] != old
                 assert client.get("/api/v1/projects", headers={"X-Pilot-Window": old}).status_code == 423
+
+
+def test_transport_disconnect_during_close_releases_window_without_server_error(tmp_path, monkeypatch):
+    from starlette.websockets import WebSocket, WebSocketDisconnect
+
+    async def disconnected_close(self, code=1000, reason=None):
+        raise WebSocketDisconnect(code=1006)
+
+    monkeypatch.setattr(WebSocket, "close", disconnected_close)
+    with TestClient(create_app(tmp_path, "secret", testing=True)) as client:
+        client.cookies.set("pilot_session", "secret")
+        client.headers["Origin"] = "http://testserver"
+        with client.websocket_connect("/api/v1/window") as first:
+            owner = first.receive_json()["owner"]
+        with client.websocket_connect("/api/v1/window") as second:
+            grant = second.receive_json()
+            assert grant["state"] == "active"
+            assert grant["owner"] != owner

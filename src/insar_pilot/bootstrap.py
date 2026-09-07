@@ -1,4 +1,4 @@
-"""Bootstrap helpers for the desktop application."""
+"""Default project helpers retained for legacy project compatibility."""
 
 from __future__ import annotations
 
@@ -16,7 +16,7 @@ from insar_pilot.services.shell import resolve_isce_runtime_root
 
 
 def create_default_project() -> ProjectDocument:
-    """Return a new empty project using the environment that launched the GUI."""
+    """Return a new empty project using the environment that created the project."""
 
     download = DataDownloadConfig()
     return ProjectDocument(

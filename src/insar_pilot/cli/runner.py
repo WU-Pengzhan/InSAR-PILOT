@@ -1,16 +1,4 @@
-"""Subprocess-backed command runner for the headless CLI.
-
-Mirrors the observable log/exit contract of the Qt ``ProcessRunner`` (see
-``services/run_executor.py``) so a project's ``logs/`` output looks identical
-whether a step was executed from the GUI or the CLI: each invocation gets a
-clean per-command log file that starts with a ``$ <command>`` header, captures
-merged stdout/stderr, and ends with an ``[exit=..., status=...]`` footer.
-
-This module is intentionally Qt-free; it drives ``subprocess.Popen`` directly
-and builds the final ``bash -lc`` invocation through ``ShellCommandBuilder`` so
-conda activation and ISCE2 environment exports are applied exactly as the GUI
-applies them.
-"""
+"""Subprocess runner for the legacy project CLI, preserving its log format."""
 
 from __future__ import annotations
 

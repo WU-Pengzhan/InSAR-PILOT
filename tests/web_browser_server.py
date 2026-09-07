@@ -30,4 +30,10 @@ if __name__ == "__main__":
         (fixtures / "invalid.pilot").write_text("invalid json")
         orphan = EngineStore.create(fixtures / "Orphan Project", "Orphan")
         orphan.db_path.unlink()
-        uvicorn.run(app, host="127.0.0.1", port=int(os.environ.get("PILOT_E2E_PORT", "8767")), access_log=False)
+        uvicorn.run(
+            app,
+            host="127.0.0.1",
+            port=int(os.environ.get("PILOT_E2E_PORT", "8767")),
+            access_log=False,
+            log_level="warning",
+        )

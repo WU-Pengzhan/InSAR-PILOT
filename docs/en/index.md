@@ -1,19 +1,9 @@
-# InSAR-PILOT Web workbench
+# A clearer workspace for radar imagery
 
-Current direction: **Web only, Sentinel-1 first, NISAR later; design and deliver one page at a time.**
+InSAR-PILOT brings project management, map search and downloads into one local browser workbench. Version 1.5.0 focuses on Sentinel-1.
 
-- [Current scope](../architecture/overview.md)
-- [Implementation and deferred work](../architecture/migration.md)
-- [Accepted Sentinel page structure](../architecture/sentinel-workbench.md)
-- [Handoff index](../handoff/index.md)
-- [Per-page prompts](../handoff/prompts.md)
-- [Web usage and exit](user-guide.md)
+![Web search](../assets/screenshots/web-search.png)
 
-The near-term deliverable is a phase stack, with its exact product contract awaiting
-confirmation. Unwrapping and broad phase comparisons are deferred; basic input,
-execution and output checks remain.
+[Install](installation.md) · [Quickstart](quickstart.md) · [User guide](user-guide.md) · [Troubleshooting](troubleshooting.md)
 
-PySide6/Qt interface development is discontinued. Old installation/tutorial/CLI
-material remains historical reference. Use `insar-pilot-web`; packaging dependency
-and default-entrypoint cleanup is a separate task. This preview does not claim all
-proposed pages or scientific validation paths are complete.
+The remaining four professional workflow pages are still being refined. See [release notes](../releases/1.5.0.md) and [implementation status](../architecture/migration.md) for current scope.

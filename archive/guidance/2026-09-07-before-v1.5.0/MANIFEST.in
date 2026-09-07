@@ -1,0 +1,6 @@
+include CHANGELOG.md
+include README_EN.md
+include environment.yml
+include install.sh
+include scripts/verify_install.py
+recursive-include docs *.md *.png

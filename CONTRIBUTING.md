@@ -15,9 +15,13 @@ Design-only tasks stop at reviewable design; implementation requests proceed
 within the authorized scope without another approval round. Complete one page task,
 then update its record and stop before the next page.
 
-Do not develop new Qt UI features. Retained PySide6 code is migration material;
-removing dependencies and changing installed entrypoints is a separate technical
-cleanup, not an excuse to keep two product roadmaps.
+The 1.5.0 package launches the Web workbench by default. Qt UI, Qt-specific tests
+and desktop launch configuration have been removed. Preserve legacy project
+services and scientific backends that remain covered by headless tests.
+
+Install with `python -m pip install -e '.[dev]'`. Frontend development uses Node 22:
+`cd frontend && npm ci && npm test && npm run build`. The built interface is
+included in both wheel and source releases. See [release maintenance](docs/releases/maintenance.md).
 
 The near-term product is a phase stack, with its exact scientific representation
 still to be confirmed. Unwrapping and broad phase numerical comparisons are

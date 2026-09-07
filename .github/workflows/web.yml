@@ -1,23 +1,10 @@
-name: Next-generation Web engine
+name: Web interface
 
 on:
   pull_request:
   push:
 
 jobs:
-  headless-contracts:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-      - name: Install headless application dependencies
-        run: |
-          python -m pip install pytest fastapi uvicorn wsproto httpx numpy pillow h5py rasterio asf-search sentineleof requests pyshp shapely
-          python -m pip install --no-deps -e .
-      - name: Test engine without Qt or numerical processor SDKs
-        run: python -m pytest tests/test_engine*.py tests/test_web_file_browser.py tests/test_web_launch.py tests/test_web_explorer.py tests/test_web_download_controls.py tests/test_web_lifecycle.py -q
   web-build:
     runs-on: ubuntu-latest
     defaults:
@@ -36,6 +23,6 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      - run: python -m pip install fastapi uvicorn wsproto numpy pillow h5py rasterio asf-search sentineleof requests pyshp shapely
+      - run: python -m pip install -e ..
       - run: npx playwright install --with-deps chromium firefox
       - run: npm run test:e2e

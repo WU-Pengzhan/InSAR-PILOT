@@ -1,13 +1,11 @@
-import os
 import subprocess
 from pathlib import Path
 from urllib.parse import parse_qs, urlparse
 
-from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QApplication, QLabel
 from requests.cookies import RequestsCookieJar, create_cookie
+from test_p01_acquisition import safe_bytes
 
-from insar_pilot.download import DownloadService, DownloadStorage, OrbitDownloadService, SearchService, create_dem_task
+from insar_pilot.download import DownloadService, DownloadStorage, SearchService, create_dem_task
 from insar_pilot.download.credentials import load_earthdata_credentials, save_earthdata_netrc
 from insar_pilot.download.dem_service import DemCoveragePlanner, OpenTopographyDemService
 from insar_pilot.download.geometry import (
@@ -41,19 +39,8 @@ from insar_pilot.download.providers.asf_provider import ASFProvider
 from insar_pilot.download.tile_proxy import TiandituTileProxy
 from insar_pilot.services.iw_recommendation import BurstFootprint, IwFootprint, IwRecommendationResult
 
-_QT_APP: QApplication | None = None
-
-
-def _qt_app() -> QApplication:
-    global _QT_APP
-    os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
-    app = QApplication.instance()
-    _QT_APP = app if app is not None else QApplication([])
-    _QT_APP.setQuitOnLastWindowClosed(False)
-    return _QT_APP
-
-
 REPO_ROOT = Path(__file__).resolve().parents[1]
+SAFE_PAYLOAD = safe_bytes()
 
 
 class _FakeProduct:
@@ -112,7 +99,7 @@ class _FakeOrbitService:
     def __init__(self):
         self.tasks = []
 
-    def download(self, task, *, progress_callback=None, cancel_check=None):
+    def download(self, task, *, progress_callback=None, cancel_check=None, network=None):
         self.tasks.append(task)
         completed = task.with_updates(
             status="completed",
@@ -129,7 +116,7 @@ class _FakeAria2Process:
         self,
         command,
         *,
-        payload=b"abc123",
+        payload=SAFE_PAYLOAD,
         returncode=0,
         stderr="",
         running_polls=0,
@@ -209,7 +196,7 @@ class _FakeCancelableAria2Process(_FakeAria2Process):
         self.returncode = -15
 
 
-def _patch_aria2(monkeypatch, *, payload=b"abc123", returncode=0, stderr="", running_polls=0):
+def _patch_aria2(monkeypatch, *, payload=SAFE_PAYLOAD, returncode=0, stderr="", running_polls=0):
     calls = []
     stderr_text = stderr
     monkeypatch.setattr("insar_pilot.download.download_service.shutil.which", lambda name: "/usr/bin/aria2c")
@@ -669,20 +656,20 @@ def test_download_service_uses_aria2_to_part_and_renames(tmp_path: Path, monkeyp
     )
     service = DownloadService()
     monkeypatch.setattr(
-        service, "_session", lambda username="", password="": _FakeSession(_FakeResponse([b"abc", b"123"]))
+        NetworkConfig, "session", lambda self: _FakeSession(_FakeResponse([SAFE_PAYLOAD]))
     )
-    aria2_calls = _patch_aria2(monkeypatch, payload=b"abc123")
+    aria2_calls = _patch_aria2(monkeypatch, payload=SAFE_PAYLOAD)
     updates = []
 
     tasks = service.create_tasks([scene], tmp_path, include_orbits=False)
     results = service.download(tasks, progress_callback=updates.append)
 
     assert results[0].status == "completed", results[0].message
-    assert Path(results[0].local_path).read_bytes() == b"abc123"
+    assert Path(results[0].local_path).read_bytes() == SAFE_PAYLOAD
     assert not Path(results[0].local_path + ".part").exists()
     assert updates[0].message.startswith("Preparing ASF authentication for aria2c download:")
     assert updates[0].local_path.endswith(".zip.part")
-    assert updates[-1].bytes_done == 6
+    assert updates[-1].bytes_done == len(SAFE_PAYLOAD)
     assert results[0].scene.status == "downloaded"
     assert results[0].backend == "aria2"
     assert aria2_calls[0]["shell"] is False
@@ -690,9 +677,9 @@ def test_download_service_uses_aria2_to_part_and_renames(tmp_path: Path, monkeyp
     assert aria2_calls[0]["stderr"] is subprocess.STDOUT
     command = aria2_calls[0]["command"]
     assert "--continue=true" in command
-    assert "--max-connection-per-server=4" in command
-    assert "--split=4" in command
-    assert "--min-split-size=1M" in command
+    assert "--max-connection-per-server=1" in command
+    assert "--split=1" in command
+    assert "--min-split-size=16M" in command
     assert "--all-proxy=" in command
     assert "--http-proxy=" in command
     assert "--https-proxy=" in command
@@ -711,12 +698,12 @@ def test_download_service_passes_asf_cookies_to_aria2_without_logging_secrets(tm
         download_url="https://example.test/S1_TEST.zip",
         file_name="S1_TEST.zip",
     )
-    session = _FakeSession(_FakeResponse([b"ok"]))
+    session = _FakeSession(_FakeResponse([SAFE_PAYLOAD]))
     session.cookies = RequestsCookieJar()
     session.cookies.set_cookie(create_cookie(name="asf-urs", value="super-secret-cookie", domain=".asf.alaska.edu"))
     service = DownloadService()
-    monkeypatch.setattr(service, "_session", lambda username="", password="", network=None: session)
-    aria2_calls = _patch_aria2(monkeypatch, payload=b"ok")
+    monkeypatch.setattr(NetworkConfig, "session", lambda self: session)
+    aria2_calls = _patch_aria2(monkeypatch, payload=SAFE_PAYLOAD)
 
     result = service.download(service.create_tasks([scene], tmp_path, include_orbits=False))[0]
 
@@ -751,12 +738,13 @@ def test_download_service_reattempts_slc_after_earthdata_redirect(tmp_path: Path
             "client_id=BO_n7nTIlMljdvU6kRRB3g&response_type=code"
         ),
     )
-    success = _FakeResponse([b"II"])
+    success = _FakeResponse([SAFE_PAYLOAD])
     session = _SequenceSession([redirect, success])
     auth_urls = []
     service = DownloadService()
-    monkeypatch.setattr(service, "_session", lambda username="", password="", network=None: session)
-    aria2_calls = _patch_aria2(monkeypatch, payload=b"II")
+    monkeypatch.setattr(service, "_create_session", lambda *args: session)
+    monkeypatch.setattr(NetworkConfig, "session", lambda self: session)
+    aria2_calls = _patch_aria2(monkeypatch, payload=SAFE_PAYLOAD)
     monkeypatch.setattr(
         service,
         "_obtain_asf_cookie",
@@ -788,9 +776,9 @@ def test_download_service_cancel_keeps_partial_path_visible(tmp_path: Path, monk
     )
     service = DownloadService()
     monkeypatch.setattr(
-        service,
-        "_session",
-        lambda username="", password="", network=None: _FakeSession(_FakeResponse([b"abc", b"123"])),
+        NetworkConfig,
+        "session",
+        lambda self: _FakeSession(_FakeResponse([SAFE_PAYLOAD])),
     )
     _patch_cancelable_aria2(monkeypatch, payload=b"abc")
     calls = {"count": 0}
@@ -824,13 +812,13 @@ def test_download_service_skips_existing_slc(tmp_path: Path, monkeypatch):
     service = DownloadService()
     slc_path = tmp_path / "SLC" / "S1_TEST.zip"
     slc_path.parent.mkdir()
-    slc_path.write_bytes(b"exists")
-    monkeypatch.setattr(service, "_session", lambda username="", password="": _FakeSession(_FakeResponse([b"unused"])))
+    slc_path.write_bytes(SAFE_PAYLOAD)
+    monkeypatch.setattr(NetworkConfig, "session", lambda self: _FakeSession(_FakeResponse([b"unused"])))
 
     result = service.download(service.create_tasks([scene], tmp_path, include_orbits=False))[0]
 
     assert result.status == "skipped"
-    assert result.bytes_done == len(b"exists")
+    assert result.bytes_done == len(SAFE_PAYLOAD)
 
 
 def test_download_service_reports_slc_failure(tmp_path: Path, monkeypatch):
@@ -847,9 +835,9 @@ def test_download_service_reports_slc_failure(tmp_path: Path, monkeypatch):
     )
     service = DownloadService()
     monkeypatch.setattr(
-        service,
-        "_session",
-        lambda username="", password="": _FakeSession(_FakeResponse([], error=RuntimeError("boom"))),
+        NetworkConfig,
+        "session",
+        lambda self: _FakeSession(_FakeResponse([], error=RuntimeError("boom"))),
     )
     _patch_aria2(monkeypatch)
 
@@ -873,7 +861,7 @@ def test_download_service_reports_missing_aria2_without_retrying(tmp_path: Path,
     )
     session = _FakeSession(_FakeResponse([b"unused"]))
     service = DownloadService()
-    monkeypatch.setattr(service, "_session", lambda username="", password="", network=None: session)
+    monkeypatch.setattr(NetworkConfig, "session", lambda self: session)
     monkeypatch.setattr("insar_pilot.download.download_service.shutil.which", lambda name: None)
 
     result = service.download(service.create_tasks([scene], tmp_path, include_orbits=False))[0]
@@ -899,14 +887,14 @@ def test_download_service_retries_failed_slc_then_runs_deferred_orbit(tmp_path: 
     session = _SequenceSession(
         [
             _FakeResponse([], error=RuntimeError("temporary network drop")),
-            _FakeResponse([b"ok"]),
+            _FakeResponse([SAFE_PAYLOAD]),
         ]
     )
     orbit_service = _FakeOrbitService()
     service = DownloadService(orbit_service=orbit_service)
     updates = []
-    monkeypatch.setattr(service, "_session", lambda username="", password="", network=None: session)
-    _patch_aria2(monkeypatch, payload=b"ok")
+    monkeypatch.setattr(NetworkConfig, "session", lambda self: session)
+    _patch_aria2(monkeypatch, payload=SAFE_PAYLOAD)
 
     results = service.download(
         service.create_tasks([scene], tmp_path, include_orbits=True), progress_callback=updates.append
@@ -915,7 +903,7 @@ def test_download_service_retries_failed_slc_then_runs_deferred_orbit(tmp_path: 
     assert [result.product_type for result in results] == ["SLC", "ORBIT"]
     assert results[0].status == "completed"
     assert results[1].status == "completed"
-    assert Path(results[0].local_path).read_bytes() == b"ok"
+    assert Path(results[0].local_path).read_bytes() == SAFE_PAYLOAD
     assert len(session.urls) == 2
     assert orbit_service.tasks and orbit_service.tasks[0].scene.scene_id == "S1_TEST"
     assert any("Retrying SLC download (attempt 2/3)" in update.message for update in updates)
@@ -942,7 +930,7 @@ def test_download_service_retries_failed_slc_twice_then_skips_orbit(tmp_path: Pa
     )
     orbit_service = _FakeOrbitService()
     service = DownloadService(orbit_service=orbit_service)
-    monkeypatch.setattr(service, "_session", lambda username="", password="", network=None: session)
+    monkeypatch.setattr(NetworkConfig, "session", lambda self: session)
     _patch_aria2(monkeypatch)
 
     results = service.download(service.create_tasks([scene], tmp_path, include_orbits=True))
@@ -975,7 +963,7 @@ def test_download_service_cancel_after_failure_does_not_retry(tmp_path: Path, mo
     )
     service = DownloadService()
     calls = {"count": 0}
-    monkeypatch.setattr(service, "_session", lambda username="", password="", network=None: session)
+    monkeypatch.setattr(NetworkConfig, "session", lambda self: session)
     _patch_aria2(monkeypatch)
 
     def _cancel_after_first_pass():
@@ -1005,9 +993,9 @@ def test_download_service_skips_orbit_when_paired_slc_fails(tmp_path: Path, monk
     )
     service = DownloadService()
     monkeypatch.setattr(
-        service,
-        "_session",
-        lambda username="", password="", network=None: _FakeSession(_FakeResponse([], error=RuntimeError("boom"))),
+        NetworkConfig,
+        "session",
+        lambda self: _FakeSession(_FakeResponse([], error=RuntimeError("boom"))),
     )
     _patch_aria2(monkeypatch)
 
@@ -1034,8 +1022,8 @@ def test_download_service_leaves_dem_tasks_for_download_worker(tmp_path: Path, m
     service = DownloadService()
     slc_path = tmp_path / "SLC" / "S1_TEST.zip"
     slc_path.parent.mkdir()
-    slc_path.write_bytes(b"exists")
-    monkeypatch.setattr(service, "_session", lambda username="", password="": _FakeSession(_FakeResponse([b"unused"])))
+    slc_path.write_bytes(SAFE_PAYLOAD)
+    monkeypatch.setattr(NetworkConfig, "session", lambda self: _FakeSession(_FakeResponse([b"unused"])))
 
     tasks = service.create_tasks([scene], tmp_path, include_orbits=False)
     tasks.append(create_dem_task(tmp_path, "COP30"))
@@ -1045,58 +1033,8 @@ def test_download_service_leaves_dem_tasks_for_download_worker(tmp_path: Path, m
     assert results[0].status == "skipped"
 
 
-def test_orbit_download_service_uses_sentineleof_and_records_eof(tmp_path: Path, monkeypatch):
-    scene = SceneRecord(
-        scene_id="S1A_IW_SLC__1SDV_20240101T000000_20240101T000030_TEST",
-        acquisition_time="2024-01-01T00:00:00Z",
-        platform="Sentinel-1A",
-        orbit_direction="ASCENDING",
-        relative_orbit=42,
-        polarization="VV",
-        size_mb=1000.0,
-        file_name="S1A_IW_SLC__1SDV_20240101T000000_20240101T000030_TEST.zip",
-    )
-    slc_path = tmp_path / "SLC" / scene.file_name
-    slc_path.parent.mkdir()
-    slc_path.write_bytes(b"slc")
-    task = DownloadTask(task_id="orbit-001", scene=scene, output_dir=str(tmp_path), product_type="ORBIT")
-    service = OrbitDownloadService()
-
-    def _fake_download_eofs(**kwargs):
-        assert kwargs["sentinel_file"] == str(slc_path)
-        eof = tmp_path / "Orbit" / "S1A_OPER_AUX_POEORB_OPOD_20240102T000000_V20231231T000000_20240102T000000.EOF"
-        eof.write_bytes(b"orbit")
-
-    monkeypatch.setattr(service, "_download_eofs_function", lambda: _fake_download_eofs)
-
-    result = service.download(task)
-
-    assert result.status == "completed"
-    assert result.local_path.endswith(".EOF")
 
 
-def test_orbit_failure_does_not_require_slc_failure(tmp_path: Path, monkeypatch):
-    scene = SceneRecord(
-        scene_id="S1_TEST",
-        acquisition_time="2024-01-01T00:00:00Z",
-        platform="Sentinel-1A",
-        orbit_direction="ASCENDING",
-        relative_orbit=42,
-        polarization="VV",
-        size_mb=1000.0,
-    )
-    task = DownloadTask(task_id="orbit-001", scene=scene, output_dir=str(tmp_path), product_type="ORBIT")
-    service = OrbitDownloadService()
-
-    def _fake_download_eofs(*args, **kwargs):
-        raise RuntimeError("orbit down")
-
-    monkeypatch.setattr(service, "_download_eofs_function", lambda: _fake_download_eofs)
-
-    result = service.download(task)
-
-    assert result.status == "failed"
-    assert "orbit down" in result.message
 
 
 def test_download_storage_persists_json_state(tmp_path: Path):
@@ -1316,588 +1254,50 @@ def test_tianditu_tile_proxy_ignores_broken_pipe_from_cancelled_client():
     assert TiandituTileProxy._write_payload(_BrokenPipeStream(), b"tile") is False
 
 
-def test_gui_download_worker_imports():
-    from insar_pilot.ui.download_worker import DownloadWorker
-
-    assert DownloadWorker.__name__ == "DownloadWorker"
-
-
-def test_download_page_source_no_longer_exposes_advanced_network_ui():
-    package_dir = REPO_ROOT / "src/insar_pilot/ui/pages/data_download"
-    source = "\n".join(path.read_text(encoding="utf-8") for path in sorted(package_dir.glob("*.py")))
-    source += (REPO_ROOT / "src/insar_pilot/ui/pages/data_download_page.py").read_text(encoding="utf-8")
-
-    assert "Advanced Network" not in source
-    assert "network_mode_combo" not in source
-    assert "http_proxy_edit" not in source
-    assert "https_proxy_edit" not in source
-
-
-def test_footprint_map_widget_imports_and_builds_fallback_payload():
-    from insar_pilot.ui.widgets.footprint_map import FootprintMapWidget, _read_text_asset
-
-    assert FootprintMapWidget.__name__ == "FootprintMapWidget"
-    assert "Leaflet 1.9.4" in _read_text_asset("leaflet.js")
-    assert "window.L" in _read_text_asset("leaflet.js")
-    assert "leaflet-container" in _read_text_asset("leaflet.css")
-
-
-def test_footprint_map_html_defaults_to_tianditu_when_key_is_available():
-    from insar_pilot.ui.widgets.footprint_map import FootprintMapWidget
-
-    widget = FootprintMapWidget.__new__(FootprintMapWidget)
-    widget._highlight_scene_id = ""
-    widget._selected_scene_ids = set()
-    widget._tianditu_enabled = True
-    widget._tianditu_proxy_url = "http://127.0.0.1:39123/tianditu"
-    widget._preferred_basemap_name = "Tianditu Imagery"
-    scene = SceneRecord(
-        scene_id="S1_TEST",
-        acquisition_time="2024-01-01T00:00:00Z",
-        platform="Sentinel-1A",
-        orbit_direction="ASCENDING",
-        relative_orbit=42,
-        polarization="VV",
-        size_mb=1000.0,
-        footprint_geojson={"type": "Polygon", "coordinates": [[[120, 30], [121, 30], [121, 31], [120, 30]]]},
-    )
-
-    html = widget._leaflet_html({}, [scene])
-
-    assert "const tiandituEnabled = true;" in html
-    assert "http://127.0.0.1:39123/tianditu" in html
-    assert "const tiandituProxyUrl =" in html
-    assert "tiandituLayer('img'" in html
-    assert "tiandituLayer('cia'" in html
-    assert "tiandituLayer('ter'" in html
-    assert "tiandituLayer('cta'" in html
-    assert 'const preferredBasemapName = "Tianditu Imagery";' in html
-    assert "const map = L.map('map', {" in html
-    assert "preferCanvas: true" in html
-    assert "External Imagery" in html
-    assert "External Terrain" in html
-    assert "esri_img/{z}/{x}/{y}" in html
-    assert "esri_topo/{z}/{x}/{y}" in html
-    assert "fillOpacity: 0.0" in html
-    assert "fillOpacity: 0.18" in html
-    assert "fillOpacity: 0.12" not in html
-    assert "activateBasemap('External Imagery');" in html
-
-
-def test_footprint_map_updates_tianditu_state_in_one_render():
-    from insar_pilot.ui.widgets.footprint_map import FootprintMapWidget
-
-    widget = FootprintMapWidget.__new__(FootprintMapWidget)
-    renders = []
-    widget._tianditu_enabled = False
-    widget._preferred_basemap_name = "External Imagery"
-    widget._web_ready = True
-    widget._render = lambda *, fit_bounds: renders.append(fit_bounds)
-
-    FootprintMapWidget.set_tianditu_basemap_state(
-        widget,
-        enabled=True,
-        preferred_basemap="Tianditu Imagery",
-    )
-
-    assert widget._tianditu_enabled is True
-    assert widget._preferred_basemap_name == "Tianditu Imagery"
-    assert widget._web_ready is False
-    assert renders == [False]
-
-
-def test_footprint_map_html_without_key_keeps_external_layers_and_notice():
-    from insar_pilot.ui.widgets.footprint_map import FootprintMapWidget
-
-    widget = FootprintMapWidget.__new__(FootprintMapWidget)
-    widget._highlight_scene_id = ""
-    widget._selected_scene_ids = set()
-    widget._tianditu_enabled = False
-    widget._tianditu_proxy_url = "http://127.0.0.1:39123/tianditu"
-    widget._preferred_basemap_name = "External Imagery"
-
-    html = widget._leaflet_html({}, [])
-
-    assert "const tiandituEnabled = false;" in html
-    assert 'const preferredBasemapName = "External Imagery";' in html
-    assert "External Imagery" in html
-    assert "External Terrain" in html
-
-
-def test_footprint_map_can_force_native_fallback(monkeypatch):
-    from insar_pilot.ui.widgets.footprint_map import FootprintMapWidget
-
-    _qt_app()
-    monkeypatch.setenv("INSAR_PILOT_MAP_BACKEND", "native")
-    widget = FootprintMapWidget()
-    widget.resize(420, 240)
-    widget.show()
-    widget.set_data(None, [])
-
-    assert widget.web_view is None
-    assert widget.stack.currentWidget() is widget.geometry_panel
-    assert "Embedded map disabled" in widget.fallback_reason
-    widget.close()
-
-
-def test_footprint_map_highlighted_scene_is_emitted_last():
-    from insar_pilot.ui.widgets.footprint_map import FootprintMapWidget
-
-    widget = FootprintMapWidget.__new__(FootprintMapWidget)
-    widget._highlight_scene_id = "S1_HIGHLIGHT"
-    widget._selected_scene_ids = {"S1_HIGHLIGHT", "S1_OTHER"}
-    widget._tianditu_enabled = False
-    widget._tianditu_proxy_url = ""
-    widget._preferred_basemap_name = "External Imagery"
-    scenes = [
-        SceneRecord(
-            scene_id="S1_HIGHLIGHT",
-            acquisition_time="2024-01-01T00:00:00Z",
-            platform="Sentinel-1A",
-            orbit_direction="ASCENDING",
-            relative_orbit=42,
-            polarization="VV",
-            size_mb=1000.0,
-            footprint_geojson={"type": "Polygon", "coordinates": [[[120, 30], [121, 30], [121, 31], [120, 30]]]},
-        ),
-        SceneRecord(
-            scene_id="S1_OTHER",
-            acquisition_time="2024-01-02T00:00:00Z",
-            platform="Sentinel-1A",
-            orbit_direction="ASCENDING",
-            relative_orbit=42,
-            polarization="VV",
-            size_mb=1000.0,
-            footprint_geojson={"type": "Polygon", "coordinates": [[[121, 30], [122, 30], [122, 31], [121, 30]]]},
-        ),
-    ]
-
-    html = widget._leaflet_html({}, scenes)
-
-    assert html.rfind('"scene_id": "S1_HIGHLIGHT"') > html.rfind('"scene_id": "S1_OTHER"')
-
-
-def test_footprint_map_includes_dem_overlay_when_plan_exists():
-    from insar_pilot.ui.widgets.footprint_map import FootprintMapWidget
-
-    widget = FootprintMapWidget.__new__(FootprintMapWidget)
-    widget._highlight_scene_id = ""
-    widget._selected_scene_ids = set()
-    widget._dem_bbox_snwe = (20.0, 21.0, 110.0, 111.0)
-    widget._tianditu_enabled = False
-    widget._tianditu_proxy_url = ""
-    widget._preferred_basemap_name = "External Imagery"
-
-    html = widget._leaflet_html({}, [])
-
-    assert '"name": "DEM coverage"' in html
-    assert "#27ae60" in html
-
-
-def test_footprint_map_uses_smooth_fractional_zoom_and_buffered_tile_updates():
-    from insar_pilot.ui.widgets.footprint_map import FootprintMapWidget
-
-    widget = FootprintMapWidget.__new__(FootprintMapWidget)
-    widget._highlight_scene_id = ""
-    widget._selected_scene_ids = set()
-    widget._dem_bbox_snwe = None
-    widget._tianditu_enabled = False
-    widget._tianditu_proxy_url = "http://127.0.0.1:1234/tianditu"
-    widget._preferred_basemap_name = "External Imagery"
-
-    html = widget._leaflet_html({}, [])
-
-    assert "zoomAnimation: true" in html
-    assert "fadeAnimation: true" in html
-    assert "zoomSnap: 0.25" in html
-    assert "zoomDelta: 0.5" in html
-    assert "wheelDebounceTime: 24" in html
-    assert "wheelPxPerZoomLevel: 80" in html
-    assert "updateWhenZooming: true" in html
-    assert "updateWhenIdle: false" in html
-    assert "keepBuffer: 3" in html
-
-
-def test_download_page_layout_defaults_expand_controls_and_use_external_basemap_until_validated():
-    from insar_pilot.ui.pages.data_download_page import DataDownloadPage
-
-    app = _qt_app()
-    page = DataDownloadPage()
-    page.resize(1720, 900)
-    page.show()
-    app.processEvents()
-    page.normalize_main_splitter_sizes(force=True)
-
-    assert page.header.isHidden()
-    assert page.control_scroll.minimumWidth() == 500
-    assert page.control_scroll.maximumWidth() == 760
-    assert page.main_splitter.objectName() == "dataMainSplitter"
-    assert page.main_splitter.handleWidth() == 12
-    assert 560 <= page.main_splitter.sizes()[0] <= 680
-    assert page.main_splitter.count() == 2
-    assert page.map_results_splitter.count() == 2
-    assert page.map_results_splitter.objectName() == "dataMapResultsSplitter"
-    assert page.map_results_splitter.handleWidth() == 8
-    assert page.map_results_splitter.parentWidget().objectName() == "dataMapWorkspace"
-    assert not any(
-        label.text() == "Footprint Map"
-        for label in page.findChildren(QLabel)
-    )
-    assert page.footprint_map.geometry_panel.zoom_in_button.isHidden()
-    assert page.footprint_map.geometry_panel.zoom_out_button.isHidden()
-    assert page.footprint_map.geometry_panel.fit_button.isHidden()
-    assert page.download_step_tree.topLevelItemCount() == 5
-    assert page.download_step_tree.verticalScrollBarPolicy() == Qt.ScrollBarPolicy.ScrollBarAlwaysOff
-    assert page.download_wizard_bar.run_button.text() == "Download"
-    assert page.search_definition_section.property("density") == "compact"
-    assert page.search_definition_form.verticalSpacing() == 6
-    assert page.search_definition_form.horizontalSpacing() == 10
-    assert page.platform_combo.maximumHeight() <= 38
-    assert page.start_date_edit.maximumHeight() <= 38
-    assert page.search_button.maximumHeight() <= 38
-
-    page.set_tianditu_key("demo-key", source="saved")
-
-    assert page.tianditu_status_label.text().startswith("Loaded Tianditu key from saved.")
-    assert page.footprint_map._tianditu_enabled is False
-    assert page.footprint_map._preferred_basemap_name == "External Imagery"
-    assert page.download_dem_checkbox.isEnabled() is True
-    assert page.dem_source_combo.isEnabled() is True
-    page.close()
-
-
-def test_download_page_credential_state_updates_account_step_explicitly():
-    from insar_pilot.ui.pages.data_download_page import DataDownloadPage
-
-    _qt_app()
-    page = DataDownloadPage()
-
-    page.set_credential_status("Account confirmed", state="verified")
-
-    account_item = page.download_step_tree.topLevelItem(0)
-    assert account_item.data(0, Qt.ItemDataRole.UserRole) == "ready"
-    assert account_item.toolTip(0) == "Account confirmed"
-
-
-def test_download_allows_complete_credentials_without_manual_connection_test():
-    from types import SimpleNamespace
-
-    from PySide6.QtWidgets import QMainWindow
-
-    from insar_pilot.ui.controllers.download_controller import DownloadController
-    from insar_pilot.ui.pages.data_download_page import DataDownloadPage
-
-    class _Window(QMainWindow):
-        def __init__(self):
-            super().__init__()
-            self.errors = []
-            self.app_settings = SimpleNamespace()
-
-        def _show_error(self, title, message):
-            self.errors.append((title, message))
-
-        def _sync_summary_sidebar(self):
-            return None
-
-    class _Preflight:
-        @staticmethod
-        def check_aria2_capability():
-            return SimpleNamespace(aria2c_available=True, aria2c_path="/usr/bin/aria2c")
-
-    _qt_app()
-    window = _Window()
-    page = DataDownloadPage()
-    page.set_credential_inputs("alice", "secret")
-    controller = DownloadController(
-        window,
-        page,
-        download_service=SimpleNamespace(),
-        search_service=SimpleNamespace(),
-        preflight_service=_Preflight(),
-        tianditu_tile_proxy=SimpleNamespace(),
-    )
-    controller._download_credentials_ok = False
-
-    controller.download_selected_sentinel_scenes()
-
-    assert window.errors
-    assert window.errors[-1][0] == "Download setup failed"
-    assert "credential" not in window.errors[-1][1].lower()
-    controller.shutdown_short_tasks()
-    page.close()
-    window.close()
-
-
-def test_processing_setup_geometry_map_has_readable_minimum_height():
-    from insar_pilot.ui.pages.processing_setup_page import ProcessingSetupPage
-
-    _qt_app()
-    page = ProcessingSetupPage()
-
-    assert page.verify_panel.minimumHeight() >= 470
-    assert page.verify_panel.view.minimumHeight() >= 420
-
-
-def test_download_page_normalizes_bad_restored_splitter_sizes():
-    from insar_pilot.ui.pages.data_download_page import DataDownloadPage
-
-    app = _qt_app()
-    page = DataDownloadPage()
-    page.resize(1720, 900)
-    page.show()
-    app.processEvents()
-    page.main_splitter.setSizes([420, 1300])
-    app.processEvents()
-
-    page.normalize_main_splitter_sizes()
-
-    assert 560 <= page.main_splitter.sizes()[0] <= 680
-    page.close()
-
-
-def test_download_page_scene_table_uses_readable_fixed_columns_with_horizontal_scroll():
-    from PySide6.QtCore import Qt
-    from PySide6.QtWidgets import QHeaderView
-
-    from insar_pilot.ui.pages.data_download_page import DataDownloadPage
-
-    _qt_app()
-    page = DataDownloadPage()
-
-    header = page.results_table.horizontalHeader()
-
-    assert page.results_table.horizontalScrollBarPolicy() == Qt.ScrollBarPolicy.ScrollBarAsNeeded
-    assert header.stretchLastSection() is False
-    assert header.sectionResizeMode(1) == QHeaderView.ResizeMode.Interactive
-    assert page.results_table.columnWidth(1) >= 260
-    assert page.results_table.columnWidth(9) >= 360
-
-
-def test_download_state_reducer_aggregates_running_task_progress():
-    from insar_pilot.controllers.download_coordinator import DownloadStateReducer
-
-    scene = SceneRecord(
-        scene_id="S1_TEST",
-        acquisition_time="2024-01-01T00:00:00Z",
-        platform="Sentinel-1A",
-        orbit_direction="ASCENDING",
-        relative_orbit=42,
-        polarization="VV",
-        size_mb=1000.0,
-    )
-    tasks = [
-        DownloadTask(
-            task_id="slc-001",
-            scene=scene,
-            output_dir="/tmp",
-            product_type="SLC",
-            status="completed",
-            local_path="/tmp/S1_TEST.zip",
-            bytes_done=100,
-            bytes_total=100,
-        ),
-        DownloadTask(
-            task_id="orbit-001",
-            scene=scene,
-            output_dir="/tmp",
-            product_type="ORBIT",
-            status="running",
-            local_path="/tmp/S1_TEST.EOF.part",
-            bytes_done=50,
-            bytes_total=150,
-            speed_bps=10,
-            backend="aria2",
-        ),
-    ]
-
-    state = DownloadStateReducer.from_tasks(tasks)
-
-    assert state.total_tasks == 2
-    assert state.completed_tasks == 1
-    assert state.running_tasks == 1
-    assert state.percent == 60
-    assert state.eta_seconds == 10
-    assert state.active_task_id == "orbit-001"
-    assert state.active_backend == "aria2"
-
-
-def test_download_page_task_progress_panel_shows_planned_and_running_task():
-    from insar_pilot.ui.pages.data_download_page import DataDownloadPage
-
-    _qt_app()
-    page = DataDownloadPage()
-    scene = SceneRecord(
-        scene_id="S1_TEST",
-        acquisition_time="2024-01-01T00:00:00Z",
-        platform="Sentinel-1A",
-        orbit_direction="ASCENDING",
-        relative_orbit=42,
-        polarization="VV",
-        size_mb=1000.0,
-    )
-    planned = DownloadTask(
-        task_id="slc-001",
-        scene=scene,
-        output_dir="/tmp",
-        product_type="SLC",
-        status="pending",
-        local_path="/tmp/S1_TEST.zip.part",
-        backend="aria2",
-    )
-
-    page.set_download_tasks([planned])
-
-    assert page.task_progress_panel.total_label.text() == "0/1 tasks"
-    assert page.download_progress_bar is page.task_progress_panel.progress_bar
-    assert page.download_status_label is page.task_progress_panel.status_label
-
-    page.apply_task_update(
-        planned.with_updates(
-            status="running",
-            bytes_done=5 * 1024 * 1024,
-            bytes_total=10 * 1024 * 1024,
-            speed_bps=1024 * 1024,
-            eta_seconds=5,
-            message="Downloading SLC",
-        ),
-        completed_count=0,
-        total_count=1,
-    )
-
-    assert "SLC: running" in page.download_status_label.text()
-    assert "ETA" in page.download_status_label.text()
-    assert page.task_progress_panel.speed_label.text() == "1.0 MB/s"
-    assert page.task_progress_panel.eta_label.text() == "5s"
-    assert page.task_progress_panel.backend_label.text() == "aria2"
-
-
-def test_download_page_enables_dem_controls_after_opentopography_validation():
-    from insar_pilot.ui.pages.data_download_page import DataDownloadPage
-
-    _qt_app()
-    page = DataDownloadPage()
-
-    page.set_opentopography_available(True)
-
-    assert page.download_dem_checkbox.isEnabled() is True
-    assert page.dem_source_combo.isEnabled() is True
-
-    page.set_opentopography_available(False)
-
-    assert page.download_dem_checkbox.isEnabled() is True
-    assert page.dem_source_combo.isEnabled() is True
-
-
-def test_download_page_apply_results_does_not_refresh_map(monkeypatch):
-    from insar_pilot.ui.pages.data_download_page import DataDownloadPage
-
-    _qt_app()
-    page = DataDownloadPage()
-    scene = SceneRecord(
-        scene_id="S1_TEST",
-        acquisition_time="2024-01-01T00:00:00Z",
-        platform="Sentinel-1A",
-        orbit_direction="ASCENDING",
-        relative_orbit=42,
-        polarization="VV",
-        size_mb=1000.0,
-        footprint_geojson={"type": "Polygon", "coordinates": [[[120, 30], [121, 30], [121, 31], [120, 30]]]},
-    )
-    page.set_scenes([scene])
-    monkeypatch.setattr(page.footprint_map, "set_data", lambda *args, **kwargs: (_ for _ in ()).throw(AssertionError()))
-    monkeypatch.setattr(
-        page.footprint_map, "set_highlight", lambda *args, **kwargs: (_ for _ in ()).throw(AssertionError())
-    )
-
-    page.apply_download_results(
-        [
-            DownloadResult(
-                task_id="slc-001",
-                scene=scene.with_status("downloaded", "/tmp/S1_TEST.zip"),
-                product_type="SLC",
-                status="completed",
-                local_path="/tmp/S1_TEST.zip",
-            )
-        ]
-    )
-
-    assert page.results_table.item(0, 8).text() == "completed"
-    assert page.results_table.item(0, 9).text() == "/tmp/S1_TEST.zip"
-
-
-def test_download_page_log_append_preserves_manual_scroll_position():
-    from insar_pilot.ui.pages.data_download_page import DataDownloadPage
-
-    app = _qt_app()
-    page = DataDownloadPage()
-    page.show()
-    for index in range(80):
-        page.append_log(f"line {index}")
-    app.processEvents()
-    scrollbar = page.log_text.verticalScrollBar()
-    scrollbar.setValue(max(scrollbar.minimum(), scrollbar.maximum() // 3))
-    app.processEvents()
-    previous = scrollbar.value()
-
-    page.append_log("new line while reading old logs")
-    app.processEvents()
-
-    assert scrollbar.value() == previous
-
-
-def test_download_page_activity_log_is_mirrored_to_disk(tmp_path: Path):
-    from insar_pilot.ui.pages.data_download_page import DataDownloadPage
-
-    _qt_app()
-    page = DataDownloadPage()
-    log_path = tmp_path / "logs" / "data-acquisition.log"
-    page.set_activity_log_path(log_path)
-
-    page.append_log("search started")
-    page.append_log("search completed")
-
-    assert log_path.read_text(encoding="utf-8") == "search started\nsearch completed\n"
-
-
-def test_download_page_task_update_does_not_refresh_map_or_scene_detail(monkeypatch):
-    from insar_pilot.ui.pages.data_download_page import DataDownloadPage
-
-    _qt_app()
-    page = DataDownloadPage()
-    scene = SceneRecord(
-        scene_id="S1_TEST",
-        acquisition_time="2024-01-01T00:00:00Z",
-        platform="Sentinel-1A",
-        orbit_direction="ASCENDING",
-        relative_orbit=42,
-        polarization="VV",
-        size_mb=1000.0,
-        footprint_geojson={"type": "Polygon", "coordinates": [[[120, 30], [121, 30], [121, 31], [120, 30]]]},
-    )
-    page.set_scenes([scene])
-    page.scene_detail_text.setPlainText("user is reading this")
-    monkeypatch.setattr(page.footprint_map, "set_data", lambda *args, **kwargs: (_ for _ in ()).throw(AssertionError()))
-    monkeypatch.setattr(
-        page.footprint_map, "set_highlight", lambda *args, **kwargs: (_ for _ in ()).throw(AssertionError())
-    )
-    task = DownloadTask(
-        task_id="slc-001",
-        scene=scene,
-        output_dir="/tmp",
-        product_type="SLC",
-        status="running",
-        local_path="/tmp/S1_TEST.zip.part",
-        bytes_total=10,
-        bytes_done=5,
-        speed_bps=2,
-        eta_seconds=3,
-    )
-
-    page.apply_task_update(task, completed_count=0, total_count=1)
-
-    assert page.scene_detail_text.toPlainText() == "user is reading this"
-    assert page.results_table.item(0, 8).text() == "running"
-    assert "ETA" in page.download_status_label.text()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 def test_dem_coverage_planner_expands_single_burst_and_uses_scene_fallback(tmp_path: Path):
@@ -2128,33 +1528,10 @@ def test_opentopography_quarantines_corrupt_file_without_overwrite(tmp_path: Pat
     assert not tif_path.exists()
 
 
-def test_download_page_uses_explicit_transparent_form_labels():
-    base = (REPO_ROOT / "src/insar_pilot/ui/pages/data_download/base.py").read_text(encoding="utf-8")
-    search = (REPO_ROOT / "src/insar_pilot/ui/pages/data_download/search_section.py").read_text(encoding="utf-8")
-    theme = (REPO_ROOT / "src/insar_pilot/ui/styles/components.py").read_text(encoding="utf-8")
-
-    assert 'label.setProperty("formLabel", True)' in base
-    # The Dataset row still uses a transparent form label; the visible text is now
-    # routed through the translator (default "en" resolves to the original "Dataset").
-    assert 'quick_form.addRow(self._form_label(tr("download.search.dataset")), self.platform_combo)' in search
-    assert 'QLabel[formLabel="true"]' in theme
 
 
-def test_main_window_source_uses_top_workflow_stepper():
-    source = (REPO_ROOT / "src/insar_pilot/ui/main_window.py").read_text(encoding="utf-8")
-
-    assert "layout.addWidget(self._build_workflow_stepper(), 0, Qt.AlignmentFlag.AlignVCenter)" in source
-    assert "self.workflow_stepper = TopWorkflowStepper()" in source
-    assert "self._step_keys = [\"data_download\", \"setup\", \"monitor\", \"results\"]" in source
-    assert "workflow_nav" not in source
-    assert "body_splitter" not in source
 
 
-def test_workflow_nav_item_source_uses_compact_gis_rows():
-    source = (REPO_ROOT / "src/insar_pilot/ui/widgets/workflow_nav_item.py").read_text(encoding="utf-8")
-
-    assert "self.setMinimumHeight(48)" in source
-    assert "Qt.AlignmentFlag.AlignVCenter" in source
 
 
 def test_project_importer_writes_placeholder_config(tmp_path: Path):

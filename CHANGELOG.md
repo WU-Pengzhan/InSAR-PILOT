@@ -2,6 +2,15 @@
 
 All notable changes to this project are documented here.
 
+## [1.5.0] - 2026-09-07
+
+- Make the Web workbench the default application; remove retired Qt UI, launchers and dependencies.
+- Ship project entry, Sentinel-1 search/acquisition and download management with the bundled Web interface.
+- Preserve scientific backends, legacy project import/CLI, immutable histories and the accepted five-page scope.
+- Rebuild Chinese/English product documentation, current progress and handoff navigation; archive superseded guidance.
+- Build verified wheel/source releases with checksums. P02–P05, sustained real-account downloads and the phase-stack contract remain pending.
+
+
 ## [1.2.0] - 2026-08-20
 
 ### Added

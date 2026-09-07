@@ -4,7 +4,7 @@
 
 ## 已确定的产品决策
 
-- Web 是唯一继续开发的产品端，停止 PySide6/Qt 桌面界面开发。旧代码保留为可复用资产和迁移材料，不再要求两端功能同步。
+- Web 是唯一继续开发的产品端，停止 PySide6/Qt 桌面界面开发。科学后端与旧工程兼容服务保留；1.5.0 移除 Qt 专属界面、启动与依赖。
 - 本机单用户，Ubuntu 或 WSL2 Ubuntu；浏览器通过 loopback 连接。应用环境与科学处理环境分离。
 - 先做好 Sentinel-1 / ISCE2 TOPS 的完整用户体验，再推进 NISAR / ISCE3。现有 NISAR 与 openSEPPO 能力保留。
 - 一个工程固定一个传感器/mission Profile；Sentinel 和 NISAR 可以拥有不同的处理页面、参数与科学步骤。

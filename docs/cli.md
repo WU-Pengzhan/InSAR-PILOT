@@ -1,6 +1,6 @@
 # 命令行 CLI
 
-在没有图形界面的服务器上，用 `insar-pilot-cli` 直接驱动同一套项目状态。CLI 复用与 GUI 完全相同的 Qt-free 服务层，`project.pilot` 与 `logs/` 输出在两个前端之间**完全兼容、可互换打开**——CLI 生成的项目可以在 GUI 里接着跑，反之亦然。
+旧 CLI 用于 ProjectStore 工程，Web 使用独立存储与 Job Engine。请将旧工程导入新的 Web 工程，不要在同一目录交替使用 CLI 与 Web 执行。以下命令保留旧格式兼容。
 
 ## 四个子命令
 
@@ -37,10 +37,6 @@ insar-pilot-cli status /data/aoi_stack
 | `1` | 某个 shell 命令执行失败 |
 | `2` | 用法或配置错误（参数错误、项目缺失/损坏、生成被拒绝） |
 
-## 边界与互操作
+## 兼容边界
 
-- 数据下载、DEM 与 AOI 的准备目前仍在 **GUI** 中完成；CLI 侧重**生成、执行与状态查询**。一种常见分工：在 GUI 里下载数据并准备好 SLC/EOF/DEM，再把项目搬到无界面服务器上用 CLI 批量执行。
-- `run` 的每步状态、日志命名与批次拆分逻辑与 GUI 一致，因此中途可随时切回 GUI 用 Run 页面接续。
-- `generate` 与 GUI 一样，**不会**覆盖已存在的 `run_files`/`configs`——需要重来时先自行清理这些目录。
-
-完整界面说明见[完整手册](user-guide.md)。
+执行需要有效输入与科学环境。已有 run_files/configs 不自动覆盖，重跑使用新隔离目录。Web 导入保留来源，不搬迁旧目录。

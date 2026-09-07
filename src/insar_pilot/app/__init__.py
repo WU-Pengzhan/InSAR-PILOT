@@ -1,7 +1,5 @@
-"""Application entry point and app-level helpers."""
+"""Compatibility import for the Web application entry point."""
 
-from __future__ import annotations
-
-from insar_pilot.launch import main
+from insar_pilot.web.launch import main
 
 __all__ = ["main"]

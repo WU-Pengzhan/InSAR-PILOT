@@ -1,1 +1,0 @@
-"""Bundled locale JSON files."""

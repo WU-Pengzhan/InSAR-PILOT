@@ -40,3 +40,9 @@ htmlcov/
 
 # MkDocs build output
 site/
+
+# Local verification output and browser state
+.venv-web/
+frontend/test-results*/
+**/owned-browser-profile/
+artifacts/release-1.5.0/

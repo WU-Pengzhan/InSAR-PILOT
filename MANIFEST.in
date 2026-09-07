@@ -1,6 +1,14 @@
-include CHANGELOG.md
-include README_EN.md
-include environment.yml
-include install.sh
-include scripts/verify_install.py
+include CHANGELOG.md README_EN.md CITATION.cff
+include install.sh environment.yml mkdocs.yml
+recursive-include scripts *.py insar-pilot-web
+recursive-include frontend *.json *.ts *.vue *.css *.html *.png
+prune frontend/node_modules
+prune frontend/test-results*
+prune frontend/playwright-report
 recursive-include docs *.md *.png
+recursive-include src/insar_pilot/web/static *
+global-exclude __pycache__ *.py[cod]
+include AGENTS.md CONTRIBUTING.md SECURITY.md CODE_OF_CONDUCT.md uv.lock
+recursive-include tests *.py
+recursive-include .github *.yml *.md
+recursive-include archive *.md *.json

@@ -1,0 +1,1302 @@
+[
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/Breadcrumbs",
+    "sha256": "4a371b29e761ecb664fabf7b0e93170563f4dcfa81e2760ae5f6e1298c317a89",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/Crashpad/throttle_store.dat",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/Default/Affiliation Database",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/Default/AutofillAiModelCache/LOCK",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/Default/AutofillAiModelCache/LOG",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/Default/AutofillStrikeDatabase/LOCK",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/Default/AutofillStrikeDatabase/LOG",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/Default/BookmarkMergedSurfaceOrdering",
+    "sha256": "4489f9e3e454748b3521eb214e0a5694d562cff3d9ff511cb456953c8f534c00",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/Default/Cache/Cache_Data/data_0",
+    "sha256": "d2fdf0b60179e8e31e4bb8c9c5e4720648ce0b1a8deac5b963b42d9d452f81ec",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/Default/Cache/Cache_Data/data_1",
+    "sha256": "944b792ebfc6f67f15c45265bce00a7fd168e9b8b358daaa120975b4c0bd8c36",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/Default/Cache/Cache_Data/data_2",
+    "sha256": "7f3aa3faf4401b094639ad85d077c1c4389eaea78143ef8eec67f7e33ce624f0",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/Default/Cache/Cache_Data/data_3",
+    "sha256": "a8dc4e38260b8ba44d417430a90d8ab6bf29c85e0a6dd992a96c48cd79188b36",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/Default/Cache/Cache_Data/f_000001",
+    "sha256": "1f28a653830d07d9dd24d5f84d5479c111818387850deaa858e8599e15e31c2a",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/Default/Cache/Cache_Data/f_000002",
+    "sha256": "b2e5244c5f223a25060b2cbc2412928165263a1bc28635d2225e7151bc0d077a",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/Default/Cache/Cache_Data/f_000003",
+    "sha256": "4a4dbc62fa335e411b94a532be091c58c0c0c4fa731339f11722577d3cf6443b",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/Default/Cache/Cache_Data/f_000004",
+    "sha256": "14edca25a154933f03528114845978f51238a9e2753ff6aa74321d180b1d4561",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/Default/Cache/Cache_Data/f_000005",
+    "sha256": "90e734b891a5cf67004cd19fb56718b84d70fc0b758d207bc2c2e6b520e2f19a",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/Default/Cache/Cache_Data/index",
+    "sha256": "e720ae882757bb8248ffe988bd2401994226d0ae51c2f606cd7a92fc1136db2a",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/Default/Cache/No_Vary_Search/journal.baj",
+    "sha256": "9c169428d852e25bd59b27652ed533d2a1f09f96e4c329fa5e06f47e16731543",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/Default/Cache/No_Vary_Search/snapshot.baf",
+    "sha256": "0c2dd377ed0cc66161e9db8f89f7d8bcb3ad8c06c4a054bdcba214ab05f58c9a",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/Default/ClientCertificates/LOCK",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/Default/ClientCertificates/LOG",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/Default/ClientCertificates/LOG.old",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/Default/Code Cache/js/330439bee95104a1_0",
+    "sha256": "a38b58e86008269bc0a5e6f0676a2474d89949df4bd3695b77cc9b059918f661",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/Default/Code Cache/js/ad260aab85e8641f_0",
+    "sha256": "349b68907ab31dc31b27e7cc0c2ccc5d3016254f2a55f7424a95625d86f33c8a",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/Default/Code Cache/js/index",
+    "sha256": "fbcfe23a2ecb82b7100c50811691dde0a33aa3da8d176be9882a9db485dc0f2d",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/Default/Code Cache/js/index-dir/the-real-index",
+    "sha256": "eb84cd99692ee2927529d7f2c798f2f2f621bd57601b50b83ec4cfa46bbe4596",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/Default/Code Cache/wasm/index",
+    "sha256": "fbcfe23a2ecb82b7100c50811691dde0a33aa3da8d176be9882a9db485dc0f2d",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/Default/Code Cache/wasm/index-dir/the-real-index",
+    "sha256": "a7dbda3de6ce91f76ac393ae0ad31411d39ae0f09a1de9366e354ae95b32394d",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/Default/Collections/collectionsSQLite",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/Default/Cookies",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/Default/DIPS",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/Default/DawnGraphiteCache/data_0",
+    "sha256": "d6a5fe39cd672781b256e0e3102f7022635f1d4bb7cfcc90a80fffe4d0f3877e",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/Default/DawnGraphiteCache/data_1",
+    "sha256": "b1e963d702392fb7224786e7d56d43973e9b9efd1b89c17814d7c558ffc0cdec",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/Default/DawnGraphiteCache/data_2",
+    "sha256": "ec1702806f4cc7c42a82fc2b38e89835fde7c64bb32060e0823c9077ca92efb7",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/Default/DawnGraphiteCache/data_3",
+    "sha256": "e09f42c398d688dce168570291f1f92d079987deda3099a34adb9e8c0522b30c",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/Default/DawnGraphiteCache/index",
+    "sha256": "87422abab4717ce12b80f6d81f2e4c713144174e73ee52ff21f8953e26ca5594",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/Default/DawnWebGPUCache/data_0",
+    "sha256": "d6a5fe39cd672781b256e0e3102f7022635f1d4bb7cfcc90a80fffe4d0f3877e",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/Default/DawnWebGPUCache/data_1",
+    "sha256": "b1e963d702392fb7224786e7d56d43973e9b9efd1b89c17814d7c558ffc0cdec",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/Default/DawnWebGPUCache/data_2",
+    "sha256": "ec1702806f4cc7c42a82fc2b38e89835fde7c64bb32060e0823c9077ca92efb7",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/Default/DawnWebGPUCache/data_3",
+    "sha256": "e09f42c398d688dce168570291f1f92d079987deda3099a34adb9e8c0522b30c",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/Default/DawnWebGPUCache/index",
+    "sha256": "bbc84852bd8c021fe5b64eefbcab3389bd4708a3667b01e8e74b9bf5448d7352",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/Default/Device Bound Sessions",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/Default/Edge Profile Picture.png",
+    "sha256": "4f7f8c20f0e621ea75f201ae9b43309e49e034a66defcb42cb9a8d1f262610fc",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/Default/EdgeCoupons/coupons_data.db/LOCK",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/Default/EdgeCoupons/coupons_data.db/LOG",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/Default/EdgeCoupons/coupons_data.db/LOG.old",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/Default/EdgePushStorageWithConnectTokenAndKey/LOCK",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/Default/EdgePushStorageWithConnectTokenAndKey/LOG",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/Default/EdgePushStorageWithConnectTokenAndKey/LOG.old",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/Default/EdgeSessions/SessionRestoreLog",
+    "sha256": "431b16a26533636117e3aa836fc4ef1b40969779eebf7213632cb9c59a32fd87",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/Default/Extension Rules/LOCK",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/Default/Extension Rules/LOG",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/Default/Extension Rules/LOG.old",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/Default/Extension Scripts/LOCK",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/Default/Extension Scripts/LOG",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/Default/Extension Scripts/LOG.old",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/Default/Extension State/LOCK",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/Default/Extension State/LOG",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/Default/Extension State/LOG.old",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/Default/ExtensionActivityComp",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/Default/ExtensionActivityEdge",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/Default/GPUCache/data_0",
+    "sha256": "d6a5fe39cd672781b256e0e3102f7022635f1d4bb7cfcc90a80fffe4d0f3877e",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/Default/GPUCache/data_1",
+    "sha256": "b1e963d702392fb7224786e7d56d43973e9b9efd1b89c17814d7c558ffc0cdec",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/Default/GPUCache/data_2",
+    "sha256": "ec1702806f4cc7c42a82fc2b38e89835fde7c64bb32060e0823c9077ca92efb7",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/Default/GPUCache/data_3",
+    "sha256": "e09f42c398d688dce168570291f1f92d079987deda3099a34adb9e8c0522b30c",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/Default/GPUCache/index",
+    "sha256": "b95581bfe48a897b8df3873d354236c38398fc095be50dcbc244827997c2ab6a",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/Default/History",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/Default/HubApps Icons",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/Default/LOCK",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/Default/LOG",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/Default/LOG.old",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/Default/Local Storage/leveldb/LOCK",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/Default/Local Storage/leveldb/LOG",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/Default/Local Storage/leveldb/LOG.old",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/Default/Login Data",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/Default/Login Data For Account",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/Default/Network Action Predictor",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/Default/Network Persistent State",
+    "sha256": "9e13a6af4b32879202d9873a9de006d9815994f4078bb50cda241c53a382ec4d",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/Default/Nurturing/campaign_history",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/Default/Password_Diagnostics/PMLog_13433233965722336",
+    "sha256": "89b339f341cdad1115cae046fece1e3192859a5e55a16b625ab22e75475ac112",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/Default/PersistentOriginTrials/LOCK",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/Default/PersistentOriginTrials/LOG",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/Default/PersistentOriginTrials/LOG.old",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/Default/Preferences",
+    "sha256": "14d81103a7605ec79013ea5c8614c63721dd831f533b95c9b95311523191eb28",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/Default/PreferredApps",
+    "sha256": "42b55d126d1e640b1ed7a6bdcb9a46c81df461fa7e131f4f8c7108c2c61c14de",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/Default/README",
+    "sha256": "a0c9abae18599f0a65fc654ad36251f6330794bea66b718a09d8b297f3e38e87",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/Default/Reporting and NEL",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/Default/SCT Auditing Pending Reports",
+    "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/Default/Sdch Dictionaries",
+    "sha256": "6028bd681dbf11a0a58dde8a0cd884115c04caa59d080ba51bde1b086ce0079d",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/Default/Secure Preferences",
+    "sha256": "430f65e73dfda1dc8fa2a88df905852f36046fd84e113ac52f488e42c9851d87",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/Default/ServerCertificate",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/Default/Session Storage/LOCK",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/Default/Session Storage/LOG",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/Default/Session Storage/LOG.old",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/Default/Sessions/Session_13433233954006121",
+    "sha256": "c954d82113a567d1f8250d84a096c67d49764f9ae09fb06f3746f8819b366d55",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/Default/Sessions/Session_13433233960496454",
+    "sha256": "9b5726be96c9bbaf81f59973f46116ba1956822189a719eb4273aa02d851bcbf",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/Default/Sessions/Tabs_13433233956562139",
+    "sha256": "ee94d2dbf68e159c69716b5733508ed5d70ac4af28d205993dc54d59e220576a",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/Default/Sessions/Tabs_13433233960626820",
+    "sha256": "2c539d7bfccadb6d4fee17d8df9662ce5fe8b47eea406670c0673570223a9317",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/Default/Shared Dictionary/cache/index",
+    "sha256": "fbcfe23a2ecb82b7100c50811691dde0a33aa3da8d176be9882a9db485dc0f2d",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/Default/Shared Dictionary/cache/index-dir/the-real-index",
+    "sha256": "80030e78ab02869fde398112db82f6e2bd271255b4d3d3aff6f8eb81b902ecaa",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/Default/Shared Dictionary/db",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/Default/Shortcuts",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/Default/Site Characteristics Database/CURRENT",
+    "sha256": "0f1bad70c7bd1e0a69562853ec529355462fcd0423263a3d39d6d0d70b780443",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/Default/Site Characteristics Database/LOCK",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/Default/Site Characteristics Database/LOG",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/Default/Site Characteristics Database/LOG.old",
+    "sha256": "03d1acde1cef2afa91b13a68c6db0808ce238ce97dd60e9557c09dab2f7ecd15",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/Default/Site Characteristics Database/MANIFEST-000001",
+    "sha256": "16b1a9752f51bc660c3854d258bc084ad8f00bd8a99d5e65ba38e7a3d08fd8e0",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/Default/Site Characteristics Database/lost/MANIFEST-000001",
+    "sha256": "16b1a9752f51bc660c3854d258bc084ad8f00bd8a99d5e65ba38e7a3d08fd8e0",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/Default/Sync Data/LevelDB/LOCK",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/Default/Sync Data/LevelDB/LOG",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/Default/Sync Data/LevelDB/LOG.old",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/Default/Top Sites",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/Default/TransportSecurity",
+    "sha256": "3ad224128c4c5201526d44b2b033d637792838120f6c377f29269c3e833e6166",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/Default/Trust Tokens",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/Default/Vpn Tokens",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/Default/Web Data",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/Default/Workspaces/Logs/Workspaces Diagnostic Log",
+    "sha256": "9c41eb0885355f8609a3cbfeae08a078a0104aecdbc0e3c293ab029888515f28",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/Default/arbitration_service_config.json",
+    "sha256": "10fd9f7498f2534271aec65104fa7659b1bcf58a593dc3a526dfc099e1f82b91",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/Default/commerce_subscription_db/LOCK",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/Default/commerce_subscription_db/LOG",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/Default/commerce_subscription_db/LOG.old",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/Default/declarative_performance_observer.db",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/Default/discount_infos_db/LOCK",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/Default/discount_infos_db/LOG",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/Default/discount_infos_db/LOG.old",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/Default/discounts_db/LOCK",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/Default/discounts_db/LOG",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/Default/discounts_db/LOG.old",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/Default/heavy_ad_intervention_opt_out.db",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/Default/parcel_tracking_db/LOCK",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/Default/parcel_tracking_db/LOG",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/Default/parcel_tracking_db/LOG.old",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/Default/shared_proto_db/metadata/LOCK",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/Default/shared_proto_db/metadata/LOG",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/Default/shared_proto_db/metadata/LOG.old",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/FirstLaunchAfterInstallation",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/GrShaderCache/data_0",
+    "sha256": "89d9dadd70358bdf106a968ee41a26f24c411a8d3450b2abb0da5450e00873ea",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/GrShaderCache/data_1",
+    "sha256": "1716f762049268f4cb1ff4f520745a0ed7d42d157a2965ab384ccd23e303ffff",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/GrShaderCache/data_2",
+    "sha256": "ec1702806f4cc7c42a82fc2b38e89835fde7c64bb32060e0823c9077ca92efb7",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/GrShaderCache/data_3",
+    "sha256": "91b36fe9b3d8a5c9e1cd09fffa2a44b45334891847c3d76d5aa859d0a70b9465",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/GrShaderCache/index",
+    "sha256": "a85eebf508de58c1d94f1a3909c4ab49f8e959674d4b73ad7b499c224275008c",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/Last Browser",
+    "sha256": "9c70f766d3b84fc2bb298efa37cc9191f28bec336329cc11468cfadbc3b137f4",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/Last Version",
+    "sha256": "e920c1dd0aa61b578a8b0281445c36665d291b37e655abc389ff39cc79bac92d",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/Nurturing/campaign_history",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/ShaderCache/data_0",
+    "sha256": "d6a5fe39cd672781b256e0e3102f7022635f1d4bb7cfcc90a80fffe4d0f3877e",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/ShaderCache/data_1",
+    "sha256": "b1e963d702392fb7224786e7d56d43973e9b9efd1b89c17814d7c558ffc0cdec",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/ShaderCache/data_2",
+    "sha256": "ec1702806f4cc7c42a82fc2b38e89835fde7c64bb32060e0823c9077ca92efb7",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/ShaderCache/data_3",
+    "sha256": "e09f42c398d688dce168570291f1f92d079987deda3099a34adb9e8c0522b30c",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/ShaderCache/index",
+    "sha256": "b1f09a76cc41868aaaf3b9b13d54a5bcd72a56caca6a056caa9861cae2491ef5",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/SmartScreen/RemoteData/edgeSettings",
+    "sha256": "42ccb5159b168dbe5d5ddf026e5f7ed3dbf50873cfe47c7c3ef0677bb07b90d4",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/SmartScreen/RemoteData/edgeSettings_2.0-0",
+    "sha256": "e6beb5ac43dfa3e05ca3c40c4e5de7d763e2e0580203ad9034c6f0527ac0e45b",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/Variations",
+    "sha256": "b26da4f8c7e283aa74386da0229d66af14a37986b8ca828e054fc932f68dd557",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/VariationsRuntimeSeedV2",
+    "sha256": "1560b22b2264f7cb6b7f6910164813f76c5e8a06fb1acf85b375e687ee49c1ad",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/VariationsSafeSeedV2",
+    "sha256": "1560b22b2264f7cb6b7f6910164813f76c5e8a06fb1acf85b375e687ee49c1ad",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/VariationsSeedV2",
+    "sha256": "b4cc4174735c28360b9081be3c3d0552d8a4b3cdb54431ac00ed0d622bab6296",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/component_crx_cache/metadata.json",
+    "sha256": "2771d13c637c267132afff9db67537bef95708534b79ae8d954254c4e64e4e0f",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "artifacts/browser-reconnect-2026-09-07/browser-restart/reconnect-reopens-the-same-93fbf-r-the-browser-process-exits-windows-edge/owned-browser-profile/first_party_sets.db",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "src/insar_pilot/app/settings.py",
+    "sha256": "1dccbe433399ec136b98326ee5b361057fa82e8fa0883644dd7051da8942167a",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "src/insar_pilot/controllers/__init__.py",
+    "sha256": "1e06996cbaaba328b11fc313e87113b7b442b5be43b7f3d16516669339a8b7eb",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "src/insar_pilot/controllers/download_coordinator.py",
+    "sha256": "b460ebe62be50092305e51cc14f627c11aa75629f9c486badd702ccaf4298541",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "src/insar_pilot/i18n/__init__.py",
+    "sha256": "a80535cc9e3df9a40f217831746510fa767a53265d2670c344dc747b0c7acb03",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "src/insar_pilot/i18n/locales/__init__.py",
+    "sha256": "f8649197146b3ec34eccc58d5a8b93a752503685bcd1d7d6bc55e61fe828bca7",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "src/insar_pilot/i18n/locales/en.json",
+    "sha256": "9b860a3c66af2711b4afe209f382dc2759bb543c2dccdb8832af6756c0de6da2",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "src/insar_pilot/i18n/locales/zh.json",
+    "sha256": "63702136ca0a13eee0fa39d7e8d62b1fa7de04dc1c32e956f9eeb3e2e099c77b",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "src/insar_pilot/i18n/translator.py",
+    "sha256": "80b5b907de29d02e541d8e7c2327fb461c586cc41456c4afd8d21bb6bb75e8af",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "src/insar_pilot/launch.py",
+    "sha256": "977628f783f637c097dad21909ddf689c667b67d8560b425a39010dcb5e346d2",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "src/insar_pilot/services/run_executor.py",
+    "sha256": "2c5bc2ff8bb16ce6ed81e8e88ed2475f846b3a62fc16e1765a7a061fd3701215",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "src/insar_pilot/ui/__init__.py",
+    "sha256": "a312622df3dea2ccf4a798cff5fd3cdd9eaedf637d31fdc33fc9ced6663f0e95",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "src/insar_pilot/ui/assets/__init__.py",
+    "sha256": "fad67ed975c311bee45cba87fef7536e386f4cf09564669600257f32275d31a8",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "src/insar_pilot/ui/assets/logo-mark.png",
+    "sha256": "14edca25a154933f03528114845978f51238a9e2753ff6aa74321d180b1d4561",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "src/insar_pilot/ui/assets/logo.png",
+    "sha256": "e03bca22ebcb7b219c32b389a12421029488cd1f6198891de1ee76a57c32e26b",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "src/insar_pilot/ui/controllers/__init__.py",
+    "sha256": "dc8e49b86cfe74c856e57d52993aba5047083fe40bac201f13c38640e869e919",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "src/insar_pilot/ui/controllers/download_controller.py",
+    "sha256": "db38d3edea60520481575955a3120ac37fa6d3aedfb28b87ff69372f958eb659",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "src/insar_pilot/ui/controllers/results_controller.py",
+    "sha256": "48b9d266053c9e1d4740c1c88cbd4722656006c40506589d546c1421a09a3735",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "src/insar_pilot/ui/controllers/run_controller.py",
+    "sha256": "2a4ec9867f0dd2298c4f7759de979cc211790698e2d0708eefb2b23e5e2d6e76",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "src/insar_pilot/ui/controllers/setup_controller.py",
+    "sha256": "ae3fbc325e1b833f887c97f1df64565c237adac430f87a9601ed653aac76efd9",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "src/insar_pilot/ui/download_worker.py",
+    "sha256": "8bc0a8bf932cf5f57b6fa926152487bd35b6b2159400c0077abfc45ce1553a9d",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "src/insar_pilot/ui/features/search/__init__.py",
+    "sha256": "3ba461e23698ff7c8a0e25aa51f565f0d0ad4d301731cde22272a37b21cbae9d",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "src/insar_pilot/ui/features/search/capability_view_model.py",
+    "sha256": "2d0178fb167a8f56e20b31f0bb7ff3db548704b528fb5cf79ad820941472ce88",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "src/insar_pilot/ui/features/search/inspector.py",
+    "sha256": "1faa891b1c73d045df3e7d5bcac50041739600a4d685dfeef7a9bae47951a132",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "src/insar_pilot/ui/features/search/map_view.py",
+    "sha256": "59057c5d3c95f11f94977ea046394ae3a4220c24582ec8507db898e4dc142ef2",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "src/insar_pilot/ui/features/search/presenter.py",
+    "sha256": "b83f8f707e77dbf0ff956e39bf02c286b0adc55ced58d33ba30f712a1d2a33b4",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "src/insar_pilot/ui/features/search/task_runner.py",
+    "sha256": "28bed35d99414183a4a8152713074ad858dc32173c37c4d37ec0393f07670163",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "src/insar_pilot/ui/features/search/workspace.py",
+    "sha256": "8b8df50a6f53d7584bbed40aaaabdaf9f168a5ebbedeb6a087fe9959a07da19d",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "src/insar_pilot/ui/fonts.py",
+    "sha256": "3fb1c3bf104719a21e4116b81c4a9ef9cc2172e607f84015d479805f03745e4e",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "src/insar_pilot/ui/icons.py",
+    "sha256": "312716f5cc9802526cd8f893f8a30393c296404589758a270fc9e5867f4671d9",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "src/insar_pilot/ui/main_window.py",
+    "sha256": "cbcc966c7ee119dd05a8bc47759d8c453dcb01c559c5c812c1bd4c40426f3f4d",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "src/insar_pilot/ui/models/__init__.py",
+    "sha256": "dcf3eec2afce1bb83fe596e6745b52f98d785bd060bb1add73e6ee84502a0dff",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "src/insar_pilot/ui/models/search_results.py",
+    "sha256": "0faff2fd0297a947d518f75d24a560ef5251fa22c274c045d235ba304320c6b5",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "src/insar_pilot/ui/pages/aoi_iw_page.py",
+    "sha256": "ae9aabf4102d0bcc12c711a5ff7b820d706aa9b60f09f25475194e1c9ce51574",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "src/insar_pilot/ui/pages/data_download/__init__.py",
+    "sha256": "8e66961e0106cef7bb7d1312f1fa3641247dc03160484b73882805c580e0f2e0",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "src/insar_pilot/ui/pages/data_download/actions_section.py",
+    "sha256": "9ea2857e496fd55444fdf4544b161d5f48179c62299082e060f92eab026c3bb4",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "src/insar_pilot/ui/pages/data_download/base.py",
+    "sha256": "f2fd957b08689ab186ac6e957684a25aa3f6ccef37dbfd196b22218acef1d407",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "src/insar_pilot/ui/pages/data_download/credentials_section.py",
+    "sha256": "d80187f51f64a22f5896a6c026f53ce485d52cebd439be25b069046e15418fa4",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "src/insar_pilot/ui/pages/data_download/page.py",
+    "sha256": "8a71f7808046490e596e7ffd31612ef1573e976e7b9e19c0ba1a2f9b57d3e92d",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "src/insar_pilot/ui/pages/data_download/results_panel.py",
+    "sha256": "69e4e957c3b9f529f2934399a8a22551b98235915197b237a2edaaed8dc288ec",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "src/insar_pilot/ui/pages/data_download/scroll_filter.py",
+    "sha256": "b4ea43f9dd5da8921a4bc075f2f87e654cfa3868f9e953cd561edf07a15b096c",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "src/insar_pilot/ui/pages/data_download/search_section.py",
+    "sha256": "060c906af47b5cb27cc9330ede55836c56264059a7b2998a9c159dcdc4b7d4b2",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "src/insar_pilot/ui/pages/data_download/workspace_section.py",
+    "sha256": "5276545096f3eff3174342a9cc06fe5a0a90fc712257894673a6ca76ce7b1e85",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "src/insar_pilot/ui/pages/data_download_page.py",
+    "sha256": "4c6c3f68ccee5b583744b2a4607d9cf2ac5fc06cf406beeed53d4c7aed70459f",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "src/insar_pilot/ui/pages/data_sources_page.py",
+    "sha256": "687bb3c7fe35acf1c371e4acd53e11bebac58747a8c5fb51adbe3e9ecf92614a",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "src/insar_pilot/ui/pages/processing_plan_page.py",
+    "sha256": "c548fa82724db91ff8ff0e92c1175b3f1da8ed2e026fcb16059998853bbc875e",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "src/insar_pilot/ui/pages/processing_setup_page.py",
+    "sha256": "5a651a3e6ffc94fc7f9202e6a3990a7138840d78009a7cf676346e04dc1c678c",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "src/insar_pilot/ui/pages/project_start_page.py",
+    "sha256": "88e7028dac6e11fae3ea295368e6209665dd28b3d98e49c5bac4d4988d6f8a03",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "src/insar_pilot/ui/pages/results_page.py",
+    "sha256": "7d69a2485a232906b31b67f9d28cd31b2131f0b6bbb59459475a80f45ddfaef7",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "src/insar_pilot/ui/pages/run_monitor_page.py",
+    "sha256": "f62c965fa04b45cdff604fd4609e7094caa396331df6d63be2b8a5a37a1b9833",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "src/insar_pilot/ui/retranslation.py",
+    "sha256": "e3335a8284afeebd34e98189e4fd86c6d20cb0105cede6bba11e9be03fcd3554",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "src/insar_pilot/ui/styles/__init__.py",
+    "sha256": "66902e8a7d721a99869bea86e8b2b49fd89ae5475c4b0129941d7fa0cc981556",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "src/insar_pilot/ui/styles/base.py",
+    "sha256": "8303ca5f6e1ca04d01ef631315250c055427da0e946ce55453032e6dcfd2933a",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "src/insar_pilot/ui/styles/components.py",
+    "sha256": "446f996c12c5a5e4d7d89709113099eb811d63e72d5cbf5fe88aa2c892419db5",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "src/insar_pilot/ui/styles/status.py",
+    "sha256": "bed465611e8cfdea825bb128520c5b711dabf4d174822aa9ab4ee69289cbfd28",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "src/insar_pilot/ui/styles/tokens.py",
+    "sha256": "aa8b329621e7292f39fbe9415729bee0d60730c4dbcd882cdc319bd9942df10e",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "src/insar_pilot/ui/styles/widgets.py",
+    "sha256": "49dd5f96dd8aaf3867101aafe253355f4b25906e2c5a5f78b901b9da83b33286",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "src/insar_pilot/ui/task_pool.py",
+    "sha256": "98bdd56ecf5295d1d9eb8c5d7779c076617517e549ecf7768a28a6ac744ca1e7",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "src/insar_pilot/ui/theme.py",
+    "sha256": "a405a0cea5ca7f864811992af41d9794925d888571ccacaf0cccddc8255a449b",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "src/insar_pilot/ui/widgets/assets/__init__.py",
+    "sha256": "11516514ef443137c0a4e7dd0e5302a73cb3d35e2bebf371d3da3a403ba65326",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "src/insar_pilot/ui/widgets/assets/leaflet.css",
+    "sha256": "a7837102824184820dfa198d1ebcd109ff6d0ff9a2672a074b9a1b4d147d04c6",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "src/insar_pilot/ui/widgets/assets/leaflet.js",
+    "sha256": "db49d009c841f5ca34a888c96511ae936fd9f5533e90d8b2c4d57596f4e5641a",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "src/insar_pilot/ui/widgets/collapsible_section.py",
+    "sha256": "d9f42c6039606a7695873d91ae2de03a1465731a55223815996d1d6816cb0278",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "src/insar_pilot/ui/widgets/combo_wheel_guard.py",
+    "sha256": "60af2ea395575ec66f5bb1e321dea2cec62a20c210e68e83ee67b38cc8958b94",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "src/insar_pilot/ui/widgets/command_preview.py",
+    "sha256": "6dd33cd6b67f945734eb6a0a1b977981277b5947a64c705b1da532273e766a62",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "src/insar_pilot/ui/widgets/footprint_map.py",
+    "sha256": "f403eb80d9cc03fe7d032664688cc3c518ab051f85cd0a97cc1df0ea8216dee0",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "src/insar_pilot/ui/widgets/geometry_verify_panel.py",
+    "sha256": "88fa8f720a8b3bc1db3551a766786a49788abb6ed3586c52eeb6ca64a4437acc",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "src/insar_pilot/ui/widgets/log_console.py",
+    "sha256": "a5c795920af7844a5fb339b57f5352b1ff5117d92f361b421094b1a055dfc5b0",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "src/insar_pilot/ui/widgets/page_scaffold.py",
+    "sha256": "28b710e9609413257fb6500128c9387eb9edf5a9749513d82583abe454b138c0",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "src/insar_pilot/ui/widgets/parameter_grid.py",
+    "sha256": "9b7017a9ab0f14c089746fe16f34ea611122c62ae7e46ef3220a35c2b4788c50",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "src/insar_pilot/ui/widgets/path_picker_row.py",
+    "sha256": "b5385289900ab53439ac8fbcd999c0f7de97b93f7b678ffd129ac989ee572687",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "src/insar_pilot/ui/widgets/preflight_check_list.py",
+    "sha256": "457b1b87aa0c5b7253fe2230c18612b1bf65d4bc5b198e282ee54f5b58475e78",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "src/insar_pilot/ui/widgets/preview_panel.py",
+    "sha256": "21c863b59cb82e563b0e8a2feeaf84f9a7a68cd01af6bc387705171ea8255b65",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "src/insar_pilot/ui/widgets/property_form.py",
+    "sha256": "c8af27ee3ba8f0fff5d5ed34e00b811bdd0f36bb07780dd99953dc268432dd03",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "src/insar_pilot/ui/widgets/run_step_monitor.py",
+    "sha256": "edbea58b40bfb1051dfc8ed373f5b3bd9623747237e9d8faf2b4930fadb9ace1",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "src/insar_pilot/ui/widgets/status_badge.py",
+    "sha256": "62692dbfdab0dfe4684f72d2ef5707128c1214dd7807bea5a9617f9a3a5b1fb4",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "src/insar_pilot/ui/widgets/summary_card.py",
+    "sha256": "2ae968ee1929e3714a54bab5ce0e5352daf3830adbecdbf6fb7b6015a9568d85",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "src/insar_pilot/ui/widgets/task_progress_panel.py",
+    "sha256": "85168fc27228e3b409b9d44994fb6f9f089a1eda21ba132b4c1c7b3d0489938d",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "src/insar_pilot/ui/widgets/technical_details_panel.py",
+    "sha256": "4ef1a8132ce73700681492b71ee6bb2d63ad1c41e4923800db99b4a56ab29dd6",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "src/insar_pilot/ui/widgets/top_workflow_stepper.py",
+    "sha256": "4ce044c151f76d8aefb195d3ed08e6ba8a88b249c227c3dc92a989d9b52d8942",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "src/insar_pilot/ui/widgets/wizard_action_bar.py",
+    "sha256": "a5f75921193fc247a43baafc29590224faa487e4e298718e9a6736c9572ef3c0",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "src/insar_pilot/ui/widgets/workflow_nav_item.py",
+    "sha256": "7f1cf17e6eb12db90ea3cbff971319459cad4583e64d3e177549c1128fe5ca73",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "src/insar_pilot/ui/widgets/workflow_step_tree.py",
+    "sha256": "1ec640ff674eccd87895fd85c90d9d9058449b7d79e19dd74aeff8c6475d0124",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "src/insar_pilot/ui/workbench/__init__.py",
+    "sha256": "6f4f4c3f949345d6654f97154c27ebbd5523fe543d3957e61fef8a6b867cef38",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "src/insar_pilot/ui/workbench/layout_controller.py",
+    "sha256": "00e41c84f7dc94ed4f55881d2b57eb84bd97084ece87c6609ffe59c7956b3367",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "src/insar_pilot/ui/workbench/window.py",
+    "sha256": "ade4c7ccb390be5cb9fcc4458256cbd7cc1a498c1e72a5bef056997915d63352",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "tests/conftest.py",
+    "sha256": "ec1ab13bd0d383e4c961f6801fe2b27303ecc08385da9cceff0e0e826fdb9326",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "tests/test_branding.py",
+    "sha256": "85a8efff953faa87304a7622f919ed277157a6ca926065bd59aec54410112642",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "tests/test_download_controller.py",
+    "sha256": "6cdbb38564352b50df01eb0e712d5123df8181ab1fed4b0e24554e145070cc21",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "tests/test_i18n.py",
+    "sha256": "aa0c1241ca61ab3312f521e1ced843be28d5e45de6adc67023fd8c5c28a3114f",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "tests/test_launch.py",
+    "sha256": "8998e40ef331a7233f4c34541a56f5f35e1aa1b63e23da6d1ced49f2be08adb7",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "tests/test_log_console.py",
+    "sha256": "a349f2eb4d5e55331b8ee13bb902027429eb40e7a510fc890352d735b31070cf",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "tests/test_preview_panel.py",
+    "sha256": "93aa722b42685cd2f100a625b47d565d692c797522ed619e5aef62468d4ce5e7",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "tests/test_run_executor.py",
+    "sha256": "da7a2ebbf28a4bd8f8b9ec3df2fc35457510766d9ceee3c048a96bf78d261bf3",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "tests/test_search_capability_view_model.py",
+    "sha256": "4a9e663ccc34ccd1822f9dc245d8aa55852600093154310cca307530c1d8e3ff",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "tests/test_search_task_runner.py",
+    "sha256": "c7208750acd5a7e7ab13b83a2d49d3c58b28bf88060d03974adcdf9fb3a82f52",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "tests/test_task_pool.py",
+    "sha256": "756e0b91d4223f4bc75f989819a53984b1c0c3380b9f8860f4bf3b3df4876888",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "tests/test_theme.py",
+    "sha256": "f1349e6a65940a95b53a0a0561dde6805b4a0ac4496a711514b6d23facc55f46",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "tests/test_ui_phase3.py",
+    "sha256": "8d1cf2d66e80cd32bbe611104f14117120af15839b95df8369ca6e51c0fd93c4",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "tests/test_workbench_launch.py",
+    "sha256": "a99e1a89faca2ead184349d1edea34e03174fe0c5e00d5d3a13f8784582d0759",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "tests/test_workbench_layout.py",
+    "sha256": "e0370a45080752bce3ddfa6d6f67feb2b98f20e21e5d3ea1abb1a8c43269d146",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "tests/test_workbench_model.py",
+    "sha256": "440d9dfd9271734b44c808987ff56632621bb254b4a3505caee047d2cfdf359e",
+    "source_commit": "5a6df49"
+  },
+  {
+    "path": "tests/test_workbench_search.py",
+    "sha256": "558402a3c40d874cf032c12dde41346f3e69a3a57f982ee96b31975864e76193",
+    "source_commit": "5a6df49"
+  }
+]

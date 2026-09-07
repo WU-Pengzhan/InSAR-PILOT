@@ -1,96 +1,69 @@
-# InSAR-PILOT
+<p align="center"><img src="docs/assets/branding/logo.png" width="520" alt="InSAR-PILOT"></p>
 
-<p align="center"><img src="docs/assets/branding/logo.png" width="640" alt="InSAR-PILOT logo"></p>
+<h1 align="center">让雷达影像工作，更有条理。</h1>
+<p align="center">从研究区域出发，在一个工作台里寻找影像、管理下载、组织工程。</p>
+<p align="center">本机运行 · 浏览器使用 · 中英双语 · 开源免费</p>
+<p align="center"><a href="https://github.com/WU-Pengzhan/InSAR-PILOT/releases/tag/v1.5.0">获取 1.5.0</a> · <a href="docs/quickstart.md">快速开始</a> · <a href="https://wu-pengzhan.github.io/InSAR-PILOT/">使用文档</a> · <a href="README_EN.md">English</a></p>
 
-**面向科研用户的本机 SAR/InSAR Web 工作台。**
+---
 
-[English](README_EN.md) · [当前架构](docs/architecture/overview.md) · [实施状态](docs/architecture/migration.md) · [Sentinel 页面划分](docs/architecture/sentinel-workbench.md)
+## 你的 SAR / InSAR 工作台
 
-## 当前开发方向
+InSAR-PILOT 面向使用雷达影像开展研究的用户，把工程、地图、影像清单和后台任务放在同一个清晰的界面里。你可以先探索数据，也可以从一个已有工程继续工作，让影像找到归属，让任务进度随时可见。
 
-2026-09-05 起，Web 是唯一继续开发的产品端：先完善 Sentinel-1 / ISCE2 TOPS，再推进 NISAR / ISCE3。一个工程锁定一个传感器 Profile，两种传感器可使用不同处理页面。
+**1.5.0 聚焦 Sentinel-1 的工程管理与检索下载体验。** 后续将逐步完善数据准备、参数配置、运行监控和成果查看。
 
-近期目标是取得 phase stack；具体 SLC/缠绕干涉相位合同待确认。解缠排障和大范围相位数值评价暂缓，基础输入、执行和成果结构检查保留。五页职责已于 2026-09-06 确认，接下来按单页指令设计、实现和验收。
+![InSAR-PILOT Web 工作台：地图与影像检索](docs/assets/screenshots/web-search.png)
 
-PySide6/Qt 界面停止继续开发。旧科学算法、下载核心、数据 reader、NISAR/openSEPPO 与验收证据继续复用和保留。
+## 从地图找到需要的影像
 
-## 已有 Web 能力
+在地图上圈定研究区域，结合日期、卫星、轨道和极化等条件缩小范围。影像覆盖与结果清单放在一起，便于判断哪些场景值得保留。
 
-- 工程创建/打开、数据绑定、配置修订、Library 引用。
-- Sentinel ABCD/NISAR 分组检索、AOI 和纯影像底图、下载清单与暂停/继续/取消/重试。
-- 支持 Linux 与 Windows 浏览器访问 WSL 的文件选择。
-- 已准备输入的处理计划、运行历史、独立目录、日志、基础成果/QC 和地图。
-- 中英文、明暗主题、可收起属性栏、明确的后台连接与退出提示。
+- **按研究区域查找**：支持地图绘制范围，也可输入范围或使用已有区域文件。
+- **灵活筛选 Sentinel-1**：A、B、C、D 卫星可分别选择，按研究需要组合条件。
+- **边查边选**：已选影像独立保留，继续调整检索条件时不用重新挑选。
+- **确认后再下载**：预览影像、附属数据和保存位置，再决定创建工程、加入工程或仅下载。
 
-当前是迁移预览版。专业参数表单、完整数据准备和成果交互仍需逐页完善。
-已确认的五页方案尚未逐页实现；既有测试与科学执行边界见实施状态。
+## 每个研究，从一个清晰的工程开始
 
-## 运行 Web 预览版
+打开工作台，可以新建工程、打开已有工程，或直接进入数据检索。最近工程帮助你快速返回手头的研究，侧边工程浏览器让数据与工作内容始终可找到。
 
-在仓库中建立独立应用环境，科学处理继续使用显式指定的原处理环境：
+工程内的数据、处理过程和成果分区管理；共享数据仓库支持已经获取的数据再次使用。关闭工程后，后台下载仍会继续。
 
-```bash
-python -m venv --copies .venv-web
-.venv-web/bin/pip install -e '.[web]'
-.venv-web/bin/insar-pilot-web
-```
+![工程首页：新建、打开与直接检索](docs/assets/screenshots/web-home.png)
 
-如需在任意目录使用 `insar-pilot-web`，可安装用户级入口（从仓库目录执行）：
+## 下载有进度，也有来处
 
-```bash
-# 使用长期保留的 Python；系统 Python 需要安装 python3-venv。
-/usr/bin/python3 -m venv --copies "$HOME/.local/share/insar-pilot/web-venv"
-"$HOME/.local/share/insar-pilot/web-venv/bin/python" -m pip install -e '.[web]'
-install -Dm755 scripts/insar-pilot-web "$HOME/.local/bin/insar-pilot-web"
-```
+从提交到完成，在下载中心查看每个批次的状态、影像清单与实际保存位置。需要中断时可以暂停或取消，后续继续或重试也有入口，历史尝试保留可查。
 
-Web 安装不包含 ISCE2/ISCE3。打开顶部“运行环境”可检查所选 Python 的必要组件并查看失败原因；环境由用户自行管理，不区分包管理方式，详见[检测说明](docs/architecture/runtime-support.md)。
+- 按场景、批次或路径查找任务，分页查看历史。
+- 按需获取轨道文件与覆盖整景范围的高程数据。
+- 切换工程、离开页面或关闭浏览器，后台任务仍独立运行。
 
-确保 `~/.local/bin` 在 PATH 中。不需激活 `insar` 即可运行 Web；科学环境单独配置。
-环境与应用状态不得放在 `/tmp`，也不要从临时 venv 创建正式 venv。
-用户级入口默认使用 `~/.local/state/insar-pilot` 保存应用状态；工程数据仍留在各自工程目录。
-若旧入口提示 Python `not found`，先检查 `readlink -f ~/.local/share/insar-pilot/web-venv/bin/python`，
-修复失效环境后重新安装入口；不要删除工程或 Library 来修复启动问题。
+## 适合持续工作的界面
 
-安装有可用启动命令时：
+**中英双语与明暗主题**，适应不同阅读习惯。可调整的工程栏、可收起的属性面板，把更多空间留给地图和当前任务。
 
-```bash
-insar-pilot-web --no-browser
-insar-pilot-web --status
-insar-pilot-web --stop
-```
+在 Ubuntu 上使用，或让 Windows 浏览器连接 WSL 中的工作台。同一时刻一个窗口进入工作区，其他窗口自动等待；关闭当前窗口后，等待页自动接续。
 
-浏览器可自行选择，不必使用系统默认浏览器：
+## 一条逐步完善的研究流程
 
-```bash
-insar-pilot-web --browser firefox
-insar-pilot-web --browser chrome
-insar-pilot-web --browser edge
-insar-pilot-web --no-browser
-```
+| 工作环节 | 1.5.0 中的状态 |
+| --- | --- |
+| 检索与下载 | 已提供地图检索、影像选择、获取预览和下载管理 |
+| 数据与准备 | 已有基础输入能力，完整页面待完善 |
+| 参数与生成 | 已有底层能力，专业参数页面待完善 |
+| 运行 | 已有任务、日志与历史基础，完整流程交互待完善 |
+| 成果与 QC | 已有基础成果能力，专业浏览与检查页面待完善 |
 
-每次选择一条命令即可；WSL 中 browser 指 Windows 上对应浏览器，原生 Linux 指本机浏览器。
-`--no-browser` 只启动后台。后台运行时，任意浏览器可直接打开 `http://127.0.0.1:8765/`。同一时刻只有一个窗口/标签页进入工作台，其余页面显示占用提示并自动等待。
-首次访问、切换浏览器或清除 Cookie 后由页面自动建立本机会话，无需通过启动器授权、复制 token 或再次输入命令。
-关闭当前窗口后，等待页会自动连接；异常断开约 15 秒释放占用（自动重试可能再需数秒），不取消后台任务。没有抢占按钮。
-`--browser` 只是自动打开指定浏览器的便利选项。后台正常重启保持指定端口。
-端口被其他服务占用时会明确报错，不再静默换端口。可用 `--port` 显式指定其他端口。
+当前版本优先服务 Sentinel-1；NISAR 现有后端能力保留，专属体验后续推进。真实账号长时下载和完整科学流程仍有独立验收事项，详见[版本说明](docs/releases/1.5.0.md)。
 
-Ubuntu 使用 Linux 浏览器；WSL 后台可由 Windows 浏览器连接 localhost。
-关闭浏览器不停止后台任务；“退出应用”在没有活动任务时关闭服务。
-发布资源包含编译后的前端；Node 用于前端开发。
+## 开始使用
 
-当前安装元数据仍包含 Qt 依赖，`insar-pilot` 默认命令仍指向旧端。
-这是待单独清理的安装/入口状态，不代表继续开发桌面端；当前请使用 `insar-pilot-web`。
-本轮产品方向调整没有修改处理环境或安装入口。
+从 [GitHub Releases](https://github.com/WU-Pengzhan/InSAR-PILOT/releases/tag/v1.5.0) 获取版本，按[安装指南](docs/installation.md)完成本机安装，再跟随[快速开始](docs/quickstart.md)探索第一个研究区域。
 
-## 开发与历史
+需要帮助或有功能建议？欢迎提交 [Issue](https://github.com/WU-Pengzhan/InSAR-PILOT/issues)。开发与贡献请阅读 [CONTRIBUTING](CONTRIBUTING.md)。
 
-阅读 [AGENTS.md](AGENTS.md)、[CONTRIBUTING](CONTRIBUTING.md) 和[工作交接索引](docs/handoff/index.md)。
-[每页提示词](docs/handoff/prompts.md)用于启动设计、实现或接续任务。
-当前规范只在 `docs/architecture/`；`docs/legacy/` 与 `archive/` 中的文件为历史证据。
-旧指导按文件清单和 SHA-256 归档于 `archive/guidance/2026-09-05-before-web-sentinel/`。
-该归档不是完整源码/数据备份；工作树现有修改和科学数据均保留。
+## 开源与致谢
 
-[文档站点](https://wu-pengzhan.github.io/InSAR-PILOT/) 的线上内容可能早于当前本地工作树。
-项目使用 [Apache-2.0](LICENSE) 许可证。
+InSAR-PILOT 使用 [Apache-2.0](LICENSE) 许可证。感谢 [ISCE2](https://github.com/isce-framework/isce2)、[ISCE3](https://github.com/isce-framework/isce3) 与 ASF 等开源项目和数据服务对雷达研究的支持。本项目为独立工作台，不是这些机构的官方产品。

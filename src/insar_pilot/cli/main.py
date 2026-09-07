@@ -1,15 +1,8 @@
-"""Headless CLI entry point for InSAR-PILOT project workflows.
+"""Legacy project CLI; Web projects use the application API and Job Engine.
 
-Provides ``init``/``generate``/``run``/``status`` subcommands that reuse the same
-Qt-free service layer as the GUI (``ProjectStore``, ``StackWorkflowService``,
-``ShellCommandBuilder``, ``runfile_plan``). Because both front-ends persist
-through :class:`ProjectStore` into the same ``project.pilot`` file and write logs
-under the project's ``logs/`` directory with identical naming, a project created
-or advanced from the CLI is fully interchangeable with the GUI and vice versa.
-
-Exit codes: ``0`` success, ``1`` a shelled command failed, ``2`` usage/config
-errors (bad arguments, missing/malformed project, blocked generation).
-"""
+Provides init/generate/run/status for ProjectStore projects. Import these into
+the Web workbench as a new project; do not mix execution stores in place.
+Exit codes: 0 success, 1 command failure, 2 usage/configuration error."""
 
 from __future__ import annotations
 

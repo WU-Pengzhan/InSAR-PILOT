@@ -2,7 +2,7 @@
 
 [交接索引](../index.md) · [任务提示词](../prompts.md) · [已确认页面划分](../../architecture/sentinel-workbench.md)
 
-更新时间：2026-09-06。状态：**待验收**。
+更新时间：2026-09-07。状态：**已实现并定向测试，真实长时下载待验收**。
 用户已授权完整实现本页；本轮交付与实际验证见[实现记录](../records/2026-09-06-p01-implementation.md)。
 [主设计](../../architecture/p01-search-download.md)与[EOF/整景 DEM 方案](../../architecture/p01-ancillary-downloads.md)同步实现决策。
 
@@ -71,37 +71,11 @@
 - `frontend/e2e/explorer.spec.ts`
 - `frontend/e2e/downloads.spec.ts`
 
-## 最新交接
+## 当前实施与最新交接
 
-- 2026-09-06 外壳与 P01 布局反馈已实现；固定五页、工程栏调宽/横滚、环境折叠、底图状态恢复及工程加载不抢导航。见[最新修复记录](../records/2026-09-06-p01-shell-layout.md)。
-- 最终定向外壳浏览器验证 8 项 Linux + 4 项 Windows Edge、前端单测 15 项、类型/构建通过。以下保留上一阶段获取能力与验收边界。
-
-- 已实现：ABCD 筛选、AOI、纯影像地图与重试、独立选择篮、统一三入口预览、可选 EOF/整景 DEM、下载历史/控制/补充获取。
-- 后端入口：application/acquisition.py、acquisition_aoi.py、acquisition_dem.py、engine_download.py；download/integrity.py、orbit_service.py、cop30_service.py。
-- 界面入口新增：AcquisitionDialog.vue、acquisition.ts；共享组件完成必要注册与禁用状态支持。
-- 新 API：acquisition-preview、acquisition-commit、resolve-selection、download-network；旧下载/选择 API 保持兼容。
-- 定向测试：Python 102、前端单测 13、Linux 浏览器 14、Windows Edge 7；真实公共 C/D EOF 与 ISCE2 解析已核对。
-- 验证边界：真实 ASF 整景账号/长时续传/满带宽、多千景压力及原生 125%/150% 缩放未验证；不宣称 A01—A24 全部验收。
-- P02 合同：资产保存 product_key、role、plan/attempt、校验依据及 DEM 覆盖/原高程参考；轨道 sidecar 与 partial 隔离，避免 ISCE2 glob 误选。
-- 下一步：使用 P01 新版进行整景验收；按新用户指令决定何时进入 P02。D01 不在本轮决定。
-- 详细记录：[实现与测试](../records/2026-09-06-p01-implementation.md)；上轮[设计补充](../records/2026-09-06-p01-dem-network-design.md)保留。
-
-## 最新接续：地图加宽
-
-2026-09-06 用户要求地图继续向左扩展，覆盖先前等宽决定。已改为 300—340px 筛选栏、地图占剩余宽度，日期分行。三种浏览器定向布局检查通过；[最新交接](../records/2026-09-06-p01-wider-map.md)。下一步仍为用户查看效果与 P01 原待验收项，不自动推进 P02。
-
-## 最新接续：地图与属性面板交互
-
-2026-09-06 用户要求取消地图固定比例、删除筛选收起功能、属性展开入口靠近面板。已实现：地图高度独立按窗口调整，筛选常驻，右侧窄条展开属性。详见[最新交接](../records/2026-09-06-p01-map-panel.md)；P01 原待验收项与后续页范围保持。
-
-## 最新接续：CDSE 网络探测
-
-[本次记录](../records/2026-09-06-p01-cdse-probe.md)：目录请求成功，匿名产品请求 HTTP 401；等待官方登录后有限吞吐测试。P01 仍待验收，没有新增 CDSE 产品下载能力。
-
-## 公共工程状态/数据归属设计依赖（2026-09-07）
-
-见[新交接](../records/2026-09-07-project-lifecycle-design.md)与[方案](../../architecture/project-lifecycle-layout.md)：未打开工程仍可检索下载；未来项目下载可落到 data，Download Only 保持 Library；目标在提交时冻结，切换工程不重定向。此目标字段/存储策略尚未实现，P01 当前下载能力仍以原实现为准。
-
-## 当前实现基线（2026-09-07）
-
-[最新交接](../records/2026-09-07-project-p01-release.md)：冻结工程/Library 目标、校验后发布、跨项目来源复用、独立下载记录、服务端历史分页/筛选和共同视觉规范已实现。acquisition_storage.py 为新增发布/复用入口；downloads-page 为新查询接口；新建工程目标必须先纳入预览。已完成本轮代码收敛，真实 ASF/CDSE 吞吐、认证长时续传仍独立验收。
+最新维护：[1.5.0 清理与发行](../records/2026-09-07-v1.5.0-release.md)。功能基线：[工程与 P01 交付](../records/2026-09-07-project-p01-release.md)。
+已实现 ABCD、AOI、纯影像地图、跨检索选择篮、三入口预览、EOF/整景 DEM、下载控制、来源复用和历史分页。
+新增实现入口：application/acquisition.py、acquisition_storage.py、acquisition_dem.py；frontend/src/AcquisitionDialog.vue、acquisition.ts。
+项目/Library 目标在预览中冻结，切换工程不重定向。P02 接收有身份、角色、校验/来源与覆盖记录的资产，不把下载完成等同于科学输入就绪。
+真实 ASF/CDSE 认证长时吞吐、长时续传与压力验收仍未完成；详见原始实施记录，不将模拟用例替代真实下载。
+下一步由用户决定真实获取验收或进入 P02 设计；本次清理不改变 D01 或推进后续页面。

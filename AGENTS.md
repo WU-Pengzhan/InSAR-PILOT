@@ -14,7 +14,7 @@ Current direction accepted on 2026-09-05; five-page division accepted on 2026-09
 ## Product scope and workflow
 
 - Stop developing the PySide6/Qt desktop interface. Web is the sole product direction.
-- Existing Qt files and entrypoints may remain as migration source until a separately scoped dependency cleanup; their presence does not mandate desktop feature parity or continued GUI development.
+- The 1.5.0 cleanup removes the Qt UI and desktop launch path. Keep the package and tests Qt-free; retained legacy project services and scientific backends remain compatibility assets.
 - Prioritize the Sentinel-1 ISCE2 TOPS experience. Preserve NISAR/ISCE3/openSEPPO capabilities, but defer new NISAR UI and preparation work.
 - One project locks to one sensor/mission profile. Sentinel and NISAR may have different processing pages and steps. Shared search/download infrastructure must retain mission-specific filters and acquisition strategies.
 - The near-term scientific deliverable is a phase stack. The exact contract (coregistered complex SLC stack, wrapped interferogram stack, or both) is pending user clarification. Do not silently decide the product, looks, filtering or reference convention.

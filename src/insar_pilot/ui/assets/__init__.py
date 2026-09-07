@@ -1,1 +1,0 @@
-"""Packaged GUI image assets."""

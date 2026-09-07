@@ -16,6 +16,7 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field, model_validator
 from starlette.middleware.trustedhost import TrustedHostMiddleware
 
+from insar_pilot import __version__
 from insar_pilot.application.engine_data import capabilities, import_legacy, import_sources, search
 from insar_pilot.application.engine_worker import launch_worker
 from insar_pilot.domain.engine import Profile, nisar_definition, sentinel_definition
@@ -261,7 +262,7 @@ def create_app(
                     await task
 
     app = FastAPI(
-        title="InSAR-PILOT Project Engine", version="2.0.0-alpha", docs_url=None, redoc_url=None, lifespan=lifespan
+        title="InSAR-PILOT Project Engine", version=__version__, docs_url=None, redoc_url=None, lifespan=lifespan
     )
     app.state.registry = registry
     app.add_middleware(
@@ -370,12 +371,12 @@ def create_app(
             pass
         finally:
             window_lease.release(owner)
-            with suppress(RuntimeError):
+            with suppress(WebSocketDisconnect, RuntimeError):
                 await websocket.close()
 
     @app.get("/api/v1/health")
     def health() -> dict[str, Any]:
-        return {"application": "insar-pilot", "version": "2.0.0-alpha", "status": "stopping" if stopping else "ok"}
+        return {"application": "insar-pilot", "version": __version__, "status": "stopping" if stopping else "ok"}
 
     @app.get("/api/v1/application/status")
     def application_status() -> dict[str, Any]:

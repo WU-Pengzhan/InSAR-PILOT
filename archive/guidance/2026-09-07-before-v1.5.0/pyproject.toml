@@ -1,0 +1,156 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "insar-pilot"
+version = "1.2.0"
+description = "Open desktop workbench for guided SAR/InSAR processing on Ubuntu and WSL."
+readme = "README.md"
+requires-python = ">=3.10"
+license = "Apache-2.0"
+authors = [
+  {name = "InSAR-PILOT Contributors"},
+]
+keywords = ["insar", "sar", "sentinel-1", "topsstack", "pyside6", "wsl"]
+classifiers = [
+  "Development Status :: 5 - Production/Stable",
+  "Environment :: X11 Applications :: Qt",
+  "Intended Audience :: Science/Research",
+  "Operating System :: POSIX :: Linux",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Topic :: Scientific/Engineering :: GIS",
+]
+dependencies = [
+  "asf-search>=12.0",
+  "PySide6>=6.6",
+  "pyshp>=2.3",
+  "qtawesome>=1.4,<2",
+  "requests>=2.31",
+  "sentineleof>=0.11.1",
+]
+
+[project.urls]
+Homepage = "https://github.com/WU-Pengzhan/InSAR-PILOT"
+Source = "https://github.com/WU-Pengzhan/InSAR-PILOT"
+Issues = "https://github.com/WU-Pengzhan/InSAR-PILOT/issues"
+
+[project.optional-dependencies]
+web = [
+  "fastapi>=0.115,<1",
+  "uvicorn>=0.30,<1",
+  "wsproto>=1.2,<2",
+  "shapely>=1.8",
+  "h5py>=3.10",
+  "numpy>=1.24",
+  "Pillow>=10",
+  "rasterio>=1.3",
+]
+map = [
+  "PySide6-Addons>=6.6",
+]
+nisar = [
+  "h5py>=3.10",
+]
+dev = [
+  "pytest>=7.4",
+  "pytest-cov>=4.1",
+  "ruff",
+  "build",
+  "mypy>=1.11",
+  "mkdocs-material>=9.5",
+]
+
+[project.scripts]
+insar-pilot = "insar_pilot.app:main"
+insar-pilot-cli = "insar_pilot.cli.main:main"
+insar-pilot-nisar = "insar_pilot.cli.nisar:main"
+insar-pilot-web = "insar_pilot.web.launch:main"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+"insar_pilot.ui.assets" = ["*.png"]
+"insar_pilot.ui.widgets.assets" = ["*.css", "*.js"]
+"insar_pilot.i18n.locales" = ["*.json"]
+"insar_pilot.web" = ["static/*", "static/assets/*"]
+
+[tool.ruff]
+target-version = "py310"
+line-length = 120
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "B", "SIM"]
+
+[tool.ruff.lint.per-file-ignores]
+# footprint_map.py embeds a Leaflet HTML/JS template as a string literal: its body
+# is tab-indented (E101 mixed spaces/tabs) and has long JS lines (E501). Both flag
+# the embedded template, not Python, and cannot be wrapped without changing output.
+"src/insar_pilot/ui/widgets/footprint_map.py" = ["E101", "E501"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+
+[tool.coverage.run]
+source = ["insar_pilot.services", "insar_pilot.domain", "insar_pilot.download", "insar_pilot.cli"]
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = true
+fail_under = 85
+
+[tool.mypy]
+python_version = "3.10"
+warn_unused_ignores = true
+warn_redundant_casts = true
+no_implicit_optional = true
+warn_unused_configs = true
+warn_return_any = true
+check_untyped_defs = true
+namespace_packages = true
+explicit_package_bases = true
+mypy_path = "src"
+
+# The Qt-free layers are held to a stricter standard: every def must be typed.
+[[tool.mypy.overrides]]
+module = [
+  "insar_pilot.domain.*",
+  "insar_pilot.services.*",
+  "insar_pilot.download.*",
+  "insar_pilot.cli.*",
+]
+disallow_untyped_defs = true
+
+# run_executor is QObject/QProcess-coupled by necessity; PySide6 ships stubs, so
+# it stays fully typed, but Signal/slot glue is exempt from disallow_untyped_defs
+# where the Qt stubs cannot express the runtime shape.
+[[tool.mypy.overrides]]
+module = ["insar_pilot.services.run_executor"]
+disallow_untyped_defs = false
+warn_unused_ignores = false
+
+# The conda-forge PySide6 package does not expose a py.typed marker. Keep its
+# imports usable while retaining strict checks for our own service code.
+[[tool.mypy.overrides]]
+module = ["PySide6.*"]
+ignore_missing_imports = true
+
+# pyshp (imported as `shapefile`) ships no type stubs.
+[[tool.mypy.overrides]]
+module = ["shapefile"]
+ignore_missing_imports = true
+
+# Third-party network/geo libraries in the download layer that ship no type
+# stubs or py.typed marker. Their public surfaces are untyped, so we suppress
+# missing-import errors per module rather than globally.
+[[tool.mypy.overrides]]
+module = ["asf_search", "eof.*"]
+ignore_missing_imports = true
