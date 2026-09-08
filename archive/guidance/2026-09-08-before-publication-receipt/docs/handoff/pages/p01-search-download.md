@@ -2,7 +2,7 @@
 
 [交接索引](../index.md) · [任务提示词](../prompts.md) · [已确认页面划分](../../architecture/sentinel-workbench.md)
 
-更新时间：2026-09-08。状态：**已实现并定向测试，真实长时下载待验收**。
+更新时间：2026-09-07。状态：**已实现并定向测试，真实长时下载待验收**。
 用户已授权完整实现本页；本轮交付与实际验证见[实现记录](../records/2026-09-06-p01-implementation.md)。
 [主设计](../../architecture/p01-search-download.md)与[EOF/整景 DEM 方案](../../architecture/p01-ancillary-downloads.md)同步实现决策。
 
@@ -73,7 +73,7 @@
 
 ## 当前实施与最新交接
 
-最新维护：[1.5.0 清理与发行](../records/2026-09-08-v1.5.0-publication.md)。功能基线：[工程与 P01 交付](../records/2026-09-07-project-p01-release.md)。
+最新维护：[1.5.0 清理与发行](../records/2026-09-08-v1.5.0-finalization.md)。功能基线：[工程与 P01 交付](../records/2026-09-07-project-p01-release.md)。
 已实现 ABCD、AOI、纯影像地图、跨检索选择篮、三入口预览、EOF/整景 DEM、下载控制、来源复用和历史分页。
 新增实现入口：application/acquisition.py、acquisition_storage.py、acquisition_dem.py；frontend/src/AcquisitionDialog.vue、acquisition.ts。
 项目/Library 目标在预览中冻结，切换工程不重定向。P02 接收有身份、角色、校验/来源与覆盖记录的资产，不把下载完成等同于科学输入就绪。

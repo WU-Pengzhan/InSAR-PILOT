@@ -26,6 +26,6 @@ uv run python scripts/check_release.py
 ## 发布
 
 确认远端 main 与本地历史可快进，提交已验证内容后推送 main 和版本标签。禁止重写已有标签或强推。
-Release workflow 在标签 push 后构建 wheel、sdist 与 SHA256SUMS，先创建草稿并上传全部附件，再公开。仓库启用不可变 Release：公开后无法补传附件，禁止先公开再上传；已公开版本重跑时拒绝修改。人工发布时使用同一份版本说明与校验过的产物，避免并发覆盖。
+Release workflow 在标签 push 后构建并上传 wheel、sdist 与 SHA256SUMS。人工发布时使用同一份版本说明与校验过的产物，避免并发覆盖。
 README 作为产品介绍，安装细节归用户指南，执行证据归 handoff，产品范围只由 architecture 定义。
 清理清单为 `archive/cleanup-v1.5.0.json`；历史指导在 archive/guidance 中附 SHA-256 原样保存。浏览器测试 profile 不纳入发行包。

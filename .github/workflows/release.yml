@@ -36,5 +36,10 @@ jobs:
         run: |
           version="${GITHUB_REF_NAME#v}"
           test -s "docs/releases/$version.md"
-          gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1 || gh release create "$GITHUB_REF_NAME" --verify-tag --title "InSAR-PILOT $GITHUB_REF_NAME" --notes-file "docs/releases/$version.md"
+          if gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1; then
+            test "$(gh release view "$GITHUB_REF_NAME" --json isDraft --jq .isDraft)" = "true" || { echo "Release is already published; refusing to modify immutable assets."; exit 1; }
+          else
+            gh release create "$GITHUB_REF_NAME" --draft --verify-tag --title "InSAR-PILOT $GITHUB_REF_NAME" --notes-file "docs/releases/$version.md"
+          fi
           gh release upload "$GITHUB_REF_NAME" dist/*.whl dist/*.tar.gz dist/SHA256SUMS --clobber
+          gh release edit "$GITHUB_REF_NAME" --draft=false --latest --notes-file "docs/releases/$version.md"
