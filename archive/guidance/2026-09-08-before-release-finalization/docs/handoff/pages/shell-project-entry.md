@@ -1,6 +1,6 @@
 # 公共外壳｜工程与应用入口
 
-更新：2026-09-07。已实现工程生命周期与单窗口，最新维护为 [1.5.0 清理发行](../records/2026-09-08-v1.5.0-finalization.md)。
+更新：2026-09-07。已实现工程生命周期与单窗口，最新维护为 [1.5.0 清理发行](../records/2026-09-07-v1.5.0-release.md)。
 
 ## 当前能力
 
@@ -16,5 +16,5 @@ infrastructure/project_file.py、project_layout.py、project_codec.py、engine_s
 
 ## 验证与下一步
 
-当前证据：[本轮清理](../records/2026-09-08-v1.5.0-finalization.md)。功能原始记录：[工程/P01](../records/2026-09-07-project-p01-release.md)、[单窗口](../records/2026-09-07-single-window.md)。不合并不同轮次为全量结果。
+当前证据：[本轮清理](../records/2026-09-07-v1.5.0-release.md)。功能原始记录：[工程/P01](../records/2026-09-07-project-p01-release.md)、[单窗口](../records/2026-09-07-single-window.md)。不合并不同轮次为全量结果。
 搬迁、便携备份与系统关联仍为独立工作，不自动进入 P02。

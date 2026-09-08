@@ -89,9 +89,10 @@ const subpages = computed(() => {
   return groups[activePage.value] || []
 })
 const publicViews = new Set(['home','new','open','explore','downloads','library','compute','background'])
-let projectEpoch=0, openTicket=0, refreshFlight:Promise<void>|undefined
+let projectEpoch=0, openTicket=0, navigationEpoch=0, refreshFlight:Promise<void>|undefined
 let refreshTimer:ReturnType<typeof setTimeout>|undefined
 function openTab(name: string) {
+  navigationEpoch++
   if (!project.value && !publicViews.has(name)) { tab.value=name==='jobs'?'background':'home'; return }
   tab.value=name
 }
@@ -127,13 +128,12 @@ async function refresh() {
   refreshFlight=pending
   try {await pending} finally {if(refreshFlight===pending)refreshFlight=undefined}
 }
-async function selectProject(p:any,ticket=++openTicket) {
-  const startingTab=tab.value
+async function selectProject(p:any,ticket=++openTicket,navigationAtStart=navigationEpoch) {
   const data=await readProject(p.project_id)
   if(ticket!==openTicket)return
   clearProject();applyProject(data)
   const epoch=projectEpoch
-  if(tab.value===startingTab)openTab('data')
+  if(navigationEpoch===navigationAtStart)openTab('data')
   disconnect=connectEvents(p.project_id,events.value.at(-1)?.sequence||0,rows=>{
     if(epoch!==projectEpoch)return
     events.value=mergeEvents(events.value,rows)
@@ -150,12 +150,13 @@ function selectObject(id: string) {
   else openTab(id)
 }
 async function projectOpened(p:any) {
-  await act(async()=>{projects.value=await api('/projects');await selectProject(p)})
+  const navigationAtStart=navigationEpoch
+  await act(async()=>{projects.value=await api('/projects');await selectProject(p,undefined,navigationAtStart)})
 }
 async function openRecent(p:any) {
   if(!(await discardEdits()))return
-  const ticket=++openTicket
-  await act(async()=>{const opened=await api('/projects/open',{path:p.project_file||p.path});await refreshRecent();if(ticket===openTicket)await selectProject(opened,ticket)})
+  const ticket=++openTicket,navigationAtStart=navigationEpoch
+  await act(async()=>{const opened=await api('/projects/open',{path:p.project_file||p.path});await refreshRecent();if(ticket===openTicket)await selectProject(opened,ticket,navigationAtStart)})
 }
 async function importData() { await act(async () => {
   await api(`/projects/${project.value.project_id}/sources`, { paths: importPath.value.split('\n').map(p=>p.trim()).filter(Boolean), role: importRole.value })

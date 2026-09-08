@@ -1,6 +1,6 @@
 # 工作交接索引
 
-更新：2026-09-07。最新维护任务：[1.5.0 文档、清理与发行](records/2026-09-08-v1.5.0-finalization.md)。
+更新：2026-09-07。最新维护任务：[1.5.0 文档、清理与发行](records/2026-09-07-v1.5.0-release.md)。
 本目录记录执行事实，产品目标只由当前架构定义。
 
 ## 阅读顺序
@@ -29,7 +29,7 @@ NISAR 新 UI/Range 准备、解缠、广域相位/GUNW、CUDA 与时序暂缓。
 - [工程与 P01 实施](records/2026-09-07-project-p01-release.md)
 - [环境只检测与提示](records/2026-09-07-runtime-status-ui.md)
 - [单窗口与自动接续](records/2026-09-07-single-window.md)
-- [本轮清理与发行](records/2026-09-08-v1.5.0-finalization.md)
+- [本轮清理与发行](records/2026-09-07-v1.5.0-release.md)
 - [任务提示词](prompts.md) · [记录模板](template.md)
 
 每项任务新增记录，更新卡、index、current、migration；旧 records 保持不变，不累计历史测试数为本轮结果。

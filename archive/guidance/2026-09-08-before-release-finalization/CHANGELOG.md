@@ -2,7 +2,7 @@
 
 All notable changes to this project are documented here.
 
-## [1.5.0] - 2026-09-08
+## [1.5.0] - 2026-09-07
 
 - Make the Web workbench the default application; remove retired Qt UI, launchers and dependencies.
 - Ship project entry, Sentinel-1 search/acquisition and download management with the bundled Web interface.

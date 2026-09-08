@@ -99,7 +99,7 @@ test('supports the Chinese dialog and dark theme', async ({ page }, info) => {
   await page.getByRole('button', { name: 'Change language' }).click()
   await page.getByRole('button', { name: 'Toggle theme' }).click()
   await page.getByRole('button', { name: '新建工程', exact: true }).last().click()
-  await page.getByRole('button', { name: '浏览: 保存位置', exact: true }).click()
+  await page.getByRole('button', { name: '浏览: 保存到（父文件夹）', exact: true }).click()
   const dialog = await fixtureFolder(page)
   await expect(dialog.getByRole('heading', { name: '选择文件夹' })).toBeVisible()
   await expect(page.locator('body')).toHaveClass(/body--dark/)

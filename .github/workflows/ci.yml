@@ -18,7 +18,9 @@ jobs:
       - uses: astral-sh/setup-uv@v7
         with:
           python-version: ${{ matrix.python-version }}
+      - name: Install raster and transport test tools
+        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends gdal-bin aria2
       - run: uv sync --extra dev --locked
       - run: uv run ruff check src tests scripts
-      - run: uv run mypy src/insar_pilot/domain src/insar_pilot/services src/insar_pilot/download src/insar_pilot/cli
+      - run: uv run mypy --python-version ${{ matrix.python-version }} src/insar_pilot/domain src/insar_pilot/services src/insar_pilot/download src/insar_pilot/cli
       - run: uv run pytest -q

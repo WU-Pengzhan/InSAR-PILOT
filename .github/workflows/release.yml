@@ -19,6 +19,8 @@ jobs:
       - uses: astral-sh/setup-uv@v7
         with:
           python-version: '3.11'
+      - name: Install raster and transport test tools
+        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends gdal-bin aria2
       - run: uv sync --extra dev --locked
       - run: uv run pytest -q
       - run: uv run mkdocs build --strict

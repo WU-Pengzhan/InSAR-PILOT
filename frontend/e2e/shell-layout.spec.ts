@@ -23,7 +23,7 @@ test('keeps five fixed pages across auxiliary views and project selection', asyn
   }
   let release!:()=>void
   const pending=new Promise<void>(resolve=>{release=resolve})
-  await page.route('**/api/v1/projects/*/artifacts',async route=>{await pending;await route.fulfill({json:[]})})
+  await page.route('**/api/v1/projects/open',async route=>{await pending;await route.continue()})
   await page.locator('.project-card').filter({hasText:'Picker existing'}).click()
   await expect(primary.getByRole('tab',{name:'3 Parameters & generation',exact:true})).toBeDisabled()
   await primary.getByRole('tab',{name:'1 Search & download',exact:true}).click()

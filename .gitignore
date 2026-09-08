@@ -46,3 +46,6 @@ site/
 frontend/test-results*/
 **/owned-browser-profile/
 artifacts/release-1.5.0/
+
+# Local task scratch files
+.codex_tmp/

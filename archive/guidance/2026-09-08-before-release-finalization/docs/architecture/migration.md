@@ -1,6 +1,6 @@
 # 实施状态与下一步
 
-更新：2026-09-07，1.5.0 发行整理。范围以[当前架构](overview.md)为准，执行证据以[本次交接](../handoff/records/2026-09-08-v1.5.0-finalization.md)为准。
+更新：2026-09-07，1.5.0 发行整理。范围以[当前架构](overview.md)为准，执行证据以[本次交接](../handoff/records/2026-09-07-v1.5.0-release.md)为准。
 
 ## 当前交付
 
@@ -32,7 +32,7 @@
 
 ## 证据入口
 
-- [本轮清理、测试与发行记录](../handoff/records/2026-09-08-v1.5.0-finalization.md)
+- [本轮清理、测试与发行记录](../handoff/records/2026-09-07-v1.5.0-release.md)
 - [工程与 P01 交付](../handoff/records/2026-09-07-project-p01-release.md)
 - [单窗口接续](../handoff/records/2026-09-07-single-window.md)
 - [工作交接索引](../handoff/index.md)
